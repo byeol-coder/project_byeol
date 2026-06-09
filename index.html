@@ -3,441 +3,1191 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>byeol × DOT — Accessibility Prototype Hub</title>
+<title>byeol × DOT — Accessibility AI Prototypes 2026</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700;800&family=Noto+Sans+KR:wght@300;400;500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700;800&family=Noto+Sans+KR:wght@300;400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
+/* ═══════════════════════════════════════════════
+   DESIGN SYSTEM
+═══════════════════════════════════════════════ */
+:root{
+  --ink:#07070f;
+  --ink2:#0d0d1a;
+  --ink3:#111122;
+  --surface:rgba(255,255,255,.03);
+  --border:rgba(255,255,255,.06);
+  --border2:rgba(255,255,255,.1);
+  --text:#f0eeff;
+  --text2:rgba(240,238,255,.7);
+  --text3:rgba(240,238,255,.42);
+  --purple:#6b46f0;
+  --purple-lt:#a78bfa;
+  --purple-xlt:#c4b5fd;
+  --green:#22d68a;
+  --blue:#4a9eff;
+  --amber:#f59e0b;
+  --pink:#f43f5e;
+  --r:14px;
+  --nav-h:60px;
+}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-html{scroll-behavior:smooth;-webkit-font-smoothing:antialiased}
-body{background:#141414;color:#e5e5e5;font-family:'Noto Sans KR',sans-serif;min-height:100vh;overflow-x:hidden}
-:lang(en) body{font-family:'Space Grotesk',sans-serif}
+html{scroll-behavior:smooth;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+body{background:var(--ink);color:var(--text);font-family:'Noto Sans KR',sans-serif;overflow-x:hidden}
 a{text-decoration:none;color:inherit}
-button{font-family:inherit;cursor:pointer;border:none;background:none}
-img,svg{display:block}
+button{font-family:inherit;cursor:pointer;border:none}
+img,svg,canvas{display:block}
 
-/* ── NAV ── */
-.nav{
-  position:fixed;top:0;left:0;right:0;z-index:1000;
-  height:68px;padding:0 4%;
-  display:flex;align-items:center;justify-content:space-between;
-  background:linear-gradient(to bottom,rgba(20,20,20,.95) 0%,transparent 100%);
-  transition:background .4s;
+/* ── NOISE OVERLAY ── */
+body::before{
+  content:'';position:fixed;inset:0;z-index:1;pointer-events:none;
+  opacity:.025;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size:128px;
 }
-.nav.scrolled{background:rgba(20,20,20,.98)}
-.nav-left{display:flex;align-items:center;gap:32px}
-.nav-logo{display:flex;align-items:center;gap:10px}
-.nav-dot-grid{width:28px;height:28px;background:#6b46f0;border-radius:7px;display:grid;grid-template-columns:repeat(3,1fr);gap:2.5px;padding:5px}
-.nav-dot-grid span{background:rgba(255,255,255,.92);border-radius:50%}
-.nav-brand{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:16px;letter-spacing:-.3px;color:#fff}
-.nav-brand em{font-style:normal;color:#a78bfa}
-.nav-brand .x{color:rgba(255,255,255,.3);margin:0 6px;font-weight:300}
-.nav-links{display:flex;gap:20px}
-.nav-link{font-size:13px;color:rgba(255,255,255,.65);transition:color .15s;white-space:nowrap}
-.nav-link:hover{color:#fff}
-.nav-right{display:flex;align-items:center;gap:16px}
-.lang-toggle{display:flex;gap:2px;background:rgba(255,255,255,.08);border-radius:99px;padding:3px}
-.lang-btn{font-family:'DM Mono',monospace;font-size:11px;font-weight:500;padding:4px 12px;border-radius:99px;color:rgba(255,255,255,.55);transition:all .18s;cursor:pointer;background:transparent;border:none}
-.lang-btn.active{background:#6b46f0;color:#fff}
-.lang-btn:focus-visible{outline:2px solid #a78bfa;outline-offset:2px}
-
-/* ── HERO ── */
-.hero{
-  position:relative;width:100%;
-  height:min(88vh,720px);
-  display:flex;align-items:flex-end;overflow:hidden;
-  background:#0a0a0a;
-}
-.hero-bg{position:absolute;inset:0;overflow:hidden}
-.hero-bg svg{width:100%;height:100%;object-fit:cover;transform:scale(1.05)}
-.hero-vignette-l{position:absolute;inset:0;background:linear-gradient(to right,rgba(20,20,20,.98) 0%,rgba(20,20,20,.72) 40%,rgba(20,20,20,.15) 65%,transparent 100%)}
-.hero-vignette-b{position:absolute;inset:0;background:linear-gradient(to top,#141414 0%,rgba(20,20,20,.6) 30%,transparent 70%)}
-.hero-content{position:relative;z-index:1;padding:0 4% 7%;max-width:680px}
-.hero-meta{display:flex;align-items:center;gap:10px;margin-bottom:16px}
-.hero-meta-badge{font-family:'DM Mono',monospace;font-size:10px;font-weight:500;letter-spacing:.12em;text-transform:uppercase;color:#a78bfa;border:1px solid rgba(167,139,250,.35);background:rgba(107,70,240,.12);padding:5px 14px;border-radius:99px}
-.hero-match{font-size:12px;color:#46d369;font-weight:700;font-family:'Space Grotesk',sans-serif}
-.hero-title{font-family:'Space Grotesk',sans-serif;font-size:clamp(32px,4.5vw,58px);font-weight:800;line-height:1.1;letter-spacing:-.03em;color:#fff;margin-bottom:14px;text-shadow:2px 2px 8px rgba(0,0,0,.5)}
-.hero-title span{color:#a78bfa}
-.hero-desc{font-size:15px;color:rgba(255,255,255,.78);line-height:1.75;max-width:480px;margin-bottom:28px;text-shadow:1px 1px 4px rgba(0,0,0,.5)}
-.hero-btns{display:flex;gap:12px;flex-wrap:wrap}
-.hero-btn-play{display:flex;align-items:center;gap:9px;padding:13px 32px;background:#fff;color:#111;border-radius:6px;font-size:16px;font-weight:700;font-family:'Space Grotesk',sans-serif;transition:background .15s,transform .1s;cursor:pointer;border:none}
-.hero-btn-play:hover{background:rgba(255,255,255,.84);transform:scale(1.03)}
-.hero-btn-play:active{transform:scale(.97)}
-.hero-btn-info{display:flex;align-items:center;gap:9px;padding:13px 28px;background:rgba(109,109,110,.7);color:#fff;border-radius:6px;font-size:16px;font-weight:700;font-family:'Space Grotesk',sans-serif;transition:background .15s;cursor:pointer;border:none;backdrop-filter:blur(4px)}
-.hero-btn-info:hover{background:rgba(109,109,110,.5)}
-.hero-btn-play:focus-visible,.hero-btn-info:focus-visible{outline:2px solid #a78bfa;outline-offset:2px}
-
-/* ── ROWS ── */
-.rows{padding:0 4% 80px;margin-top:-6vh;position:relative;z-index:2}
-.row{margin-bottom:48px}
-.row:hover .row-title{color:#fff}
-.row-title{font-family:'Space Grotesk',sans-serif;font-size:18px;font-weight:600;color:rgba(255,255,255,.72);margin-bottom:12px;letter-spacing:-.2px;transition:color .2s;cursor:default}
-.row-title .row-arrow{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:#4a9eff;opacity:0;transition:opacity .2s;font-weight:500}
-.row:hover .row-arrow{opacity:1}
-
-/* ── TRACK + CARD ── */
-.track-wrap{position:relative}
-.track{
-  display:flex;gap:6px;
-  overflow-x:auto;padding-bottom:4px;
-  scroll-snap-type:x mandatory;scrollbar-width:none;
-  -webkit-overflow-scrolling:touch;
-}
-.track::-webkit-scrollbar{display:none}
-
-/* Card */
-.card{
-  flex-shrink:0;width:clamp(200px,calc(20vw - 8px),280px);
-  scroll-snap-align:start;cursor:pointer;outline:none;
-  transform-origin:center center;
-  transition:transform .28s cubic-bezier(.4,0,.2,1),z-index 0s .28s;
-  position:relative;z-index:0;border-radius:4px;overflow:visible;
-}
-.card:hover,.card:focus-visible{transform:scale(1.09);z-index:10;transition:transform .28s cubic-bezier(.4,0,.2,1),z-index 0s 0s}
-/* Edge cards expand inward */
-.track .card:first-child:hover{transform-origin:left center}
-.track .card:last-child:hover{transform-origin:right center}
-
-.card-inner{border-radius:4px;overflow:hidden;box-shadow:0 0 0 0 rgba(0,0,0,0);transition:box-shadow .28s}
-.card:hover .card-inner,.card:focus-visible .card-inner{box-shadow:0 8px 40px rgba(0,0,0,.85)}
-
-.card-thumb{aspect-ratio:16/9;position:relative;background:#000;overflow:hidden}
-.card-thumb svg{display:block;width:100%;height:100%;transition:filter .28s}
-.card:hover .card-thumb svg,.card:focus-visible .card-thumb svg{filter:brightness(1.06)}
-
-/* Popup info — slides in below thumb on hover */
-.card-popup{
-  background:#1f1f1f;padding:10px 12px 12px;border-radius:0 0 4px 4px;
-  max-height:0;overflow:hidden;opacity:0;
-  transition:max-height .28s cubic-bezier(.4,0,.2,1),opacity .22s .04s,padding .28s;
-  padding-top:0;padding-bottom:0;
-}
-.card:hover .card-popup,.card:focus-visible .card-popup{max-height:140px;opacity:1;padding:10px 12px 12px}
-
-.popup-buttons{display:flex;gap:7px;align-items:center;margin-bottom:9px}
-.popup-btn-play{width:30px;height:30px;background:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:12px;transition:background .15s;cursor:pointer}
-.popup-btn-play:hover{background:rgba(255,255,255,.8)}
-.popup-btn-circle{width:30px;height:30px;border:2px solid rgba(255,255,255,.5);border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:14px;color:rgba(255,255,255,.7);transition:border-color .15s;cursor:pointer}
-.popup-btn-circle:hover{border-color:#fff;color:#fff}
-.popup-match{margin-left:auto;font-size:11px;font-weight:700;color:#46d369;font-family:'Space Grotesk',sans-serif}
-.popup-tags{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:7px}
-.popup-tag{font-family:'DM Mono',monospace;font-size:9px;font-weight:500;padding:2px 7px;border-radius:3px}
-.popup-title{font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:700;color:#fff;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.popup-desc{font-size:10.5px;color:rgba(255,255,255,.6);line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-
-/* ── FOOTER ── */
-.site-footer{border-top:1px solid #2a2a2a;padding:28px 4%;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
-.footer-logo{font-family:'Space Grotesk',sans-serif;font-size:20px;font-weight:800;color:rgba(255,255,255,.25);letter-spacing:-.3px}
-.footer-logo em{font-style:normal;color:rgba(167,139,250,.35)}
-.footer-meta{font-family:'DM Mono',monospace;font-size:11px;color:rgba(255,255,255,.25)}
-.footer-links{display:flex;gap:16px}
-.footer-link{font-size:12px;color:rgba(255,255,255,.35);transition:color .15s}
-.footer-link:hover{color:rgba(255,255,255,.7)}
 
 /* ── SKIP NAV ── */
-.skip{position:absolute;top:-100px;left:8px;background:#6b46f0;color:#fff;padding:8px 16px;border-radius:5px;font-size:13px;font-weight:700;z-index:9999}
+.skip{position:absolute;top:-100px;left:8px;background:var(--purple);color:#fff;padding:8px 16px;border-radius:6px;font-size:13px;font-weight:700;z-index:9999}
 .skip:focus{top:8px}
 
-/* ── SR ── */
-.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+/* ══════════════════
+   NAV
+══════════════════ */
+.nav{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  height:var(--nav-h);padding:0 clamp(20px,5vw,80px);
+  display:flex;align-items:center;justify-content:space-between;
+  transition:background .4s,box-shadow .4s;
+}
+.nav.scrolled{
+  background:rgba(7,7,15,.92);
+  backdrop-filter:blur(20px) saturate(180%);
+  box-shadow:0 1px 0 var(--border);
+}
+.nav-logo{display:flex;align-items:center;gap:11px}
+.nav-mark{
+  width:32px;height:32px;border-radius:9px;
+  background:var(--purple);
+  display:grid;grid-template-columns:repeat(3,1fr);gap:3px;padding:6px;
+  flex-shrink:0;
+}
+.nav-mark span{background:rgba(255,255,255,.92);border-radius:50%}
+.nav-brand{
+  font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:16px;
+  letter-spacing:-.4px;color:var(--text);
+}
+.nav-brand em{font-style:normal;color:var(--purple-lt)}
+.nav-brand .x{color:var(--text3);margin:0 6px;font-weight:300}
+.nav-right{display:flex;align-items:center;gap:12px}
+.nav-link{font-size:13px;color:var(--text3);transition:color .15s;white-space:nowrap}
+.nav-link:hover{color:var(--text)}
+.lang-pill{
+  display:flex;gap:2px;background:rgba(255,255,255,.07);border-radius:99px;padding:3px;
+}
+.lang-btn{
+  font-family:'DM Mono',monospace;font-size:11px;font-weight:500;
+  padding:4px 12px;border-radius:99px;color:var(--text3);transition:all .18s;
+  cursor:pointer;background:transparent;border:none;
+}
+.lang-btn.active{background:var(--purple);color:#fff}
+.lang-btn:focus-visible{outline:2px solid var(--purple-lt);outline-offset:2px}
+.nav-cta{
+  padding:8px 18px;background:var(--purple);color:#fff;border-radius:8px;
+  font-size:12px;font-weight:700;transition:all .15s;
+  font-family:'Space Grotesk',sans-serif;
+}
+.nav-cta:hover{background:#5a38d8;transform:translateY(-1px)}
 
-/* ── RESPONSIVE ── */
-@media(max-width:900px){.nav-links{display:none}.hero-title{font-size:clamp(28px,5vw,42px)}}
-@media(max-width:600px){.card{width:clamp(160px,44vw,200px)}.hero-content{padding:0 5% 8%}.rows{padding:0 5% 60px}}
+/* ══════════════════
+   HERO
+══════════════════ */
+.hero{
+  position:relative;min-height:100vh;
+  display:flex;flex-direction:column;justify-content:center;
+  padding:0 clamp(20px,8vw,120px);
+  overflow:hidden;
+}
+#heroBg{
+  position:absolute;inset:0;z-index:0;
+  opacity:.85;
+}
+.hero-gradient{
+  position:absolute;inset:0;z-index:1;
+  background:
+    radial-gradient(ellipse 80% 60% at 60% 40%,rgba(107,70,240,.18) 0%,transparent 70%),
+    radial-gradient(ellipse 60% 40% at 20% 80%,rgba(34,214,138,.08) 0%,transparent 60%),
+    linear-gradient(to bottom,rgba(7,7,15,0) 0%,rgba(7,7,15,.2) 60%,rgba(7,7,15,1) 100%);
+}
+.hero-content{position:relative;z-index:2;max-width:760px}
+.hero-eyebrow{
+  display:inline-flex;align-items:center;gap:10px;
+  font-family:'DM Mono',monospace;font-size:11px;font-weight:500;
+  letter-spacing:.14em;text-transform:uppercase;color:var(--purple-lt);
+  margin-bottom:24px;
+}
+.hero-eyebrow::before{content:'';width:28px;height:1.5px;background:var(--purple-lt)}
+.hero-eyebrow::after{content:'2026';background:rgba(107,70,240,.2);border:1px solid rgba(167,139,250,.3);padding:3px 10px;border-radius:99px}
+.hero-title{
+  font-family:'Space Grotesk',sans-serif;
+  font-size:clamp(40px,6vw,80px);
+  font-weight:800;line-height:1.06;letter-spacing:-.04em;
+  color:var(--text);margin-bottom:20px;
+}
+.hero-title .grad{
+  background:linear-gradient(135deg,#a78bfa 0%,#6b46f0 40%,#4a9eff 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+.hero-sub{
+  font-size:clamp(15px,1.6vw,18px);color:var(--text2);line-height:1.75;
+  max-width:520px;margin-bottom:36px;font-weight:400;
+}
+.hero-ctas{display:flex;gap:12px;flex-wrap:wrap}
+.btn-primary{
+  display:inline-flex;align-items:center;gap:10px;
+  padding:14px 28px;background:var(--purple);color:#fff;border-radius:10px;
+  font-size:15px;font-weight:700;letter-spacing:-.2px;
+  font-family:'Space Grotesk',sans-serif;
+  transition:all .2s;box-shadow:0 8px 32px rgba(107,70,240,.35);
+}
+.btn-primary:hover{background:#5a38d8;transform:translateY(-2px);box-shadow:0 12px 40px rgba(107,70,240,.5)}
+.btn-primary:active{transform:translateY(0)}
+.btn-ghost{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:14px 24px;background:rgba(255,255,255,.06);color:var(--text);
+  border-radius:10px;font-size:15px;font-weight:600;
+  font-family:'Space Grotesk',sans-serif;border:1px solid var(--border2);
+  transition:all .2s;backdrop-filter:blur(8px);
+}
+.btn-ghost:hover{background:rgba(255,255,255,.1);transform:translateY(-2px)}
+
+/* Hero stats strip */
+.hero-stats{
+  position:absolute;bottom:0;left:0;right:0;z-index:2;
+  padding:0 clamp(20px,8vw,120px) 40px;
+  display:flex;gap:48px;
+}
+.hero-stat-num{
+  font-family:'Space Grotesk',sans-serif;font-size:clamp(26px,3vw,40px);
+  font-weight:800;color:var(--text);letter-spacing:-.04em;
+}
+.hero-stat-num .unit{font-size:.55em;color:var(--purple-lt);font-weight:600}
+.hero-stat-label{font-size:12px;color:var(--text3);margin-top:3px;font-family:'DM Mono',monospace;letter-spacing:.04em}
+.hero-stat-div{width:1px;background:var(--border);flex-shrink:0}
+
+/* scroll indicator */
+.scroll-hint{
+  position:absolute;bottom:120px;right:clamp(20px,5vw,80px);z-index:2;
+  display:flex;flex-direction:column;align-items:center;gap:8px;
+  font-family:'DM Mono',monospace;font-size:10px;color:var(--text3);letter-spacing:.1em;
+  animation:scrollBob 2s ease-in-out infinite;
+}
+@keyframes scrollBob{0%,100%{transform:translateY(0)}50%{transform:translateY(6px)}}
+.scroll-line{width:1px;height:40px;background:linear-gradient(to bottom,var(--text3),transparent)}
+
+/* ══════════════════
+   DIVIDER
+══════════════════ */
+.dot-divider{
+  display:flex;align-items:center;gap:12px;
+  padding:0 clamp(20px,8vw,120px);margin:0 auto;
+}
+.dot-divider-line{flex:1;height:1px;background:var(--border)}
+.dot-divider-dots{display:flex;gap:5px}
+.dot-divider-dot{width:5px;height:5px;border-radius:50%;background:var(--purple);opacity:.5}
+.dot-divider-dot:nth-child(2){opacity:.3}
+.dot-divider-dot:nth-child(3){opacity:.15}
+
+/* ══════════════════
+   STATS BAND
+══════════════════ */
+.stats-band{
+  background:var(--ink2);border-top:1px solid var(--border);border-bottom:1px solid var(--border);
+  padding:clamp(40px,6vw,72px) clamp(20px,8vw,120px);
+}
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:2px}
+.stat-card{
+  padding:32px 28px;text-align:center;position:relative;
+}
+.stat-card::after{content:'';position:absolute;right:0;top:20%;height:60%;width:1px;background:var(--border)}
+.stat-card:last-child::after{display:none}
+.stat-number{
+  font-family:'Space Grotesk',sans-serif;font-size:clamp(36px,4vw,56px);
+  font-weight:800;letter-spacing:-.04em;color:var(--text);
+  background:linear-gradient(135deg,var(--text) 0%,var(--purple-lt) 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+.stat-label{font-size:13px;color:var(--text3);margin-top:6px;font-family:'DM Mono',monospace;letter-spacing:.06em;text-transform:uppercase}
+
+/* ══════════════════
+   SECTION HEADER
+══════════════════ */
+.section-header{padding:clamp(80px,10vw,120px) clamp(20px,8vw,120px) 0;margin-bottom:clamp(48px,6vw,80px)}
+.section-kicker{
+  display:inline-flex;align-items:center;gap:8px;
+  font-family:'DM Mono',monospace;font-size:10px;font-weight:500;
+  letter-spacing:.14em;text-transform:uppercase;margin-bottom:14px;
+}
+.section-kicker .dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.section-h2{
+  font-family:'Space Grotesk',sans-serif;font-size:clamp(28px,3.5vw,48px);
+  font-weight:800;letter-spacing:-.03em;line-height:1.1;color:var(--text);
+  max-width:640px;margin-bottom:14px;
+}
+.section-h2 em{font-style:normal}
+.section-desc{font-size:15px;color:var(--text2);line-height:1.75;max-width:560px}
+
+/* ══════════════════
+   FEATURE SECTIONS
+══════════════════ */
+.feature-section{
+  padding:0 clamp(20px,8vw,120px) clamp(80px,10vw,120px);
+  display:grid;grid-template-columns:1fr 1fr;gap:clamp(40px,6vw,96px);
+  align-items:center;
+}
+.feature-section.reverse{direction:rtl}
+.feature-section.reverse > *{direction:ltr}
+
+.fs-text{display:flex;flex-direction:column;gap:0}
+.fs-kicker{
+  display:inline-flex;align-items:center;gap:8px;width:fit-content;
+  font-family:'DM Mono',monospace;font-size:10px;font-weight:600;
+  letter-spacing:.12em;text-transform:uppercase;
+  padding:5px 12px;border-radius:99px;margin-bottom:20px;
+}
+.fs-h3{
+  font-family:'Space Grotesk',sans-serif;
+  font-size:clamp(24px,3vw,40px);font-weight:800;
+  letter-spacing:-.03em;line-height:1.1;color:var(--text);margin-bottom:14px;
+}
+.fs-h3 span{
+  background:linear-gradient(135deg,var(--purple-lt),var(--blue));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+.fs-p{font-size:14px;color:var(--text2);line-height:1.85;margin-bottom:24px}
+.fs-features{display:flex;flex-direction:column;gap:10px;margin-bottom:28px}
+.fs-feature{display:flex;align-items:flex-start;gap:10px;font-size:13px;color:var(--text2)}
+.fs-feature-icon{
+  width:24px;height:24px;border-radius:6px;flex-shrink:0;margin-top:1px;
+  display:flex;align-items:center;justify-content:center;font-size:11px;
+}
+.fs-links{display:flex;gap:10px;flex-wrap:wrap}
+.fs-link-btn{
+  display:inline-flex;align-items:center;gap:7px;
+  padding:10px 20px;border-radius:8px;font-size:13px;font-weight:700;
+  font-family:'Space Grotesk',sans-serif;transition:all .18s;
+}
+.fs-link-btn.primary{background:var(--purple);color:#fff;box-shadow:0 4px 20px rgba(107,70,240,.3)}
+.fs-link-btn.primary:hover{background:#5a38d8;transform:translateY(-1px)}
+.fs-link-btn.ghost{background:var(--surface);border:1px solid var(--border2);color:var(--text)}
+.fs-link-btn.ghost:hover{background:rgba(255,255,255,.08)}
+
+/* ── DEVICE FRAMES ── */
+.device-wrap{position:relative;display:flex;align-items:center;justify-content:center}
+.device-stack{position:relative;width:100%}
+
+/* Browser frame */
+.device-browser{
+  border-radius:12px;overflow:hidden;
+  box-shadow:0 32px 80px rgba(0,0,0,.7),0 0 0 1px rgba(255,255,255,.08);
+  position:relative;
+}
+.device-browser-bar{
+  background:#1c1c2e;border-bottom:1px solid rgba(255,255,255,.07);
+  padding:8px 12px;display:flex;align-items:center;gap:8px;
+}
+.dev-dots{display:flex;gap:5px}
+.dev-dot{width:10px;height:10px;border-radius:50%}
+.dev-dot.r{background:#ff5f57}.dev-dot.y{background:#ffbd2e}.dev-dot.g{background:#28c840}
+.dev-url-bar{
+  flex:1;background:rgba(255,255,255,.06);border-radius:5px;
+  padding:4px 10px;font-family:'DM Mono',monospace;font-size:10px;color:rgba(255,255,255,.35);
+}
+.device-screen{overflow:hidden;line-height:0}
+.device-screen svg{width:100%;height:auto}
+
+/* Tablet frame */
+.device-tablet{
+  border-radius:20px;
+  background:#1a1a2e;
+  padding:14px;
+  box-shadow:0 32px 80px rgba(0,0,0,.7),0 0 0 1px rgba(255,255,255,.08);
+}
+.device-tablet-inner{border-radius:10px;overflow:hidden;line-height:0}
+.device-tablet-inner svg{width:100%;height:auto}
+.device-tablet-bar{
+  width:40px;height:4px;border-radius:99px;
+  background:rgba(255,255,255,.15);margin:10px auto 0;
+}
+
+/* Floating mini card */
+.device-float{
+  position:absolute;
+  border-radius:10px;overflow:hidden;
+  box-shadow:0 16px 48px rgba(0,0,0,.7),0 0 0 1px rgba(255,255,255,.1);
+  background:#111120;
+}
+.device-float-badge{
+  position:absolute;
+  font-family:'DM Mono',monospace;font-size:9px;font-weight:700;
+  padding:4px 10px;border-radius:99px;
+  background:rgba(0,0,0,.8);border:1px solid rgba(255,255,255,.1);
+  color:rgba(255,255,255,.7);white-space:nowrap;
+  backdrop-filter:blur(8px);
+}
+
+/* Glow behind device */
+.device-glow{
+  position:absolute;inset:-20%;border-radius:50%;
+  filter:blur(60px);opacity:.3;z-index:-1;
+  pointer-events:none;
+}
+
+/* ══════════════════
+   FEATURED QUOTE
+══════════════════ */
+.quote-section{
+  padding:clamp(60px,8vw,100px) clamp(20px,8vw,120px);
+  display:flex;flex-direction:column;align-items:center;text-align:center;
+  position:relative;
+}
+.quote-section::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse 60% 80% at 50% 50%,rgba(107,70,240,.1) 0%,transparent 70%);
+  pointer-events:none;
+}
+.quote-icon{font-size:32px;margin-bottom:20px}
+.quote-text{
+  font-family:'Space Grotesk',sans-serif;
+  font-size:clamp(20px,2.5vw,32px);font-weight:700;
+  line-height:1.4;letter-spacing:-.02em;color:var(--text);
+  max-width:800px;margin-bottom:20px;
+  position:relative;z-index:1;
+}
+.quote-text em{
+  font-style:normal;
+  background:linear-gradient(135deg,var(--purple-lt),var(--blue));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+.quote-by{font-size:13px;color:var(--text3);font-family:'DM Mono',monospace;position:relative;z-index:1}
+
+/* ══════════════════
+   ALL PROJECTS GRID
+══════════════════ */
+.grid-section{
+  padding:0 clamp(20px,5vw,80px) clamp(60px,8vw,100px);
+}
+.grid-header{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px}
+.grid-h2{
+  font-family:'Space Grotesk',sans-serif;font-size:clamp(22px,3vw,36px);
+  font-weight:800;letter-spacing:-.03em;color:var(--text);
+}
+.grid-count{font-family:'DM Mono',monospace;font-size:12px;color:var(--text3)}
+
+/* Filter tabs */
+.filter-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:20px}
+.f-btn{
+  font-family:'DM Mono',monospace;font-size:11px;font-weight:500;letter-spacing:.04em;
+  padding:6px 16px;border-radius:99px;border:1px solid var(--border);
+  color:var(--text3);transition:all .15s;cursor:pointer;background:transparent;
+}
+.f-btn:hover{border-color:var(--purple-lt);color:var(--purple-lt)}
+.f-btn.on{background:var(--purple);border-color:var(--purple);color:#fff}
+.f-btn:focus-visible{outline:2px solid var(--purple-lt);outline-offset:2px}
+
+/* Cards */
+.card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px}
+.card{
+  display:block;background:#0e0e1a;border-radius:12px;overflow:hidden;
+  border:1px solid var(--border);
+  transition:transform .25s cubic-bezier(.4,0,.2,1),box-shadow .25s,border-color .2s;
+  outline:none;cursor:pointer;
+}
+.card:hover,.card:focus-visible{
+  transform:translateY(-5px) scale(1.015);
+  box-shadow:0 20px 60px rgba(0,0,0,.8),0 0 0 1px rgba(107,70,240,.5);
+  border-color:rgba(107,70,240,.5);
+}
+.card:focus-visible{outline:2px solid var(--purple-lt);outline-offset:2px}
+.card-thumb{aspect-ratio:16/9;overflow:hidden;background:#070710;position:relative}
+.card-thumb svg{display:block;width:100%;height:100%;transition:transform .3s}
+.card:hover .card-thumb svg{transform:scale(1.04)}
+.card-overlay{
+  position:absolute;inset:0;
+  background:linear-gradient(to top,rgba(14,14,26,1) 0%,rgba(14,14,26,.4) 50%,transparent 100%);
+  opacity:0;transition:opacity .22s;
+  display:flex;flex-direction:column;justify-content:flex-end;padding:14px;
+}
+.card:hover .card-overlay,.card:focus-visible .card-overlay{opacity:1}
+.ov-title{font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:700;color:#fff;margin-bottom:5px}
+.ov-desc{font-size:11px;color:rgba(255,255,255,.65);line-height:1.5;margin-bottom:9px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.ov-footer{display:flex;align-items:center;justify-content:space-between}
+.ov-open{font-family:'DM Mono',monospace;font-size:9.5px;color:var(--purple-xlt);font-weight:500}
+.ov-tags{display:flex;gap:4px}
+.ov-tag{font-family:'DM Mono',monospace;font-size:8px;padding:2px 6px;border-radius:3px}
+.card-info{padding:12px 14px 14px}
+.card-title{font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:700;color:var(--text);margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.card-sub{font-size:11px;color:var(--text3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* ══════════════════
+   FOOTER
+══════════════════ */
+.footer{
+  border-top:1px solid var(--border);
+  padding:clamp(32px,4vw,56px) clamp(20px,8vw,120px);
+  display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;
+}
+.footer-logo{font-family:'Space Grotesk',sans-serif;font-size:18px;font-weight:800;color:rgba(255,255,255,.2)}
+.footer-logo em{font-style:normal;color:rgba(167,139,250,.4)}
+.footer-links{display:flex;gap:20px}
+.footer-link{font-size:12px;color:var(--text3);transition:color .15s}
+.footer-link:hover{color:var(--text2)}
+.footer-copy{font-family:'DM Mono',monospace;font-size:10px;color:rgba(255,255,255,.18)}
+
+/* ══════════════════
+   SCROLL REVEAL
+══════════════════ */
+.reveal{opacity:0;transform:translateY(32px);transition:opacity .7s cubic-bezier(.4,0,.2,1),transform .7s cubic-bezier(.4,0,.2,1)}
+.reveal.in{opacity:1;transform:translateY(0)}
+.reveal-d1{transition-delay:.1s}
+.reveal-d2{transition-delay:.2s}
+.reveal-d3{transition-delay:.3s}
+.reveal-d4{transition-delay:.4s}
+
+/* ══════════════════
+   MISC
+══════════════════ */
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+@media(max-width:1024px){.feature-section{grid-template-columns:1fr}.feature-section.reverse{direction:ltr}.stats-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:680px){.card-grid{grid-template-columns:repeat(2,1fr)}.hero-stats{flex-wrap:wrap;gap:24px}.hero-stat-div{display:none}.stats-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:420px){.card-grid{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
 
-<a href="#main" class="skip">Skip to main content</a>
+<a href="#main" class="skip" id="skipNav">본문으로 건너뛰기</a>
 
-<nav class="nav" id="navbar" aria-label="Main navigation">
-  <div class="nav-left">
-    <div class="nav-logo">
-      <div class="nav-dot-grid" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
-      <div class="nav-brand"><em>byeol</em><span class="x">&#215;</span>DOT</div>
-    </div>
-    <div class="nav-links" role="list">
-      <a class="nav-link" id="nl-home" href="#" role="listitem">Home</a>
-      <a class="nav-link" id="nl-a11y" href="#row-accessibility" role="listitem">Accessibility</a>
-      <a class="nav-link" id="nl-game" href="#row-game" role="listitem">Game</a>
-      <a class="nav-link" id="nl-ai" href="#row-ai" role="listitem">AI Tools</a>
-    </div>
+<!-- ══════════════════
+     NAV
+══════════════════ -->
+<nav class="nav" id="navbar" aria-label="주 내비게이션">
+  <div class="nav-logo">
+    <div class="nav-mark" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+    <div class="nav-brand"><em>byeol</em><span class="x">×</span>DOT</div>
   </div>
   <div class="nav-right">
-    <div class="lang-toggle" role="group" aria-label="Language selector">
+    <a class="nav-link" id="nl-a11y" href="#sec-accessibility">Accessibility</a>
+    <a class="nav-link" id="nl-game" href="#sec-game">Game</a>
+    <a class="nav-link" id="nl-ai" href="#sec-ai">AI</a>
+    <div class="lang-pill" role="group" aria-label="Language">
       <button class="lang-btn active" id="btn-ko" onclick="setLang('ko')" aria-pressed="true">KO</button>
       <button class="lang-btn" id="btn-en" onclick="setLang('en')" aria-pressed="false">EN</button>
     </div>
+    <a class="nav-cta" href="#all-projects" id="navCta">모든 프로젝트</a>
   </div>
 </nav>
 
-<section class="hero" aria-labelledby="hero-title">
-  <div class="hero-bg" id="heroBg" aria-hidden="true"></div>
-  <div class="hero-vignette-l" aria-hidden="true"></div>
-  <div class="hero-vignette-b" aria-hidden="true"></div>
+<!-- ══════════════════
+     HERO
+══════════════════ -->
+<section class="hero" aria-labelledby="hero-h1">
+  <canvas id="heroBg" aria-hidden="true"></canvas>
+  <div class="hero-gradient" aria-hidden="true"></div>
   <div class="hero-content">
-    <div class="hero-meta">
-      <div class="hero-meta-badge" id="hero-badge">Accessibility Prototype Hub</div>
-      <span class="hero-match" id="hero-match">New 2025</span>
+    <div class="hero-eyebrow" id="hero-eyebrow"></div>
+    <h1 class="hero-title" id="hero-h1"></h1>
+    <p class="hero-sub" id="hero-sub"></p>
+    <div class="hero-ctas">
+      <a class="btn-primary" href="#all-projects" id="hero-cta1">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M4 6h16v2H4zm0 5h16v2H4zm0 5h16v2H4z"/></svg>
+        <span id="hero-cta1-txt"></span>
+      </a>
+      <a class="btn-ghost" href="./dot-nana/index.html" target="_blank" rel="noopener" id="hero-cta2">
+        <span id="hero-cta2-txt"></span>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M7 17L17 7M7 7h10v10"/></svg>
+      </a>
     </div>
-    <h1 class="hero-title" id="hero-title"></h1>
-    <p class="hero-desc" id="hero-desc"></p>
-    <div class="hero-btns">
-      <button class="hero-btn-play" id="hero-play" onclick="openFirst()">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
-        <span id="hero-play-txt"></span>
-      </button>
-      <button class="hero-btn-info" id="hero-info" onclick="scrollToRows()">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-        <span id="hero-info-txt"></span>
-      </button>
+  </div>
+
+  <div class="hero-stats" aria-label="주요 수치">
+    <div>
+      <div class="hero-stat-num"><span class="counter" data-target="11">0</span><span class="unit">+</span></div>
+      <div class="hero-stat-label" id="stat-proto">Prototypes</div>
     </div>
+    <div class="hero-stat-div" aria-hidden="true"></div>
+    <div>
+      <div class="hero-stat-num"><span class="counter" data-target="2400">0</span></div>
+      <div class="hero-stat-label" id="stat-pins">Dot Pad Pins</div>
+    </div>
+    <div class="hero-stat-div" aria-hidden="true"></div>
+    <div>
+      <div class="hero-stat-num"><span class="counter" data-target="6">0</span></div>
+      <div class="hero-stat-label" id="stat-ai">AI Models</div>
+    </div>
+  </div>
+
+  <div class="scroll-hint" aria-hidden="true">
+    <div class="scroll-line"></div>
+    <span>SCROLL</span>
   </div>
 </section>
 
+<!-- ══════════════════
+     STATS BAND
+══════════════════ -->
+<div class="stats-band" aria-hidden="true">
+  <div class="stats-grid">
+    <div class="stat-card reveal">
+      <div class="stat-number">11</div>
+      <div class="stat-label" id="sb1">AI Prototypes</div>
+    </div>
+    <div class="stat-card reveal reveal-d1">
+      <div class="stat-number">2,400</div>
+      <div class="stat-label" id="sb2">Dot Pad Pins</div>
+    </div>
+    <div class="stat-card reveal reveal-d2">
+      <div class="stat-number">4</div>
+      <div class="stat-label" id="sb3">Categories</div>
+    </div>
+    <div class="stat-card reveal reveal-d3">
+      <div class="stat-number">100%</div>
+      <div class="stat-label" id="sb4">Vibe Coded</div>
+    </div>
+  </div>
+</div>
+
 <main id="main">
-  <div class="rows" id="rowsContainer"></div>
+
+<!-- ══════════════════
+     SECTION: ACCESSIBILITY
+══════════════════ -->
+<div id="sec-accessibility">
+  <div class="section-header reveal">
+    <div class="section-kicker" style="color:#4a9eff">
+      <span class="dot" style="background:#4a9eff"></span>
+      <span id="cat-a11y-label">Accessibility</span>
+    </div>
+    <h2 class="section-h2" id="sec-a11y-h2"></h2>
+    <p class="section-desc" id="sec-a11y-desc"></p>
+  </div>
+
+  <!-- Concert + Election -->
+  <div class="feature-section reveal">
+    <div class="fs-text">
+      <div class="fs-kicker" style="background:rgba(244,63,94,.12);color:#f43f5e;border:1px solid rgba(244,63,94,.2)" id="fs-concert-kicker"></div>
+      <h3 class="fs-h3" id="fs-concert-h3"></h3>
+      <p class="fs-p" id="fs-concert-p"></p>
+      <div class="fs-features" id="fs-concert-features"></div>
+      <div class="fs-links">
+        <a class="fs-link-btn primary" href="./kpop-concert/index.html" target="_blank" rel="noopener" id="fs-concert-btn"></a>
+      </div>
+    </div>
+    <div class="device-wrap reveal reveal-d2">
+      <div class="device-stack">
+        <div class="device-glow" style="background:#f43f5e"></div>
+        <div class="device-browser">
+          <div class="device-browser-bar">
+            <div class="dev-dots"><div class="dev-dot r"></div><div class="dev-dot y"></div><div class="dev-dot g"></div></div>
+            <div class="dev-url-bar">concert.byeol-coder.github.io</div>
+          </div>
+          <div class="device-screen" id="thumb-concert"></div>
+        </div>
+        <div class="device-float" style="width:42%;bottom:-8%;right:-8%">
+          <div class="device-screen" id="thumb-election-float"></div>
+        </div>
+        <div class="device-float-badge" style="top:-12px;left:16px" id="badge-concert-live"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edu-Lens -->
+  <div class="feature-section reverse reveal">
+    <div class="fs-text">
+      <div class="fs-kicker" style="background:rgba(74,158,255,.12);color:#4a9eff;border:1px solid rgba(74,158,255,.2)" id="fs-lens-kicker"></div>
+      <h3 class="fs-h3" id="fs-lens-h3"></h3>
+      <p class="fs-p" id="fs-lens-p"></p>
+      <div class="fs-features" id="fs-lens-features"></div>
+      <div class="fs-links">
+        <a class="fs-link-btn primary" href="./edu-lens/sidepanel.html" target="_blank" rel="noopener" id="fs-lens-btn"></a>
+      </div>
+    </div>
+    <div class="device-wrap reveal reveal-d2">
+      <div class="device-stack">
+        <div class="device-glow" style="background:#4a9eff"></div>
+        <div class="device-tablet">
+          <div class="device-tablet-inner" id="thumb-edulens"></div>
+          <div class="device-tablet-bar"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════
+     QUOTE
+══════════════════ -->
+<div class="quote-section reveal">
+  <div class="quote-icon">🤲</div>
+  <p class="quote-text" id="quote-text"></p>
+  <div class="quote-by" id="quote-by"></div>
+</div>
+
+<!-- ══════════════════
+     SECTION: GAME
+══════════════════ -->
+<div id="sec-game">
+  <div class="section-header reveal">
+    <div class="section-kicker" style="color:#22d68a">
+      <span class="dot" style="background:#22d68a"></span>
+      <span id="cat-game-label">Game</span>
+    </div>
+    <h2 class="section-h2" id="sec-game-h2"></h2>
+    <p class="section-desc" id="sec-game-desc"></p>
+  </div>
+
+  <!-- Dot Beat + Dot Venture -->
+  <div class="feature-section reveal">
+    <div class="fs-text">
+      <div class="fs-kicker" style="background:rgba(34,214,138,.1);color:#22d68a;border:1px solid rgba(34,214,138,.2)" id="fs-beat-kicker"></div>
+      <h3 class="fs-h3" id="fs-beat-h3"></h3>
+      <p class="fs-p" id="fs-beat-p"></p>
+      <div class="fs-features" id="fs-beat-features"></div>
+      <div class="fs-links">
+        <a class="fs-link-btn primary" href="./dot-beat/index.html" target="_blank" rel="noopener" id="fs-beat-btn"></a>
+        <a class="fs-link-btn ghost" href="./dot-venture/index.html" target="_blank" rel="noopener" id="fs-venture-btn"></a>
+      </div>
+    </div>
+    <div class="device-wrap reveal reveal-d2">
+      <div class="device-stack">
+        <div class="device-glow" style="background:#22d68a"></div>
+        <div class="device-browser">
+          <div class="device-browser-bar">
+            <div class="dev-dots"><div class="dev-dot r"></div><div class="dev-dot y"></div><div class="dev-dot g"></div></div>
+            <div class="dev-url-bar">dot-beat.byeol-coder.github.io</div>
+          </div>
+          <div class="device-screen" id="thumb-beat"></div>
+        </div>
+        <div class="device-float" style="width:45%;bottom:-10%;right:-10%">
+          <div class="device-screen" id="thumb-venture-float"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Space Quest -->
+  <div class="feature-section reverse reveal">
+    <div class="fs-text">
+      <div class="fs-kicker" style="background:rgba(127,214,255,.1);color:#7fd6ff;border:1px solid rgba(127,214,255,.2)" id="fs-space-kicker"></div>
+      <h3 class="fs-h3" id="fs-space-h3"></h3>
+      <p class="fs-p" id="fs-space-p"></p>
+      <div class="fs-features" id="fs-space-features"></div>
+      <div class="fs-links">
+        <a class="fs-link-btn primary" href="https://byeol-coder.github.io/dot-space/" target="_blank" rel="noopener" id="fs-space-btn"></a>
+      </div>
+    </div>
+    <div class="device-wrap reveal reveal-d2">
+      <div class="device-stack">
+        <div class="device-glow" style="background:#7fd6ff"></div>
+        <div class="device-browser">
+          <div class="device-browser-bar">
+            <div class="dev-dots"><div class="dev-dot r"></div><div class="dev-dot y"></div><div class="dev-dot g"></div></div>
+            <div class="dev-url-bar">byeol-coder.github.io/dot-space</div>
+          </div>
+          <div class="device-screen" id="thumb-space"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════
+     SECTION: AI
+══════════════════ -->
+<div id="sec-ai">
+  <div class="section-header reveal">
+    <div class="section-kicker" style="color:#f59e0b">
+      <span class="dot" style="background:#f59e0b"></span>
+      <span id="cat-ai-label">AI Tools</span>
+    </div>
+    <h2 class="section-h2" id="sec-ai-h2"></h2>
+    <p class="section-desc" id="sec-ai-desc"></p>
+  </div>
+
+  <!-- Dot Nana -->
+  <div class="feature-section reveal">
+    <div class="fs-text">
+      <div class="fs-kicker" style="background:rgba(192,38,211,.1);color:#c026d3;border:1px solid rgba(192,38,211,.2)" id="fs-nana-kicker"></div>
+      <h3 class="fs-h3" id="fs-nana-h3"></h3>
+      <p class="fs-p" id="fs-nana-p"></p>
+      <div class="fs-features" id="fs-nana-features"></div>
+      <div class="fs-links">
+        <a class="fs-link-btn primary" href="./dot-nana/index.html" target="_blank" rel="noopener" id="fs-nana-btn"></a>
+      </div>
+    </div>
+    <div class="device-wrap reveal reveal-d2">
+      <div class="device-stack">
+        <div class="device-glow" style="background:#a855f7"></div>
+        <div class="device-browser">
+          <div class="device-browser-bar">
+            <div class="dev-dots"><div class="dev-dot r"></div><div class="dev-dot y"></div><div class="dev-dot g"></div></div>
+            <div class="dev-url-bar">dot-nana.byeol-coder.github.io</div>
+          </div>
+          <div class="device-screen" id="thumb-nana"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- AI Tactile + Dot Nori -->
+  <div class="feature-section reverse reveal">
+    <div class="fs-text">
+      <div class="fs-kicker" style="background:rgba(124,58,237,.1);color:#7c3aed;border:1px solid rgba(124,58,237,.2)" id="fs-aitactile-kicker"></div>
+      <h3 class="fs-h3" id="fs-aitactile-h3"></h3>
+      <p class="fs-p" id="fs-aitactile-p"></p>
+      <div class="fs-features" id="fs-aitactile-features"></div>
+      <div class="fs-links">
+        <a class="fs-link-btn primary" href="./ai-tactile-gen/index.html" target="_blank" rel="noopener" id="fs-aitactile-btn"></a>
+        <a class="fs-link-btn ghost" href="https://dotnori.netlify.app/" target="_blank" rel="noopener" id="fs-nori-btn"></a>
+      </div>
+    </div>
+    <div class="device-wrap reveal reveal-d2">
+      <div class="device-stack">
+        <div class="device-glow" style="background:#7c3aed"></div>
+        <div class="device-browser">
+          <div class="device-browser-bar">
+            <div class="dev-dots"><div class="dev-dot r"></div><div class="dev-dot y"></div><div class="dev-dot g"></div></div>
+            <div class="dev-url-bar">ai-tactile.byeol-coder.github.io</div>
+          </div>
+          <div class="device-screen" id="thumb-aitactile"></div>
+        </div>
+        <div class="device-float" style="width:42%;bottom:-8%;right:-8%">
+          <div class="device-screen" id="thumb-nori-float"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════
+     ALL PROJECTS GRID
+══════════════════ -->
+<div id="all-projects">
+  <div class="grid-section">
+    <div class="dot-divider" style="margin-bottom:clamp(60px,8vw,96px)">
+      <div class="dot-divider-line"></div>
+      <div class="dot-divider-dots"><div class="dot-divider-dot"></div><div class="dot-divider-dot"></div><div class="dot-divider-dot"></div></div>
+      <div class="dot-divider-line"></div>
+    </div>
+    <div class="grid-header reveal">
+      <div>
+        <h2 class="grid-h2" id="grid-h2"></h2>
+        <p style="font-size:13px;color:var(--text3);margin-top:5px;font-family:'DM Mono',monospace" id="grid-sub"></p>
+      </div>
+      <span class="grid-count" id="gridCount" aria-live="polite"></span>
+    </div>
+    <div class="filter-row" id="filterRow" role="tablist"></div>
+    <div class="card-grid" id="cardGrid" aria-label="프로젝트 목록"></div>
+  </div>
+</div>
+
 </main>
 
-<footer class="site-footer">
-  <div class="footer-logo"><em>byeol</em> &#215; DOT</div>
-  <div class="footer-meta" id="footer-meta"></div>
+<!-- ══════════════════
+     FOOTER
+══════════════════ -->
+<footer class="footer">
+  <div class="footer-logo"><em>byeol</em> × DOT</div>
   <div class="footer-links">
-    <a href="https://github.com/byeol-coder/project_byeol" class="footer-link" target="_blank" rel="noopener" id="fl-gh">GitHub</a>
-    <a href="https://www.dotincorp.com" class="footer-link" target="_blank" rel="noopener" id="fl-dot">Dot Inc.</a>
+    <a href="https://github.com/byeol-coder/project_byeol" class="footer-link" target="_blank" rel="noopener">GitHub</a>
+    <a href="https://www.dotincorp.com" class="footer-link" target="_blank" rel="noopener">Dot Inc.</a>
   </div>
+  <div class="footer-copy" id="footer-copy"></div>
 </footer>
 
 <script>
-// ── THUMBNAILS ──
-const THUMBS={dotspace:`<svg viewBox="0 0 480 270" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="sp-bg" cx="78%" cy="8%" r="55%"><stop offset="0%" stop-color="#122244"/><stop offset="100%" stop-color="#070b1c"/></radialGradient><radialGradient id="sp-bg2" cx="12%" cy="92%" r="55%"><stop offset="0%" stop-color="#101a3a"/><stop offset="100%" stop-color="transparent"/></radialGradient></defs><rect width="480" height="270" fill="url(#sp-bg)"/><rect width="480" height="270" fill="url(#sp-bg2)"/><g fill="#fff"><circle cx="42" cy="18" r="1"/><circle cx="88" cy="32" r="1.2"/><circle cx="156" cy="12" r="0.9"/><circle cx="234" cy="22" r="1.1"/><circle cx="312" cy="8" r="0.8"/><circle cx="378" cy="28" r="1.2"/><circle cx="432" cy="14" r="0.9"/><circle cx="468" cy="36" r="1"/><circle cx="64" cy="48" r="0.8"/><circle cx="198" cy="38" r="1"/><circle cx="355" cy="44" r="0.9"/><circle cx="444" cy="52" r="1.1"/><circle cx="18" cy="62" r="0.7"/><circle cx="128" cy="56" r="1"/><circle cx="286" cy="18" r="0.8"/><circle cx="410" cy="42" r="0.7"/></g><text x="240" y="30" text-anchor="middle" font-size="11" fill="#7fd6ff" font-family="monospace" font-weight="700" letter-spacing="2">DOT SPACE QUEST</text><text x="240" y="43" text-anchor="middle" font-size="7" fill="#a9b7d6" font-family="sans-serif">60&#xd7;40 점으로 만지는 우주 탐험</text><rect x="28" y="52" width="286" height="176" rx="6" fill="#0e1530" stroke="#3b5a86" stroke-width="2"/><rect x="28" y="52" width="286" height="176" rx="6" fill="none" stroke="#7fd6ff" stroke-width="1" opacity=".2"/><g fill="#ffe9a8" opacity=".9"><circle cx="48" cy="72" r="1.8"/><circle cx="57" cy="72" r="1.8"/><circle cx="66" cy="72" r="1.8"/><circle cx="75" cy="72" r="1.8"/><circle cx="84" cy="72" r="1.8"/><circle cx="93" cy="72" r="1.8"/><circle cx="102" cy="72" r="1.8"/><circle cx="111" cy="72" r="1.8"/><circle cx="120" cy="72" r="1.8"/><circle cx="129" cy="72" r="1.8"/><circle cx="138" cy="72" r="1.8"/><circle cx="48" cy="81" r="1.8"/><circle cx="138" cy="81" r="1.8"/><circle cx="48" cy="90" r="1.8"/><circle cx="66" cy="90" r="1.8"/><circle cx="75" cy="90" r="1.8"/><circle cx="84" cy="90" r="1.8"/><circle cx="102" cy="90" r="1.8"/><circle cx="120" cy="90" r="1.8"/><circle cx="129" cy="90" r="1.8"/><circle cx="138" cy="90" r="1.8"/><circle cx="48" cy="99" r="1.8"/><circle cx="138" cy="99" r="1.8"/><circle cx="48" cy="108" r="1.8"/><circle cx="57" cy="108" r="1.8"/><circle cx="66" cy="108" r="1.8"/><circle cx="75" cy="108" r="1.8"/><circle cx="84" cy="108" r="1.8"/><circle cx="93" cy="108" r="1.8"/><circle cx="102" cy="108" r="1.8"/><circle cx="111" cy="108" r="1.8"/><circle cx="120" cy="108" r="1.8"/><circle cx="129" cy="108" r="1.8"/><circle cx="138" cy="108" r="1.8"/></g><g fill="rgba(255,233,168,.12)"><circle cx="48" cy="81" r="1.4"/><circle cx="57" cy="81" r="1.4"/><circle cx="66" cy="81" r="1.4"/><circle cx="75" cy="81" r="1.4"/><circle cx="84" cy="81" r="1.4"/><circle cx="93" cy="81" r="1.4"/><circle cx="102" cy="81" r="1.4"/><circle cx="111" cy="81" r="1.4"/><circle cx="120" cy="81" r="1.4"/><circle cx="129" cy="81" r="1.4"/></g><g fill="#ffe9a8" opacity=".75"><circle cx="170" cy="100" r="1.8"/><circle cx="179" cy="95" r="1.8"/><circle cx="188" cy="92" r="1.8"/><circle cx="197" cy="90" r="1.8"/><circle cx="206" cy="90" r="1.8"/><circle cx="215" cy="92" r="1.8"/><circle cx="224" cy="96" r="1.8"/><circle cx="233" cy="102" r="1.8"/><circle cx="166" cy="110" r="1.8"/><circle cx="237" cy="110" r="1.8"/><circle cx="163" cy="120" r="1.8"/><circle cx="240" cy="120" r="1.8"/><circle cx="163" cy="130" r="1.8"/><circle cx="240" cy="130" r="1.8"/><circle cx="166" cy="140" r="1.8"/><circle cx="237" cy="140" r="1.8"/><circle cx="170" cy="150" r="1.8"/><circle cx="179" cy="155" r="1.8"/><circle cx="188" cy="158" r="1.8"/><circle cx="197" cy="160" r="1.8"/><circle cx="206" cy="160" r="1.8"/><circle cx="215" cy="158" r="1.8"/><circle cx="224" cy="154" r="1.8"/><circle cx="233" cy="148" r="1.8"/><circle cx="155" cy="112" r="1.8"/><circle cx="155" cy="120" r="1.8"/><circle cx="155" cy="128" r="1.8"/><circle cx="155" cy="136" r="1.8"/><circle cx="248" cy="108" r="1.8"/><circle cx="248" cy="118" r="1.8"/><circle cx="248" cy="128" r="1.8"/><circle cx="248" cy="138" r="1.8"/></g><circle cx="200" cy="125" r="7" fill="#ffe9a8" opacity=".5"/><circle cx="200" cy="118" r="3" fill="rgba(255,211,90,.5)"/><g fill="#8fe6b0"><polygon points="285,155 278,170 292,170"/><rect x="281" y="170" width="8" height="6" rx="1"/></g><g fill="rgba(255,233,168,.18)"><circle cx="48" cy="126" r="1.4"/><circle cx="57" cy="126" r="1.4"/><circle cx="66" cy="126" r="1.4"/><circle cx="75" cy="126" r="1.4"/><circle cx="84" cy="126" r="1.4"/><circle cx="48" cy="135" r="1.4"/><circle cx="57" cy="135" r="1.4"/><circle cx="84" cy="135" r="1.4"/><circle cx="48" cy="144" r="1.4"/><circle cx="84" cy="144" r="1.4"/><circle cx="48" cy="153" r="1.4"/><circle cx="57" cy="153" r="1.4"/><circle cx="66" cy="153" r="1.4"/><circle cx="75" cy="153" r="1.4"/><circle cx="84" cy="153" r="1.4"/></g><g fill="rgba(255,233,168,.18)"><circle cx="48" cy="171" r="1.4"/><circle cx="57" cy="171" r="1.4"/><circle cx="66" cy="171" r="1.4"/><circle cx="48" cy="180" r="1.4"/><circle cx="66" cy="180" r="1.4"/><circle cx="48" cy="189" r="1.4"/><circle cx="57" cy="189" r="1.4"/><circle cx="66" cy="189" r="1.4"/><circle cx="75" cy="175" r="1.4"/><circle cx="84" cy="171" r="1.4"/><circle cx="84" cy="180" r="1.4"/><circle cx="84" cy="189" r="1.4"/></g><rect x="322" y="52" width="130" height="176" rx="6" fill="#0c1226" stroke="#3b5a86" stroke-width="1.5"/><text x="328" y="70" font-size="7" fill="#a9b7d6" font-family="monospace" letter-spacing="1">MISSIONS</text><rect x="326" y="74" width="122" height="28" rx="4" fill="#7fd6ff" opacity=".12" stroke="#7fd6ff" stroke-width="1"/><text x="330" y="86" font-size="7" fill="#7fd6ff" font-family="monospace">★ 나의 우주</text><text x="330" y="97" font-size="6" fill="#a9b7d6" font-family="sans-serif">모은 것들 만져보기</text><rect x="326" y="106" width="122" height="28" rx="4" fill="rgba(255,211,90,.1)" stroke="rgba(255,211,90,.3)" stroke-width="1"/><text x="330" y="118" font-size="7" fill="#ffd35c" font-family="monospace">◐ 행성 질감</text><text x="330" y="129" font-size="6" fill="#a9b7d6" font-family="sans-serif">표면을 만져서 배우기</text><rect x="326" y="138" width="122" height="28" rx="4" fill="rgba(143,230,176,.08)" stroke="rgba(143,230,176,.25)" stroke-width="1"/><text x="330" y="150" font-size="7" fill="#8fe6b0" font-family="monospace">1 달까지 가기</text><text x="330" y="161" font-size="6" fill="#a9b7d6" font-family="sans-serif">우주선으로 달 도착</text><rect x="326" y="170" width="122" height="24" rx="4" fill="rgba(255,255,255,.04)" stroke="rgba(255,255,255,.08)" stroke-width="1"/><text x="330" y="182" font-size="7" fill="rgba(255,255,255,.35)" font-family="monospace">2 북두칠성</text><rect x="326" y="198" width="122" height="24" rx="4" fill="rgba(255,255,255,.04)" stroke="rgba(255,255,255,.08)" stroke-width="1"/><text x="330" y="210" font-size="7" fill="rgba(255,255,255,.35)" font-family="monospace">3 일식 체험</text><rect x="28" y="232" width="286" height="18" rx="3" fill="#0c1226" stroke="#3b5a86" stroke-width="1"/><text x="36" y="244" font-size="8" fill="#7fd6ff" font-family="monospace">&#9664;&#9654; 이동  CONFIRM 확인  F2 안내</text></svg>`,
-dotbeat:`<svg viewBox="0 0 480 270" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="t1" x1="0" y1="0" x2=".5" y2="1"><stop offset="0%" stop-color="#0f0c28"/><stop offset="100%" stop-color="#1a1248"/></linearGradient></defs><rect width="480" height="270" fill="url(#t1)"/><circle cx="60" cy="25" r="1.2" fill="#fff" opacity=".5"/><circle cx="180" cy="12" r="1.5" fill="#fff" opacity=".4"/><circle cx="380" cy="32" r="1" fill="#fff" opacity=".6"/><circle cx="440" cy="18" r="1.2" fill="#fff" opacity=".3"/><rect x="160" y="16" width="160" height="22" rx="5" fill="rgba(0,212,255,.08)" stroke="rgba(0,212,255,.22)" stroke-width="1"/><text x="240" y="31" text-anchor="middle" font-size="9" fill="#00d4ff" font-family="sans-serif" font-weight="800" letter-spacing="3">DOT BEAT</text><rect x="50" y="50" width="380" height="135" rx="8" fill="#0e0c22" stroke="#2a2768" stroke-width="1.5"/><rect x="60" y="60" width="135" height="115" rx="4" fill="rgba(0,212,255,.05)" stroke="rgba(0,212,255,.18)" stroke-width="1"/><rect x="285" y="60" width="135" height="115" rx="4" fill="rgba(255,63,164,.05)" stroke="rgba(255,63,164,.18)" stroke-width="1"/><circle cx="88" cy="88" r="4.5" fill="rgba(0,212,255,.6)"/><circle cx="108" cy="88" r="4.5" fill="rgba(0,212,255,.5)"/><circle cx="128" cy="88" r="4.5" fill="rgba(0,212,255,.4)"/><circle cx="88" cy="106" r="5.5" fill="#00d4ff" opacity=".9"/><circle cx="108" cy="106" r="5.5" fill="#00d4ff" opacity=".9"/><circle cx="128" cy="106" r="5.5" fill="#00d4ff" opacity=".9"/><rect x="66" y="148" width="123" height="14" rx="3" fill="rgba(0,212,255,.35)"/><circle cx="90" cy="155" r="3" fill="#00d4ff"/><circle cx="108" cy="155" r="3" fill="#00d4ff"/><circle cx="126" cy="155" r="3" fill="#00d4ff"/><circle cx="144" cy="155" r="3" fill="#00d4ff"/><circle cx="162" cy="155" r="3" fill="#00d4ff"/><circle cx="313" cy="86" r="6.5" fill="#ff3fa4" opacity=".9"/><circle cx="336" cy="86" r="6.5" fill="#ff3fa4" opacity=".9"/><circle cx="359" cy="86" r="6.5" fill="#ff3fa4" opacity=".85"/><circle cx="313" cy="106" r="6" fill="#ff3fa4" opacity=".7"/><circle cx="336" cy="106" r="6" fill="#ff3fa4" opacity=".7"/><rect x="291" y="148" width="123" height="14" rx="3" fill="rgba(255,63,164,.38)"/><circle cx="310" cy="155" r="3" fill="#ff3fa4"/><circle cx="330" cy="155" r="3" fill="#ff3fa4"/><circle cx="350" cy="155" r="3" fill="#ff3fa4"/><circle cx="370" cy="155" r="3" fill="#ff3fa4"/><circle cx="390" cy="155" r="3" fill="#ff3fa4"/><text x="240" y="118" text-anchor="middle" font-size="18" fill="#ffe033" font-family="sans-serif" font-weight="900" opacity=".95">PERFECT!</text><text x="80" y="206" font-size="8" fill="rgba(255,255,255,.35)" font-family="sans-serif" letter-spacing="3">SCORE</text><text x="80" y="222" font-size="17" fill="#f0eeff" font-family="sans-serif" font-weight="900">012400</text><text x="240" y="206" text-anchor="middle" font-size="8" fill="rgba(255,255,255,.35)" font-family="sans-serif">COMBO</text><text x="240" y="224" text-anchor="middle" font-size="21" fill="#00d4ff" font-family="sans-serif" font-weight="900">8</text><rect x="50" y="238" width="175" height="24" rx="12" fill="rgba(0,47,85,.92)" stroke="rgba(0,212,255,.38)" stroke-width="1.5"/><text x="137" y="254" text-anchor="middle" font-size="10" fill="#00d4ff" font-family="sans-serif" font-weight="800">&#9664; LEFT</text><rect x="255" y="238" width="175" height="24" rx="12" fill="rgba(64,0,32,.92)" stroke="rgba(255,63,164,.38)" stroke-width="1.5"/><text x="342" y="254" text-anchor="middle" font-size="10" fill="#ff3fa4" font-family="sans-serif" font-weight="800">RIGHT &#9654;</text></svg>`,
-dotventure:`<svg viewBox="0 0 480 270" xmlns="http://www.w3.org/2000/svg"><rect width="480" height="270" fill="#080612"/><rect x="0" y="0" width="138" height="270" fill="#0e0c20" stroke="#221f44" stroke-width="1"/><text x="12" y="18" font-size="7" fill="#5a5880" font-family="monospace" letter-spacing="2">LIBRARY</text><rect x="8" y="22" width="122" height="32" rx="5" fill="#181540" stroke="#2a2768" stroke-width="1"/><text x="14" y="37" font-size="9" fill="#eeeeff" font-family="sans-serif" font-weight="700">고대 신전의 비밀</text><text x="14" y="48" font-size="7" fill="#5a5880" font-family="sans-serif">어드벤처</text><rect x="8" y="58" width="122" height="32" rx="5" fill="#181540" stroke="#22d68a" stroke-width="1.5"/><text x="14" y="73" font-size="9" fill="#22d68a" font-family="sans-serif" font-weight="700">마법의 숲 탐험</text><text x="14" y="84" font-size="7" fill="#5a5880" font-family="sans-serif">탐험 &#183; 진행 중</text><rect x="8" y="94" width="122" height="32" rx="5" fill="#181540" stroke="#2a2768" stroke-width="1"/><text x="14" y="109" font-size="9" fill="#eeeeff" font-family="sans-serif" font-weight="700">우주 정거장 탈출</text><text x="14" y="120" font-size="7" fill="#5a5880" font-family="sans-serif">퍼즐 &#183; 잠금</text><rect x="146" y="34" width="188" height="200" rx="6" fill="#0c0a1e"/><rect x="146" y="34" width="188" height="14" fill="#181540"/><rect x="146" y="218" width="188" height="16" fill="#181540"/><rect x="194" y="60" width="15" height="50" fill="#181540" rx="2"/><rect x="228" y="48" width="15" height="34" fill="#181540" rx="2"/><rect x="262" y="78" width="15" height="32" fill="#181540" rx="2"/><rect x="194" y="128" width="48" height="15" fill="#181540" rx="2"/><rect x="153" y="118" width="16" height="16" rx="4" fill="#7c6ff7"/><circle cx="161" cy="126" r="4.5" fill="#a29bfe"/><text x="246" y="62" text-anchor="middle" font-size="11">&#128477;</text><text x="310" y="198" text-anchor="middle" font-size="11">&#128682;</text><rect x="342" y="0" width="138" height="270" fill="#0a0a18" stroke="#1a1a30" stroke-width="1"/><text x="349" y="16" font-size="7" fill="#444460" font-family="monospace" letter-spacing="1">DOT PAD</text><rect x="344" y="20" width="128" height="95" rx="5" fill="#080810" stroke="#1a1a2e" stroke-width="1.5"/><g fill="#7c6ff7" opacity=".78"><circle cx="354" cy="30" r="2.2"/><circle cx="362" cy="30" r="2.2"/><circle cx="370" cy="30" r="2.2"/><circle cx="378" cy="30" r="2.2"/><circle cx="386" cy="30" r="2.2"/><circle cx="402" cy="30" r="2.2"/><circle cx="448" cy="30" r="2.2"/><circle cx="354" cy="39" r="2.2"/><circle cx="448" cy="39" r="2.2"/><circle cx="354" cy="48" r="2.2"/><circle cx="370" cy="48" r="2.2"/><circle cx="378" cy="48" r="2.2"/><circle cx="448" cy="48" r="2.2"/><circle cx="354" cy="57" r="2.2"/><circle cx="448" cy="57" r="2.2"/><circle cx="354" cy="66" r="2.2"/><circle cx="362" cy="66" r="2.2"/><circle cx="370" cy="66" r="2.2"/><circle cx="448" cy="66" r="2.2"/><circle cx="354" cy="75" r="2.2"/><circle cx="362" cy="75" r="2.2"/><circle cx="448" cy="75" r="2.2"/><circle cx="354" cy="84" r="2.2"/><circle cx="362" cy="84" r="2.2"/><circle cx="370" cy="84" r="2.2"/><circle cx="448" cy="84" r="2.2"/><circle cx="354" cy="93" r="2.2"/><circle cx="448" cy="93" r="2.2"/><circle cx="354" cy="102" r="2.2"/><circle cx="370" cy="102" r="2.2"/><circle cx="448" cy="102" r="2.2"/></g><text x="348" y="130" font-size="8" fill="#444460" font-family="monospace">pos: 5, 3</text><rect x="344" y="178" width="128" height="16" rx="3" fill="rgba(124,111,247,.1)" stroke="rgba(124,111,247,.2)" stroke-width="1"/><text x="350" y="190" font-size="8" fill="#a29bfe" font-family="sans-serif">&#128477; Key obtained!</text><rect x="138" y="0" width="206" height="30" fill="#110e28"/><text x="154" y="19" font-size="10" fill="#eeeeff" font-family="sans-serif" font-weight="700">고대 신전의 비밀</text></svg>`,
-election:`<svg viewBox="0 0 480 270" xmlns="http://www.w3.org/2000/svg"><rect width="480" height="270" fill="#f7f7f5"/><rect width="480" height="42" fill="#fff" stroke="#eaeae6" stroke-width="1"/><rect x="0" y="41" width="480" height="3" fill="#1a5cff"/><rect x="14" y="11" width="30" height="20" rx="4" fill="#1a5cff"/><text x="29" y="25" font-size="9" fill="#fff" font-family="sans-serif" font-weight="900">DOT</text><text x="54" y="26" font-size="12" fill="#111" font-family="sans-serif" font-weight="700">Election Reader</text><rect x="358" y="10" width="82" height="22" rx="7" fill="#1a5cff"/><text x="399" y="25" text-anchor="middle" font-size="9" fill="#fff" font-family="sans-serif" font-weight="700">&#128266; TTS</text><rect x="0" y="44" width="192" height="226" fill="#fff" stroke="#eaeae6" stroke-width="1"/><text x="10" y="62" font-size="7" fill="#aaa" font-family="monospace">CANDIDATES</text><rect x="6" y="66" width="180" height="36" rx="6" fill="#eef2ff" stroke="#1a5cff" stroke-width="1.5"/><circle cx="26" cy="84" r="9" fill="#1a5cff"/><text x="26" y="88" text-anchor="middle" font-size="9" fill="#fff" font-family="sans-serif" font-weight="900">1</text><text x="42" y="80" font-size="10" fill="#111" font-family="sans-serif" font-weight="700">Kim Min-jun</text><text x="42" y="93" font-size="8" fill="#888" font-family="sans-serif">Future Alliance</text><rect x="6" y="106" width="180" height="36" rx="6" fill="#fff" stroke="#eaeae6" stroke-width="1"/><circle cx="26" cy="124" r="9" fill="rgba(220,38,38,.12)"/><text x="26" y="128" text-anchor="middle" font-size="9" fill="#dc2626" font-family="sans-serif" font-weight="900">2</text><text x="42" y="120" font-size="10" fill="#111" font-family="sans-serif" font-weight="700">Lee Su-hyun</text><text x="42" y="133" font-size="8" fill="#888" font-family="sans-serif">People&#39;s Innovation</text><rect x="6" y="146" width="180" height="36" rx="6" fill="#fff" stroke="#eaeae6" stroke-width="1"/><circle cx="26" cy="164" r="9" fill="rgba(22,163,74,.12)"/><text x="26" y="168" text-anchor="middle" font-size="9" fill="#16a34a" font-family="sans-serif" font-weight="900">3</text><text x="42" y="160" font-size="10" fill="#111" font-family="sans-serif" font-weight="700">Park Ji-young</text><text x="42" y="173" font-size="8" fill="#888" font-family="sans-serif">Green Citizens</text><rect x="194" y="44" width="286" height="226" fill="#f7f7f5"/><text x="204" y="66" font-size="15" fill="#111" font-family="sans-serif" font-weight="900">No.1 Kim Min-jun</text><text x="204" y="79" font-size="8" fill="#666" font-family="sans-serif">Future Alliance &#183; Age 58 &#183; Former PM</text><rect x="204" y="88" width="266" height="164" rx="7" fill="#fff" stroke="#eaeae6" stroke-width="1"/><rect x="204" y="88" width="266" height="21" rx="7" fill="#111"/><text x="216" y="102" font-size="8" fill="#fff" font-family="sans-serif" font-weight="700">Policy Issue</text><rect x="316" y="88" width="50" height="21" fill="#1a5cff"/><text x="341" y="102" text-anchor="middle" font-size="8" fill="#fff" font-family="sans-serif" font-weight="700">No.1</text><rect x="366" y="88" width="50" height="21" fill="#dc2626"/><text x="391" y="102" text-anchor="middle" font-size="8" fill="#fff" font-family="sans-serif" font-weight="700">No.2</text><rect x="416" y="88" width="50" height="21" fill="#16a34a"/><text x="441" y="102" text-anchor="middle" font-size="8" fill="#fff" font-family="sans-serif" font-weight="700">No.3</text><g font-family="sans-serif" font-size="8"><text x="212" y="120" fill="#333">Basic income</text><rect x="318" y="110" width="42" height="15" rx="3" fill="#f0fdf4"/><text x="339" y="121" text-anchor="middle" font-size="7" fill="#16a34a" font-weight="700">For</text><rect x="368" y="110" width="42" height="15" rx="3" fill="#fef2f2"/><text x="389" y="121" text-anchor="middle" font-size="7" fill="#dc2626" font-weight="700">Against</text><rect x="418" y="110" width="42" height="15" rx="3" fill="#f0fdf4"/><text x="439" y="121" text-anchor="middle" font-size="7" fill="#16a34a" font-weight="700">For</text><line x1="204" y1="128" x2="470" y2="128" stroke="#eaeae6" stroke-width="1"/><text x="212" y="142" fill="#333">Free university</text><rect x="318" y="132" width="42" height="15" rx="3" fill="#fffbeb"/><text x="339" y="143" text-anchor="middle" font-size="7" fill="#b45309" font-weight="700">Neutral</text><rect x="368" y="132" width="42" height="15" rx="3" fill="#f0fdf4"/><text x="389" y="143" text-anchor="middle" font-size="7" fill="#16a34a" font-weight="700">For</text><rect x="418" y="132" width="42" height="15" rx="3" fill="#f0fdf4"/><text x="439" y="143" text-anchor="middle" font-size="7" fill="#16a34a" font-weight="700">For</text><line x1="204" y1="150" x2="470" y2="150" stroke="#eaeae6" stroke-width="1"/><text x="212" y="164" fill="#333">Renewable energy</text><rect x="318" y="154" width="42" height="15" rx="3" fill="#f0fdf4"/><text x="339" y="165" text-anchor="middle" font-size="7" fill="#16a34a" font-weight="700">For</text><rect x="368" y="154" width="42" height="15" rx="3" fill="#f0fdf4"/><text x="389" y="165" text-anchor="middle" font-size="7" fill="#16a34a" font-weight="700">For</text><rect x="418" y="154" width="42" height="15" rx="3" fill="#f0fdf4"/><text x="439" y="165" text-anchor="middle" font-size="7" fill="#16a34a" font-weight="700">For</text><line x1="204" y1="172" x2="470" y2="172" stroke="#eaeae6" stroke-width="1"/><text x="212" y="186" fill="#333">Corporate tax</text><rect x="318" y="176" width="42" height="15" rx="3" fill="#fef2f2"/><text x="339" y="187" text-anchor="middle" font-size="7" fill="#dc2626" font-weight="700">Against</text><rect x="368" y="176" width="42" height="15" rx="3" fill="#fffbeb"/><text x="389" y="187" text-anchor="middle" font-size="7" fill="#b45309" font-weight="700">Neutral</text><rect x="418" y="176" width="42" height="15" rx="3" fill="#f0fdf4"/><text x="439" y="187" text-anchor="middle" font-size="7" fill="#16a34a" font-weight="700">For</text><line x1="204" y1="194" x2="470" y2="194" stroke="#eaeae6" stroke-width="1"/><text x="212" y="208" fill="#333">Healthcare reform</text><rect x="318" y="198" width="42" height="15" rx="3" fill="#fef2f2"/><text x="339" y="209" text-anchor="middle" font-size="7" fill="#dc2626" font-weight="700">Against</text><rect x="368" y="198" width="42" height="15" rx="3" fill="#fffbeb"/><text x="389" y="209" text-anchor="middle" font-size="7" fill="#b45309" font-weight="700">Neutral</text><rect x="418" y="198" width="42" height="15" rx="3" fill="#f0fdf4"/><text x="439" y="209" text-anchor="middle" font-size="7" fill="#16a34a" font-weight="700">For</text></g></svg>`,
-concert:`<svg viewBox="0 0 480 270" xmlns="http://www.w3.org/2000/svg"><rect width="480" height="270" fill="#06060c"/><ellipse cx="240" cy="310" rx="300" ry="220" fill="rgba(255,32,100,.13)"/><ellipse cx="130" cy="-20" rx="220" ry="170" fill="rgba(74,158,255,.08)"/><ellipse cx="370" cy="-10" rx="220" ry="160" fill="rgba(255,32,100,.1)"/><rect x="0" y="0" width="480" height="34" fill="rgba(12,12,22,.96)" stroke="rgba(255,32,100,.18)" stroke-width="1"/><text x="14" y="21" font-size="10" fill="#f0eeff" font-family="sans-serif" font-weight="900">K-pop Barrier-free Concert</text><rect x="358" y="6" width="48" height="20" rx="5" fill="rgba(255,32,100,.18)" stroke="rgba(255,32,100,.45)" stroke-width="1"/><circle cx="366" cy="16" r="3" fill="#ff2060"/><text x="374" y="20" font-size="7.5" fill="#ff2060" font-family="monospace" font-weight="700">LIVE</text><circle cx="38" cy="44" r="4.5" fill="#ff2060" opacity=".72"/><circle cx="96" cy="44" r="4.5" fill="#4a9eff" opacity=".72"/><circle cx="154" cy="44" r="4.5" fill="#ffe033" opacity=".72"/><circle cx="212" cy="44" r="4.5" fill="#ff2060" opacity=".8"/><circle cx="270" cy="44" r="4.5" fill="#4a9eff" opacity=".62"/><circle cx="328" cy="44" r="4.5" fill="#ffe033" opacity=".72"/><circle cx="398" cy="44" r="4.5" fill="#ff2060" opacity=".8"/><line x1="38" y1="44" x2="38" y2="198" stroke="rgba(255,32,100,.07)" stroke-width="10"/><line x1="154" y1="44" x2="154" y2="198" stroke="rgba(255,224,51,.05)" stroke-width="10"/><line x1="270" y1="44" x2="270" y2="198" stroke="rgba(74,158,255,.06)" stroke-width="10"/><line x1="398" y1="44" x2="398" y2="198" stroke="rgba(255,32,100,.07)" stroke-width="10"/><ellipse cx="198" cy="156" rx="16" ry="33" fill="rgba(0,0,0,.72)"/><circle cx="198" cy="120" r="12" fill="rgba(0,0,0,.72)"/><line x1="182" y1="146" x2="163" y2="127" stroke="rgba(0,0,0,.7)" stroke-width="7" stroke-linecap="round"/><line x1="214" y1="146" x2="233" y2="127" stroke="rgba(0,0,0,.7)" stroke-width="7" stroke-linecap="round"/><ellipse cx="295" cy="160" rx="13" ry="26" fill="rgba(0,0,0,.62)"/><circle cx="295" cy="130" r="9" fill="rgba(0,0,0,.62)"/><rect x="348" y="152" width="6" height="30" rx="2" fill="#ff2060" opacity=".72"/><rect x="358" y="145" width="6" height="38" rx="2" fill="#ff2060" opacity=".82"/><rect x="368" y="158" width="6" height="25" rx="2" fill="#4a9eff" opacity=".7"/><rect x="378" y="140" width="6" height="43" rx="2" fill="#ff2060" opacity=".9"/><rect x="388" y="152" width="6" height="30" rx="2" fill="#4a9eff" opacity=".62"/><rect x="398" y="148" width="6" height="35" rx="2" fill="#ffe033" opacity=".7"/><rect x="0" y="194" width="480" height="40" fill="rgba(6,6,12,.94)" stroke="rgba(255,32,100,.14)" stroke-width="1"/><rect x="58" y="198" width="5" height="29" rx="2" fill="#ff2060" opacity=".8"/><rect x="67" y="205" width="5" height="22" rx="2" fill="#ff2060" opacity=".62"/><rect x="76" y="196" width="5" height="31" rx="2" fill="#ff2060" opacity=".9"/><rect x="85" y="201" width="5" height="26" rx="2" fill="#ff2060" opacity=".72"/><rect x="94" y="199" width="5" height="28" rx="2" fill="#4a9eff" opacity=".62"/><rect x="103" y="203" width="5" height="24" rx="2" fill="#ff2060" opacity=".82"/><rect x="112" y="196" width="5" height="31" rx="2" fill="#ff2060" opacity=".86"/><rect x="121" y="202" width="5" height="25" rx="2" fill="#4a9eff" opacity=".52"/><rect x="130" y="198" width="5" height="29" rx="2" fill="#ff2060" opacity=".72"/><rect x="139" y="195" width="5" height="32" rx="2" fill="#ff2060" opacity=".9"/><rect x="366" y="196" width="102" height="32" rx="5" fill="rgba(0,0,0,.86)" stroke="rgba(255,32,100,.42)" stroke-width="1.5"/><text x="417" y="208" text-anchor="middle" font-size="13">&#x1F91F;</text><text x="417" y="223" text-anchor="middle" font-size="7" fill="#888" font-family="monospace">Sign Language</text><rect x="0" y="234" width="480" height="36" fill="rgba(0,0,0,.9)"/><text x="240" y="248" text-anchor="middle" font-size="11" fill="#fff" font-family="sans-serif" font-weight="700">So I'ma light it up like dynamite</text><text x="240" y="263" text-anchor="middle" font-size="8.5" fill="rgba(255,255,255,.52)" font-family="sans-serif">다이너마이트처럼 불을 밝혀</text></svg>`,
-aitactile:`<svg viewBox="0 0 480 270" xmlns="http://www.w3.org/2000/svg"><rect width="480" height="270" fill="#f9f9f7"/><rect x="0" y="0" width="188" height="270" fill="#fff" stroke="#e6e6e2" stroke-width="1"/><rect x="10" y="10" width="30" height="30" rx="8" fill="#7c3aed"/><text x="25" y="29" text-anchor="middle" font-size="13" fill="#fff">&#10022;</text><text x="50" y="21" font-size="10" fill="#111" font-family="sans-serif" font-weight="900">AI Tactile</text><text x="50" y="33" font-size="8" fill="#888" font-family="sans-serif">Graphic Generator</text><rect x="8" y="48" width="172" height="26" rx="6" fill="#f0f0ee" stroke="#e6e6e2" stroke-width="1"/><rect x="10" y="50" width="82" height="22" rx="5" fill="#fff"/><text x="51" y="65" text-anchor="middle" font-size="8" fill="#111" font-family="sans-serif" font-weight="700">Text Prompt</text><text x="140" y="65" text-anchor="middle" font-size="8" fill="#999" font-family="sans-serif">Image Upload</text><text x="12" y="88" font-size="7" fill="#999" font-family="monospace">PROMPT</text><rect x="8" y="92" width="172" height="46" rx="6" fill="#f4f4f2" stroke="#d0d0cc" stroke-width="1.5"/><text x="14" y="107" font-size="8.5" fill="#555" font-family="sans-serif">Korean Peninsula topography</text><rect x="8" y="155" width="80" height="18" rx="4" fill="#f0f0ee" stroke="#d0d0cc" stroke-width="1"/><text x="48" y="167" text-anchor="middle" font-size="7.5" fill="#666" font-family="sans-serif">Heart cross-section</text><rect x="94" y="155" width="86" height="18" rx="4" fill="#f5f3ff" stroke="#ddd6fe" stroke-width="1"/><text x="137" y="167" text-anchor="middle" font-size="7.5" fill="#7c3aed" font-family="sans-serif">Solar system</text><rect x="8" y="178" width="80" height="18" rx="4" fill="#f0f0ee" stroke="#d0d0cc" stroke-width="1"/><text x="48" y="190" text-anchor="middle" font-size="7.5" fill="#666" font-family="sans-serif">Flower anatomy</text><rect x="94" y="178" width="86" height="18" rx="4" fill="#f0f0ee" stroke="#d0d0cc" stroke-width="1"/><text x="137" y="190" text-anchor="middle" font-size="7.5" fill="#666" font-family="sans-serif">Earth cross-section</text><rect x="8" y="232" width="172" height="26" rx="7" fill="#7c3aed"/><text x="94" y="249" text-anchor="middle" font-size="10" fill="#fff" font-family="sans-serif" font-weight="700">&#10022; Generate</text><rect x="190" y="0" width="186" height="270" fill="#f2f2f0"/><rect x="198" y="18" width="170" height="118" rx="7" fill="#fff" stroke="#e6e6e2" stroke-width="1"/><g fill="#1a1a1a"><circle cx="228" cy="40" r="2.5"/><circle cx="238" cy="37" r="2.5"/><circle cx="248" cy="35" r="2.5"/><circle cx="258" cy="37" r="2.5"/><circle cx="268" cy="40" r="2.5"/><circle cx="276" cy="44" r="2.5"/><circle cx="226" cy="50" r="2.5"/><circle cx="280" cy="50" r="2.5"/><circle cx="224" cy="60" r="2.5"/><circle cx="282" cy="58" r="2.5"/><circle cx="223" cy="70" r="2.5"/><circle cx="284" cy="67" r="2.5"/><circle cx="224" cy="80" r="2.5"/><circle cx="283" cy="77" r="2.5"/><circle cx="226" cy="90" r="2.5"/><circle cx="281" cy="85" r="2.5"/><circle cx="230" cy="100" r="2.5"/><circle cx="258" cy="105" r="2.5"/><circle cx="280" cy="97" r="2.5"/><circle cx="250" cy="124" r="1.8"/><circle cx="258" cy="124" r="1.8"/></g><rect x="198" y="140" width="170" height="3" rx="99" fill="#7c3aed"/><rect x="198" y="170" width="170" height="48" rx="7" fill="#fff" stroke="#e6e6e2" stroke-width="1"/><text x="206" y="184" font-size="7.5" fill="#888" font-family="sans-serif">Active pins 847/2,400</text><text x="206" y="197" font-size="7.5" fill="#888" font-family="sans-serif">Density 35%  DTMS 300B</text><rect x="198" y="232" width="170" height="26" rx="7" fill="#7c3aed"/><text x="283" y="249" text-anchor="middle" font-size="10" fill="#fff" font-family="sans-serif" font-weight="700">Send to Dot Pad</text><rect x="376" y="0" width="104" height="270" fill="#0a0a12" stroke="#181820" stroke-width="1"/><text x="381" y="15" font-size="6.5" fill="#404050" font-family="monospace" letter-spacing="2">DOT PAD 320</text><rect x="380" y="18" width="90" height="68" rx="4" fill="#060610" stroke="#181828" stroke-width="1"/><g fill="#7c3aed" opacity=".82"><circle cx="388" cy="26" r="2"/><circle cx="395" cy="26" r="2"/><circle cx="402" cy="26" r="2"/><circle cx="416" cy="26" r="2"/><circle cx="423" cy="26" r="2"/><circle cx="430" cy="26" r="2"/><circle cx="444" cy="26" r="2"/><circle cx="460" cy="26" r="2"/><circle cx="388" cy="34" r="2"/><circle cx="444" cy="34" r="2"/><circle cx="460" cy="34" r="2"/><circle cx="388" cy="42" r="2"/><circle cx="402" cy="42" r="2"/><circle cx="409" cy="42" r="2"/><circle cx="444" cy="42" r="2"/><circle cx="388" cy="50" r="2"/><circle cx="416" cy="50" r="2"/><circle cx="444" cy="50" r="2"/><circle cx="388" cy="58" r="2"/><circle cx="402" cy="58" r="2"/><circle cx="409" cy="58" r="2"/><circle cx="416" cy="58" r="2"/><circle cx="423" cy="58" r="2"/><circle cx="430" cy="58" r="2"/><circle cx="444" cy="58" r="2"/><circle cx="388" cy="66" r="2"/><circle cx="444" cy="66" r="2"/><circle cx="388" cy="74" r="2"/><circle cx="402" cy="74" r="2"/><circle cx="409" cy="74" r="2"/><circle cx="416" cy="74" r="2"/><circle cx="444" cy="74" r="2"/></g></svg>`,
-edulens:`<svg viewBox="0 0 480 270" xmlns="http://www.w3.org/2000/svg"><rect width="480" height="270" fill="#ffffff"/><rect width="480" height="40" fill="#fff" stroke="#eee" stroke-width="1"/><text x="15" y="16" font-size="14" fill="#111" font-family="sans-serif" font-weight="900">dot</text><text x="43" y="16" font-size="14" fill="#eb5b33" font-family="sans-serif" font-weight="900">::</text><text x="56" y="16" font-size="14" fill="#111" font-family="sans-serif" font-weight="900">Lens</text><text x="15" y="30" font-size="7" fill="#888" font-family="sans-serif">v0.4 Multi-Modal Real-time</text><rect x="334" y="8" width="138" height="22" rx="5" fill="#e8f5e9" stroke="#4caf50" stroke-width="1"/><circle cx="348" cy="19" r="4" fill="#4caf50"/><text x="357" y="23" font-size="8.5" fill="#2e7d32" font-family="sans-serif" font-weight="700">Dot Pad Connected</text><rect x="8" y="46" width="464" height="32" rx="16" fill="#eb5b33"/><text x="240" y="66" text-anchor="middle" font-size="10.5" fill="#fff" font-family="sans-serif" font-weight="800">Real-time Cursor Sync &#9679; ON</text><rect x="8" y="84" width="464" height="34" rx="7" fill="#f4f3ef"/><rect x="8" y="84" width="5" height="34" fill="#eb5b33" rx="3"/><text x="20" y="98" font-size="8.5" fill="#111" font-family="sans-serif" font-weight="800">Text: </text><text x="52" y="98" font-size="8.5" fill="#555" font-family="sans-serif">Real-time tactile learning service for Dot Pad</text><text x="20" y="111" font-size="7.5" fill="#888" font-family="sans-serif">Screen capture: x=142 y=88 w=320 h=180 &#183; 150ms interval</text><text x="12" y="130" font-size="7.5" fill="#555" font-family="sans-serif" font-weight="800">Graphic Area (60&#xd7;40 pins)</text><rect x="8" y="136" width="464" height="78" rx="4" fill="#111"/><g fill="#eb5b33" opacity=".9"><rect x="18" y="143" width="58" height="5" rx="1"/><rect x="82" y="143" width="78" height="5" rx="1"/><rect x="166" y="143" width="48" height="5" rx="1"/><rect x="18" y="153" width="196" height="4" rx="1"/><rect x="220" y="153" width="118" height="4" rx="1"/><rect x="18" y="162" width="156" height="4" rx="1"/><rect x="180" y="162" width="78" height="4" rx="1"/><rect x="18" y="171" width="98" height="4" rx="1"/><rect x="122" y="171" width="58" height="4" rx="1"/><rect x="18" y="180" width="176" height="4" rx="1"/><rect x="18" y="189" width="118" height="4" rx="1"/><rect x="142" y="189" width="88" height="4" rx="1"/></g><text x="10" y="226" font-size="7.5" fill="#555" font-family="sans-serif" font-weight="800">Braille Text Bar (20 Cells &#xd7; 6 dots)</text><rect x="8" y="230" width="464" height="34" rx="4" fill="#111"/><g><rect x="12" y="232" width="20" height="30" rx="2" fill="#222"/><circle cx="17" cy="238" r="2.2" fill="#eb5b33"/><circle cx="23" cy="238" r="2.2" fill="#333"/><circle cx="17" cy="245" r="2.2" fill="#333"/><circle cx="23" cy="245" r="2.2" fill="#eb5b33"/><circle cx="17" cy="252" r="2.2" fill="#eb5b33"/><circle cx="23" cy="252" r="2.2" fill="#333"/><rect x="35" y="232" width="20" height="30" rx="2" fill="#222"/><rect x="58" y="232" width="20" height="30" rx="2" fill="#222"/><rect x="81" y="232" width="20" height="30" rx="2" fill="#222"/><rect x="104" y="232" width="20" height="30" rx="2" fill="#222"/><rect x="127" y="232" width="20" height="30" rx="2" fill="#222"/><rect x="150" y="232" width="20" height="30" rx="2" fill="#222"/><rect x="173" y="232" width="20" height="30" rx="2" fill="#222"/><rect x="196" y="232" width="20" height="30" rx="2" fill="#222"/><rect x="219" y="232" width="20" height="30" rx="2" fill="#222"/><rect x="242" y="232" width="20" height="30" rx="2" fill="#222"/><rect x="265" y="232" width="20" height="30" rx="2" fill="#222"/><rect x="288" y="232" width="20" height="30" rx="2" fill="#222"/><rect x="311" y="232" width="20" height="30" rx="2" fill="#222"/><rect x="334" y="232" width="20" height="30" rx="2" fill="#222"/><rect x="357" y="232" width="20" height="30" rx="2" fill="#222"/><rect x="380" y="232" width="20" height="30" rx="2" fill="#222"/><rect x="403" y="232" width="20" height="30" rx="2" fill="#222"/><rect x="426" y="232" width="20" height="30" rx="2" fill="#222"/><rect x="449" y="232" width="20" height="30" rx="2" fill="#222"/></g></svg>`,
-dotnori:`<svg viewBox="0 0 480 270" xmlns="http://www.w3.org/2000/svg"><rect width="480" height="270" fill="#091408"/><ellipse cx="240" cy="310" rx="320" ry="220" fill="rgba(34,214,138,.06)"/><rect width="480" height="46" fill="rgba(8,18,8,.92)" stroke="rgba(34,214,138,.14)" stroke-width="1"/><text x="26" y="20" text-anchor="middle" font-size="16">&#x1F33F;</text><text x="48" y="19" font-size="12.5" fill="#f0eeff" font-family="sans-serif" font-weight="900">Dot Nori</text><text x="48" y="33" font-size="8.5" fill="#22d68a" font-family="sans-serif">AI Tactile Learning Playground</text><rect x="374" y="11" width="96" height="22" rx="7" fill="rgba(34,214,138,.11)" stroke="rgba(34,214,138,.28)" stroke-width="1"/><circle cx="385" cy="22" r="3.5" fill="#22d68a"/><text x="422" y="26" text-anchor="middle" font-size="8.5" fill="#22d68a" font-family="sans-serif" font-weight="700">Dot Pad Connected</text><rect x="14" y="56" width="452" height="30" rx="7" fill="rgba(255,255,255,.04)" stroke="rgba(255,255,255,.05)" stroke-width="1"/><rect x="18" y="59" width="68" height="24" rx="5" fill="rgba(34,214,138,.14)" stroke="rgba(34,214,138,.28)" stroke-width="1"/><text x="52" y="75" text-anchor="middle" font-size="8.5" fill="#22d68a" font-family="sans-serif" font-weight="700">Animals</text><text x="116" y="75" font-size="8.5" fill="#558855" font-family="sans-serif">Geography</text><text x="174" y="75" font-size="8.5" fill="#558855" font-family="sans-serif">Science</text><text x="222" y="75" font-size="8.5" fill="#558855" font-family="sans-serif">Math</text><rect x="14" y="96" width="242" height="158" rx="9" fill="rgba(255,255,255,.02)" stroke="rgba(255,255,255,.05)" stroke-width="1"/><rect x="20" y="102" width="230" height="90" rx="6" fill="#071205"/><g fill="#22d68a" opacity=".85"><circle cx="58" cy="122" r="2.8"/><circle cx="68" cy="119" r="2.8"/><circle cx="78" cy="117" r="2.8"/><circle cx="88" cy="119" r="2.8"/><circle cx="98" cy="122" r="2.8"/><circle cx="53" cy="132" r="2.8"/><circle cx="103" cy="132" r="2.8"/><circle cx="50" cy="142" r="2.8"/><circle cx="60" cy="139" r="2.8"/><circle cx="96" cy="139" r="2.8"/><circle cx="106" cy="142" r="2.8"/><circle cx="50" cy="152" r="2.8"/><circle cx="68" cy="157" r="2.8"/><circle cx="88" cy="157" r="2.8"/><circle cx="106" cy="152" r="2.8"/><circle cx="58" cy="172" r="2.8"/><circle cx="73" cy="175" r="2.8"/><circle cx="83" cy="175" r="2.8"/><circle cx="98" cy="172" r="2.8"/></g><text x="154" y="151" text-anchor="middle" font-size="24">&#x1F42F;</text><text x="154" y="170" text-anchor="middle" font-size="8.5" fill="#558855" font-family="sans-serif">Wikipedia: Tiger</text><rect x="20" y="197" width="230" height="50" rx="6" fill="rgba(34,214,138,.04)" stroke="rgba(34,214,138,.1)" stroke-width="1"/><text x="28" y="212" font-size="8.5" fill="#eeeeff" font-family="sans-serif" font-weight="700">Tiger (Panthera tigris)</text><text x="28" y="226" font-size="8" fill="#558855" font-family="sans-serif">Large felid native to Asia</text><text x="28" y="239" font-size="8" fill="#558855" font-family="sans-serif">Max length 3.9m, weight 310kg</text><rect x="266" y="96" width="200" height="158" rx="9" fill="rgba(255,255,255,.02)" stroke="rgba(255,255,255,.05)" stroke-width="1"/><text x="276" y="114" font-size="8.5" fill="#558855" font-family="sans-serif">AI Guide</text><rect x="272" y="120" width="188" height="72" rx="7" fill="rgba(34,214,138,.07)" stroke="rgba(34,214,138,.18)" stroke-width="1"/><text x="282" y="136" font-size="8.5" fill="#22d68a" font-family="sans-serif" font-weight="700">Pifo &#x1F33F;</text><text x="282" y="150" font-size="8.5" fill="#aadcaa" font-family="sans-serif">Tiger tactile graphic is</text><text x="282" y="163" font-size="8.5" fill="#aadcaa" font-family="sans-serif">on Dot Pad! Touch it &#x1F91A;</text><text x="282" y="179" font-size="8.5" fill="#aadcaa" font-family="sans-serif">Explore slowly with both hands.</text><rect x="370" y="200" width="90" height="46" rx="6" fill="rgba(34,214,138,.14)" stroke="rgba(34,214,138,.38)" stroke-width="1.5"/><text x="415" y="220" text-anchor="middle" font-size="16">&#x27A1;&#xFE0F;</text><text x="415" y="237" text-anchor="middle" font-size="7.5" fill="#22d68a" font-weight="700">Next</text></svg>`,
-dotnana:`<svg viewBox="0 0 480 270" xmlns="http://www.w3.org/2000/svg"><rect width="480" height="270" fill="#fafafa"/><rect x="0" y="0" width="165" height="270" fill="#fff" stroke="#e8e8e4" stroke-width="1"/><rect x="9" y="10" width="32" height="28" rx="8" fill="#111"/><g fill="rgba(255,255,255,.86)"><circle cx="18" cy="18" r="2"/><circle cx="25" cy="18" r="2"/><circle cx="32" cy="18" r="2"/><circle cx="18" cy="25" r="2"/><circle cx="25" cy="25" r="2"/><circle cx="32" cy="25" r="2"/><circle cx="18" cy="32" r="2"/><circle cx="25" cy="32" r="2"/><circle cx="32" cy="32" r="2"/></g><text x="50" y="22" font-size="10" fill="#111" font-family="sans-serif" font-weight="900">Dot-Nana</text><text x="50" y="34" font-size="7" fill="#aaa" font-family="sans-serif">AI Tactile Storytelling</text><rect x="7" y="65" width="151" height="27" rx="7" fill="#f5f3ff" stroke="#7c3aed" stroke-width="1"/><text x="12" y="79" font-size="8.5" fill="#7c3aed" font-family="sans-serif" font-weight="700">&#10022; Demo Mode</text><text x="12" y="90" font-size="7" fill="#a78bfa" font-family="sans-serif">Sample story experience</text><rect x="7" y="96" width="151" height="27" rx="7" fill="transparent" stroke="#e8e8e4" stroke-width="1"/><text x="12" y="113" font-size="8.5" fill="#aaa" font-family="sans-serif">Library / File</text><rect x="7" y="127" width="151" height="27" rx="7" fill="transparent" stroke="#e8e8e4" stroke-width="1"/><text x="12" y="144" font-size="8.5" fill="#aaa" font-family="sans-serif">AI Creation</text><rect x="7" y="168" width="151" height="52" rx="7" fill="#fdf4ff" stroke="#f0abfc" stroke-width="1"/><text x="13" y="181" font-size="7" fill="#ccc" font-family="sans-serif">DEMO STORY</text><text x="13" y="194" font-size="9.5" fill="#111" font-family="sans-serif" font-weight="700">The Whale Who</text><text x="13" y="207" font-size="9.5" fill="#111" font-family="sans-serif" font-weight="700">Swallowed a Star</text><rect x="13" y="212" width="58" height="5" rx="99" fill="#f0e0ff"/><rect x="13" y="212" width="20" height="5" rx="99" fill="#c026d3"/><rect x="167" y="0" width="188" height="270" fill="#f4f4f4"/><rect x="167" y="0" width="188" height="38" fill="#fff" stroke="#e8e8e4" stroke-width="1"/><text x="204" y="22" font-size="9.5" fill="#111" font-family="sans-serif" font-weight="700">The Whale Who Swallowed a Star</text><text x="347" y="22" text-anchor="end" font-size="8" fill="#ccc" font-family="monospace">1/4</text><rect x="175" y="46" width="172" height="130" rx="9" fill="#fff" stroke="#e8e8e4" stroke-width="1"/><rect x="181" y="70" width="160" height="88" rx="5" fill="#eeeeec"/><g fill="#1a1a1a" opacity=".85"><circle cx="206" cy="96" r="2.5"/><circle cx="214" cy="93" r="2.5"/><circle cx="222" cy="91" r="2.5"/><circle cx="230" cy="90" r="2.5"/><circle cx="238" cy="91" r="2.5"/><circle cx="246" cy="93" r="2.5"/><circle cx="254" cy="96" r="2.5"/><circle cx="260" cy="100" r="2.5"/><circle cx="202" cy="106" r="2.5"/><circle cx="264" cy="104" r="2.5"/><circle cx="200" cy="116" r="2.5"/><circle cx="264" cy="112" r="2.5"/><circle cx="202" cy="126" r="2.5"/><circle cx="222" cy="131" r="2.5"/><circle cx="242" cy="129" r="2.5"/><circle cx="252" cy="126" r="2.5"/><circle cx="260" cy="121" r="2.5"/><circle cx="216" cy="104" r="3" fill="#1a1a1a"/></g><rect x="222" y="158" width="38" height="38" rx="99" fill="#111"/><text x="241" y="182" text-anchor="middle" font-size="15" fill="#fff">&#9654;</text><rect x="177" y="198" width="172" height="22" rx="5" fill="rgba(0,0,0,.04)"/><text x="263" y="213" text-anchor="middle" font-size="8" fill="#666" font-family="sans-serif">Deep in the dark starry sea...</text><rect x="355" y="0" width="125" height="270" fill="#fafafa" stroke="#e8e8e4" stroke-width="1"/><text x="362" y="14" font-size="7.5" fill="#ccc" font-family="sans-serif">KANANA VOICE</text><rect x="360" y="17" width="29" height="32" rx="5" fill="#f0f0f2" stroke="#111" stroke-width="1.5"/><text x="374" y="31" text-anchor="middle" font-size="14">&#x1F469;&#x200D;&#x1F3EB;</text><text x="374" y="44" text-anchor="middle" font-size="6" fill="#111" font-family="sans-serif" font-weight="700">Teacher</text><rect x="393" y="17" width="29" height="32" rx="5" fill="#f4f4f2" stroke="#e8e8e4" stroke-width="1"/><text x="407" y="31" text-anchor="middle" font-size="14">&#x1F981;</text><rect x="426" y="17" width="29" height="32" rx="5" fill="#f4f4f2" stroke="#e8e8e4" stroke-width="1"/><text x="440" y="31" text-anchor="middle" font-size="14">&#x1F9DA;</text><rect x="360" y="55" width="95" height="165" rx="5" fill="#f4f4f2"/><rect x="364" y="61" width="83" height="40" rx="7" fill="#fff" stroke="#e8e8e4" stroke-width="1"/><text x="368" y="73" font-size="7" fill="#aaa" font-family="sans-serif">Kanana (Teacher)</text><text x="368" y="85" font-size="8" fill="#111" font-family="sans-serif">The Whale &#9654; tap to play!</text><rect x="368" y="107" width="75" height="19" rx="7" fill="#111"/><text x="405" y="120" text-anchor="middle" font-size="7.5" fill="#fff" font-family="sans-serif">Next Page</text><rect x="360" y="230" width="95" height="27" rx="99" fill="#ebebea" stroke="#e0e0de" stroke-width="1"/><text x="398" y="248" text-anchor="middle" font-size="8" fill="#aaa" font-family="sans-serif">&#x1F3A4; Speak...</text></svg>`,
-tactilelearning:`<svg viewBox="0 0 480 270" xmlns="http://www.w3.org/2000/svg"><rect width="480" height="270" fill="#edf1ff"/><rect width="480" height="42" fill="#fff" stroke="#dce6ff" stroke-width="1"/><rect x="11" y="9" width="26" height="24" rx="5" fill="#1a5cff"/><text x="24" y="25" text-anchor="middle" font-size="8.5" fill="#fff" font-family="sans-serif" font-weight="900">DOT</text><text x="46" y="20" font-size="10.5" fill="#111" font-family="sans-serif" font-weight="700">Dot Tactile Learning</text><text x="46" y="33" font-size="7.5" fill="#888" font-family="sans-serif">Remote Classroom Live Broadcast System</text><rect x="400" y="8" width="70" height="24" rx="6" fill="#1a5cff"/><text x="435" y="24" text-anchor="middle" font-size="8.5" fill="#fff" font-family="sans-serif" font-weight="700">Broadcast All</text><rect x="7" y="50" width="136" height="212" rx="7" fill="#fff" stroke="#dce6ff" stroke-width="1"/><text x="15" y="66" font-size="7.5" fill="#aaa" font-family="monospace">UPLOAD</text><rect x="13" y="70" width="120" height="50" rx="5" fill="#edf1ff" stroke="#bfcfff" stroke-width="1.5" stroke-dasharray="4,3"/><text x="73" y="94" text-anchor="middle" font-size="17">&#x1F4C4;</text><text x="73" y="111" text-anchor="middle" font-size="7.5" fill="#1a5cff" font-family="sans-serif">PDF / Image Upload</text><rect x="13" y="128" width="120" height="26" rx="5" fill="#eef2ff" stroke="#bfcfff" stroke-width="1"/><text x="73" y="145" text-anchor="middle" font-size="8.5" fill="#1a5cff" font-family="sans-serif">Cell Division.pdf</text><rect x="13" y="168" width="56" height="20" rx="4" fill="#1a5cff"/><text x="41" y="182" text-anchor="middle" font-size="7.5" fill="#fff" font-family="sans-serif" font-weight="700">Tactile</text><rect x="73" y="168" width="60" height="20" rx="4" fill="#edf1ff" stroke="#bfcfff" stroke-width="1"/><text x="103" y="182" text-anchor="middle" font-size="7.5" fill="#888" font-family="sans-serif">Braille</text><rect x="13" y="202" width="120" height="22" rx="5" fill="#1a5cff"/><text x="73" y="217" text-anchor="middle" font-size="8.5" fill="#fff" font-family="sans-serif" font-weight="700">Start Convert</text><rect x="151" y="50" width="246" height="212" rx="7" fill="#fff" stroke="#dce6ff" stroke-width="1"/><text x="161" y="66" font-size="7.5" fill="#aaa" font-family="monospace">STUDENT TERMINALS (72/80)</text><rect x="304" y="52" width="88" height="14" rx="99" fill="#f0fdf4"/><circle cx="313" cy="59" r="2.5" fill="#22c55e"/><text x="320" y="63" font-size="7" fill="#16a34a" font-family="sans-serif">OK 72  ERR 3</text><g><rect x="159" y="74" width="20" height="20" rx="3" fill="#22c55e" opacity=".14" stroke="#22c55e" stroke-width="1"/><text x="169" y="88" text-anchor="middle" font-size="6.5" fill="#16a34a">01</text><rect x="183" y="74" width="20" height="20" rx="3" fill="#22c55e" opacity=".14" stroke="#22c55e" stroke-width="1"/><text x="193" y="88" text-anchor="middle" font-size="6.5" fill="#16a34a">02</text><rect x="207" y="74" width="20" height="20" rx="3" fill="#22c55e" opacity=".14" stroke="#22c55e" stroke-width="1"/><rect x="231" y="74" width="20" height="20" rx="3" fill="#22c55e" opacity=".14" stroke="#22c55e" stroke-width="1"/><rect x="255" y="74" width="20" height="20" rx="3" fill="#f59e0b" opacity=".2" stroke="#f59e0b" stroke-width="1"/><text x="265" y="88" text-anchor="middle" font-size="6.5" fill="#b45309">05</text><rect x="279" y="74" width="20" height="20" rx="3" fill="#22c55e" opacity=".14" stroke="#22c55e" stroke-width="1"/><rect x="303" y="74" width="20" height="20" rx="3" fill="#22c55e" opacity=".14" stroke="#22c55e" stroke-width="1"/><rect x="327" y="74" width="20" height="20" rx="3" fill="#ef4444" opacity=".18" stroke="#ef4444" stroke-width="1"/><text x="337" y="88" text-anchor="middle" font-size="6.5" fill="#dc2626">08</text><rect x="159" y="98" width="20" height="20" rx="3" fill="#22c55e" opacity=".14" stroke="#22c55e" stroke-width="1"/><rect x="183" y="98" width="20" height="20" rx="3" fill="#22c55e" opacity=".14" stroke="#22c55e" stroke-width="1"/><rect x="207" y="98" width="20" height="20" rx="3" fill="#22c55e" opacity=".14" stroke="#22c55e" stroke-width="1"/><rect x="231" y="98" width="20" height="20" rx="3" fill="#22c55e" opacity=".14" stroke="#22c55e" stroke-width="1"/><rect x="255" y="98" width="20" height="20" rx="3" fill="#22c55e" opacity=".14" stroke="#22c55e" stroke-width="1"/><rect x="279" y="98" width="20" height="20" rx="3" fill="#f59e0b" opacity=".2" stroke="#f59e0b" stroke-width="1"/><rect x="303" y="98" width="20" height="20" rx="3" fill="#22c55e" opacity=".14" stroke="#22c55e" stroke-width="1"/><rect x="327" y="98" width="20" height="20" rx="3" fill="#22c55e" opacity=".14" stroke="#22c55e" stroke-width="1"/><rect x="159" y="122" width="20" height="20" rx="3" fill="#22c55e" opacity=".14" stroke="#22c55e" stroke-width="1"/><rect x="183" y="122" width="20" height="20" rx="3" fill="#22c55e" opacity=".14" stroke="#22c55e" stroke-width="1"/><rect x="207" y="122" width="20" height="20" rx="3" fill="#ef4444" opacity=".18" stroke="#ef4444" stroke-width="1"/><rect x="231" y="122" width="20" height="20" rx="3" fill="#22c55e" opacity=".14" stroke="#22c55e" stroke-width="1"/><rect x="255" y="122" width="20" height="20" rx="3" fill="#22c55e" opacity=".14" stroke="#22c55e" stroke-width="1"/><rect x="279" y="122" width="20" height="20" rx="3" fill="#22c55e" opacity=".14" stroke="#22c55e" stroke-width="1"/><rect x="303" y="122" width="20" height="20" rx="3" fill="#22c55e" opacity=".14" stroke="#22c55e" stroke-width="1"/><rect x="327" y="122" width="20" height="20" rx="3" fill="#22c55e" opacity=".14" stroke="#22c55e" stroke-width="1"/><text x="252" y="190" text-anchor="middle" font-size="8.5" fill="#bbb">&#8943; 72 students connected</text></g><rect x="405" y="50" width="67" height="212" rx="7" fill="#0a0a12" stroke="#181820" stroke-width="1"/><text x="409" y="62" font-size="6" fill="#444" font-family="monospace">DOT PAD</text><rect x="408" y="65" width="59" height="45" rx="4" fill="#060610" stroke="#181828" stroke-width="1"/><g fill="#1a5cff" opacity=".7"><circle cx="416" cy="73" r="1.7"/><circle cx="422" cy="73" r="1.7"/><circle cx="428" cy="73" r="1.7"/><circle cx="434" cy="73" r="1.7"/><circle cx="440" cy="73" r="1.7"/><circle cx="458" cy="73" r="1.7"/><circle cx="416" cy="79" r="1.7"/><circle cx="458" cy="79" r="1.7"/><circle cx="416" cy="85" r="1.7"/><circle cx="428" cy="85" r="1.7"/><circle cx="434" cy="85" r="1.7"/><circle cx="458" cy="85" r="1.7"/><circle cx="416" cy="91" r="1.7"/><circle cx="458" cy="91" r="1.7"/><circle cx="416" cy="97" r="1.7"/><circle cx="422" cy="97" r="1.7"/><circle cx="428" cy="97" r="1.7"/><circle cx="434" cy="97" r="1.7"/><circle cx="440" cy="97" r="1.7"/><circle cx="458" cy="97" r="1.7"/><circle cx="416" cy="103" r="1.7"/><circle cx="458" cy="103" r="1.7"/></g><rect x="408" y="126" width="59" height="13" rx="3" fill="rgba(34,197,94,.14)" stroke="rgba(34,197,94,.28)" stroke-width="1"/><text x="437" y="136" text-anchor="middle" font-size="6.5" fill="#22c55e" font-family="monospace">&#10003; Sent</text></svg>`,
-dotvillage:`<svg viewBox="0 0 480 270" xmlns="http://www.w3.org/2000/svg"><rect width="480" height="270" fill="#081506"/><ellipse cx="82" cy="38" rx="36" ry="12" fill="rgba(255,255,255,.07)"/><ellipse cx="362" cy="28" rx="28" ry="9" fill="rgba(255,255,255,.05)"/><rect x="0" y="0" width="480" height="42" fill="rgba(8,24,6,.9)" stroke="rgba(34,197,94,.13)" stroke-width="1"/><text x="24" y="25" text-anchor="middle" font-size="12">&#x1F33F;</text><text x="44" y="17" font-size="10.5" fill="#f0eeff" font-family="sans-serif" font-weight="900">Dot Village Arcade</text><text x="44" y="31" font-size="7.5" fill="#22d68a" font-family="sans-serif">Tactile village exploration with Lumi</text><rect x="84" y="48" width="312" height="150" rx="7" fill="rgba(8,24,6,.72)" stroke="rgba(34,197,94,.18)" stroke-width="1"/><text x="97" y="88" font-size="16">&#x1F332;</text><text x="116" y="78" font-size="12">&#x1F333;</text><text x="352" y="85" font-size="16">&#x1F332;</text><text x="371" y="75" font-size="12">&#x1F333;</text><rect x="167" y="88" width="40" height="34" rx="4" fill="rgba(130,85,40,.42)" stroke="rgba(130,85,40,.62)" stroke-width="1"/><text x="187" y="112" text-anchor="middle" font-size="13">&#x1F3E1;</text><rect x="238" y="90" width="36" height="30" rx="4" fill="rgba(85,130,40,.3)" stroke="rgba(85,130,40,.5)" stroke-width="1"/><text x="256" y="112" text-anchor="middle" font-size="12">&#x1F33F;</text><rect x="298" y="86" width="40" height="34" rx="4" fill="rgba(40,85,130,.3)" stroke="rgba(40,85,130,.5)" stroke-width="1"/><text x="318" y="110" text-anchor="middle" font-size="12">&#x1F4A7;</text><g fill="rgba(255,255,255,.18)"><circle cx="136" cy="148" r="1.8"/><circle cx="151" cy="148" r="1.8"/><circle cx="166" cy="148" r="1.8"/><circle cx="191" cy="148" r="1.8"/><circle cx="206" cy="148" r="1.8"/><circle cx="221" cy="148" r="1.8"/><circle cx="246" cy="148" r="1.8"/><circle cx="261" cy="148" r="1.8"/><circle cx="276" cy="148" r="1.8"/><circle cx="300" cy="148" r="1.8"/><circle cx="315" cy="148" r="1.8"/><circle cx="330" cy="148" r="1.8"/></g><circle cx="213" cy="136" r="9.5" fill="#7c6ff7" opacity=".92"/><circle cx="213" cy="131" r="5.5" fill="#a29bfe"/><text x="213" y="150" text-anchor="middle" font-size="7.5" fill="#f0eeff" font-weight="700">Lumi</text><rect x="116" y="50" width="202" height="32" rx="7" fill="rgba(8,24,6,.9)" stroke="rgba(34,197,94,.28)" stroke-width="1"/><text x="126" y="63" font-size="8.5" fill="#22d68a" font-family="sans-serif" font-weight="700">Lumi</text><text x="126" y="76" font-size="8.5" fill="#aad8aa" font-family="sans-serif">Welcome to Dot Village!</text><rect x="6" y="52" width="72" height="118" rx="9" fill="rgba(255,255,255,.03)" stroke="rgba(255,255,255,.07)" stroke-width="1"/><text x="42" y="66" text-anchor="middle" font-size="7.5" fill="#558855">Move</text><rect x="28" y="70" width="26" height="24" rx="5" fill="rgba(255,255,255,.05)" stroke="rgba(255,255,255,.09)" stroke-width="1"/><text x="41" y="86" text-anchor="middle" font-size="12">&#x25B2;</text><rect x="6" y="96" width="26" height="24" rx="5" fill="rgba(255,255,255,.05)" stroke="rgba(255,255,255,.09)" stroke-width="1"/><text x="19" y="112" text-anchor="middle" font-size="12">&#x25C4;</text><rect x="52" y="96" width="26" height="24" rx="5" fill="rgba(255,255,255,.05)" stroke="rgba(255,255,255,.09)" stroke-width="1"/><text x="65" y="112" text-anchor="middle" font-size="12">&#x25BA;</text><rect x="28" y="122" width="26" height="24" rx="5" fill="rgba(255,255,255,.05)" stroke="rgba(255,255,255,.09)" stroke-width="1"/><text x="41" y="138" text-anchor="middle" font-size="12">&#x25BC;</text><rect x="402" y="52" width="72" height="118" rx="9" fill="rgba(255,255,255,.03)" stroke="rgba(255,255,255,.07)" stroke-width="1"/><text x="438" y="66" text-anchor="middle" font-size="7.5" fill="#558855">Browse</text><rect x="424" y="70" width="26" height="24" rx="5" fill="rgba(255,255,255,.05)" stroke="rgba(255,255,255,.09)" stroke-width="1"/><text x="437" y="86" text-anchor="middle" font-size="12">&#x25B2;</text><rect x="402" y="96" width="26" height="24" rx="5" fill="rgba(255,255,255,.05)" stroke="rgba(255,255,255,.09)" stroke-width="1"/><text x="415" y="112" text-anchor="middle" font-size="12">&#x25C4;</text><rect x="446" y="96" width="26" height="24" rx="5" fill="rgba(255,255,255,.05)" stroke="rgba(255,255,255,.09)" stroke-width="1"/><text x="459" y="112" text-anchor="middle" font-size="12">&#x25BA;</text><rect x="424" y="122" width="26" height="24" rx="5" fill="rgba(255,255,255,.05)" stroke="rgba(255,255,255,.09)" stroke-width="1"/><text x="437" y="138" text-anchor="middle" font-size="12">&#x25BC;</text><rect x="84" y="204" width="312" height="60" rx="7" fill="rgba(255,255,255,.025)" stroke="rgba(255,255,255,.055)" stroke-width="1"/><text x="97" y="218" font-size="7.5" fill="#558855" font-family="sans-serif">Dot Pad preview 60&#xd7;40</text><rect x="92" y="222" width="296" height="34" rx="3" fill="rgba(8,24,6,.6)"/><g fill="#22d68a" opacity=".58"><rect x="96" y="226" width="5" height="5" rx="1"/><rect x="104" y="226" width="5" height="5" rx="1"/><rect x="120" y="226" width="5" height="5" rx="1"/><rect x="128" y="226" width="5" height="5" rx="1"/><rect x="136" y="226" width="5" height="5" rx="1"/><rect x="96" y="234" width="5" height="5" rx="1"/><rect x="112" y="234" width="5" height="5" rx="1"/><rect x="128" y="234" width="5" height="5" rx="1"/><rect x="96" y="242" width="5" height="5" rx="1"/><rect x="104" y="242" width="5" height="5" rx="1"/><rect x="112" y="242" width="5" height="5" rx="1"/><rect x="128" y="242" width="5" height="5" rx="1"/></g><rect x="6" y="196" width="72" height="68" rx="7" fill="rgba(255,255,255,.025)" stroke="rgba(255,255,255,.055)" stroke-width="1"/><text x="42" y="210" text-anchor="middle" font-size="6" fill="#558855">Braille</text><rect x="10" y="214" width="64" height="42" rx="3" fill="rgba(8,24,6,.6)"/><text x="42" y="230" text-anchor="middle" font-size="7" fill="#22d68a" font-family="monospace">Lumi: Hi!</text><text x="42" y="244" text-anchor="middle" font-size="7" fill="#558855" font-family="monospace">Welcome to...</text><rect x="402" y="196" width="72" height="68" rx="7" fill="rgba(255,255,255,.025)" stroke="rgba(255,255,255,.055)" stroke-width="1"/><text x="438" y="210" text-anchor="middle" font-size="6" fill="#558855">F-Keys</text><rect x="406" y="214" width="30" height="20" rx="3" fill="rgba(74,158,255,.14)" stroke="rgba(74,158,255,.28)" stroke-width="1"/><text x="421" y="224" text-anchor="middle" font-size="6" fill="#4a9eff" font-weight="700">F1</text><rect x="440" y="214" width="30" height="20" rx="3" fill="rgba(34,197,94,.14)" stroke="rgba(34,197,94,.28)" stroke-width="1"/><text x="455" y="224" text-anchor="middle" font-size="6" fill="#22d68a" font-weight="700">F2</text><rect x="406" y="238" width="30" height="20" rx="3" fill="rgba(245,158,11,.11)" stroke="rgba(245,158,11,.24)" stroke-width="1"/><text x="421" y="248" text-anchor="middle" font-size="6" fill="#f59e0b" font-weight="700">F3</text><rect x="440" y="238" width="30" height="20" rx="3" fill="rgba(167,139,250,.11)" stroke="rgba(167,139,250,.24)" stroke-width="1"/><text x="455" y="248" text-anchor="middle" font-size="6" fill="#a78bfa" font-weight="700">F4</text></svg>`,
+const THUMBS={
+dotnana:`<svg viewBox="0 0 480 270" xmlns="http://www.w3.org/2000/svg"><rect width="480" height="270" fill="#fafafa"/><rect x="0" y="0" width="165" height="270" fill="#fff" stroke="#e8e8e4" stroke-width="1"/><rect x="9" y="10" width="32" height="28" rx="8" fill="#111"/><g fill="rgba(255,255,255,.86)"><circle cx="18" cy="18" r="2"/><circle cx="25" cy="18" r="2"/><circle cx="32" cy="18" r="2"/><circle cx="18" cy="25" r="2"/><circle cx="25" cy="25" r="2"/><circle cx="32" cy="25" r="2"/><circle cx="18" cy="32" r="2"/><circle cx="25" cy="32" r="2"/><circle cx="32" cy="32" r="2"/></g><text x="50" y="22" font-size="10" fill="#111" font-family="sans-serif" font-weight="900">Dot-Nana</text><text x="50" y="34" font-size="7" fill="#aaa" font-family="sans-serif">AI Tactile Storytelling</text><rect x="7" y="65" width="151" height="27" rx="7" fill="#f5f3ff" stroke="#7c3aed" stroke-width="1"/><text x="12" y="82" font-size="9" fill="#7c3aed" font-family="sans-serif" font-weight="700">✦ Demo Mode</text><rect x="7" y="168" width="151" height="52" rx="7" fill="#fdf4ff" stroke="#f0abfc" stroke-width="1"/><text x="13" y="194" font-size="10" fill="#111" font-family="sans-serif" font-weight="700">The Whale Who</text><text x="13" y="207" font-size="10" fill="#111" font-family="sans-serif" font-weight="700">Swallowed a Star</text><rect x="167" y="0" width="188" height="270" fill="#f4f4f4"/><rect x="167" y="0" width="188" height="38" fill="#fff" stroke="#e8e8e4" stroke-width="1"/><text x="204" y="22" font-size="9.5" fill="#111" font-family="sans-serif" font-weight="700">The Whale Who Swallowed a Star</text><rect x="175" y="46" width="172" height="130" rx="9" fill="#fff" stroke="#e8e8e4" stroke-width="1"/><rect x="181" y="70" width="160" height="88" rx="5" fill="#eeeeec"/><g fill="#1a1a1a" opacity=".85"><circle cx="206" cy="96" r="2.5"/><circle cx="214" cy="93" r="2.5"/><circle cx="222" cy="91" r="2.5"/><circle cx="230" cy="90" r="2.5"/><circle cx="238" cy="91" r="2.5"/><circle cx="246" cy="93" r="2.5"/><circle cx="254" cy="96" r="2.5"/><circle cx="260" cy="100" r="2.5"/><circle cx="202" cy="106" r="2.5"/><circle cx="264" cy="104" r="2.5"/><circle cx="200" cy="116" r="2.5"/><circle cx="264" cy="112" r="2.5"/><circle cx="202" cy="126" r="2.5"/><circle cx="242" cy="129" r="2.5"/><circle cx="252" cy="126" r="2.5"/><circle cx="260" cy="121" r="2.5"/></g><rect x="222" y="158" width="38" height="38" rx="99" fill="#111"/><text x="241" y="182" text-anchor="middle" font-size="15" fill="#fff">&#9654;</text><rect x="355" y="0" width="125" height="270" fill="#fafafa" stroke="#e8e8e4" stroke-width="1"/><rect x="360" y="17" width="29" height="32" rx="5" fill="#f0f0f2" stroke="#111" stroke-width="1.5"/><text x="374" y="31" text-anchor="middle" font-size="14">&#x1F469;&#x200D;&#x1F3EB;</text><rect x="393" y="17" width="29" height="32" rx="5" fill="#f4f4f2" stroke="#e8e8e4" stroke-width="1"/><text x="407" y="31" text-anchor="middle" font-size="14">&#x1F981;</text><rect x="426" y="17" width="29" height="32" rx="5" fill="#f4f4f2" stroke="#e8e8e4" stroke-width="1"/><text x="440" y="31" text-anchor="middle" font-size="14">&#x1F9DA;</text><rect x="360" y="55" width="95" height="165" rx="5" fill="#f4f4f2"/></svg>`,
+concert:`<svg viewBox="0 0 480 270" xmlns="http://www.w3.org/2000/svg"><rect width="480" height="270" fill="#06060c"/><ellipse cx="240" cy="310" rx="300" ry="220" fill="rgba(255,32,100,.13)"/><rect x="0" y="0" width="480" height="34" fill="rgba(12,12,22,.96)"/><text x="14" y="21" font-size="10" fill="#f0eeff" font-family="sans-serif" font-weight="900">K-pop Barrier-free Concert</text><rect x="358" y="6" width="48" height="20" rx="5" fill="rgba(255,32,100,.18)" stroke="rgba(255,32,100,.45)" stroke-width="1"/><circle cx="366" cy="16" r="3" fill="#ff2060"/><text x="374" y="20" font-size="7.5" fill="#ff2060" font-family="monospace" font-weight="700">LIVE</text><circle cx="38" cy="44" r="4.5" fill="#ff2060" opacity=".72"/><circle cx="96" cy="44" r="4.5" fill="#4a9eff" opacity=".72"/><circle cx="154" cy="44" r="4.5" fill="#ffe033" opacity=".72"/><circle cx="212" cy="44" r="4.5" fill="#ff2060" opacity=".8"/><circle cx="270" cy="44" r="4.5" fill="#4a9eff" opacity=".62"/><circle cx="328" cy="44" r="4.5" fill="#ffe033" opacity=".72"/><circle cx="398" cy="44" r="4.5" fill="#ff2060" opacity=".8"/><line x1="38" y1="44" x2="38" y2="198" stroke="rgba(255,32,100,.07)" stroke-width="10"/><line x1="154" y1="44" x2="154" y2="198" stroke="rgba(255,224,51,.05)" stroke-width="10"/><line x1="270" y1="44" x2="270" y2="198" stroke="rgba(74,158,255,.06)" stroke-width="10"/><line x1="398" y1="44" x2="398" y2="198" stroke="rgba(255,32,100,.07)" stroke-width="10"/><ellipse cx="198" cy="156" rx="16" ry="33" fill="rgba(0,0,0,.72)"/><circle cx="198" cy="120" r="12" fill="rgba(0,0,0,.72)"/><line x1="182" y1="146" x2="163" y2="127" stroke="rgba(0,0,0,.7)" stroke-width="7" stroke-linecap="round"/><line x1="214" y1="146" x2="233" y2="127" stroke="rgba(0,0,0,.7)" stroke-width="7" stroke-linecap="round"/><ellipse cx="295" cy="160" rx="13" ry="26" fill="rgba(0,0,0,.62)"/><circle cx="295" cy="130" r="9" fill="rgba(0,0,0,.62)"/><rect x="0" y="236" width="480" height="34" fill="rgba(0,0,0,.9)"/><text x="240" y="250" text-anchor="middle" font-size="11" fill="#fff" font-family="sans-serif" font-weight="700">So I'ma light it up like dynamite</text><text x="240" y="264" text-anchor="middle" font-size="8.5" fill="rgba(255,255,255,.52)" font-family="sans-serif">다이너마이트처럼 불을 밝혀</text></svg>`,
+dotbeat:`<svg viewBox="0 0 480 270" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="db" x1="0" y1="0" x2=".5" y2="1"><stop offset="0%" stop-color="#0f0c28"/><stop offset="100%" stop-color="#1a1248"/></linearGradient></defs><rect width="480" height="270" fill="url(#db)"/><circle cx="60" cy="25" r="1.2" fill="#fff" opacity=".5"/><circle cx="180" cy="12" r="1.5" fill="#fff" opacity=".4"/><circle cx="380" cy="32" r="1" fill="#fff" opacity=".6"/><rect x="160" y="16" width="160" height="22" rx="5" fill="rgba(0,212,255,.08)" stroke="rgba(0,212,255,.22)" stroke-width="1"/><text x="240" y="31" text-anchor="middle" font-size="9" fill="#00d4ff" font-family="sans-serif" font-weight="800" letter-spacing="3">DOT BEAT</text><rect x="50" y="50" width="380" height="135" rx="8" fill="#0e0c22" stroke="#2a2768" stroke-width="1.5"/><rect x="60" y="60" width="135" height="115" rx="4" fill="rgba(0,212,255,.05)" stroke="rgba(0,212,255,.18)" stroke-width="1"/><rect x="285" y="60" width="135" height="115" rx="4" fill="rgba(255,63,164,.05)" stroke="rgba(255,63,164,.18)" stroke-width="1"/><circle cx="88" cy="88" r="4.5" fill="rgba(0,212,255,.6)"/><circle cx="108" cy="88" r="4.5" fill="rgba(0,212,255,.5)"/><circle cx="128" cy="88" r="4.5" fill="rgba(0,212,255,.4)"/><circle cx="88" cy="106" r="5.5" fill="#00d4ff" opacity=".9"/><circle cx="108" cy="106" r="5.5" fill="#00d4ff" opacity=".9"/><circle cx="128" cy="106" r="5.5" fill="#00d4ff" opacity=".9"/><circle cx="313" cy="86" r="6.5" fill="#ff3fa4" opacity=".9"/><circle cx="336" cy="86" r="6.5" fill="#ff3fa4" opacity=".9"/><circle cx="359" cy="86" r="6.5" fill="#ff3fa4" opacity=".85"/><circle cx="313" cy="106" r="6" fill="#ff3fa4" opacity=".7"/><circle cx="336" cy="106" r="6" fill="#ff3fa4" opacity=".7"/><text x="240" y="118" text-anchor="middle" font-size="18" fill="#ffe033" font-family="sans-serif" font-weight="900" opacity=".95">PERFECT!</text><text x="80" y="206" font-size="8" fill="rgba(255,255,255,.35)" font-family="sans-serif" letter-spacing="3">SCORE</text><text x="80" y="222" font-size="17" fill="#f0eeff" font-family="sans-serif" font-weight="900">012400</text><text x="240" y="206" text-anchor="middle" font-size="8" fill="rgba(255,255,255,.35)" font-family="sans-serif">COMBO</text><text x="240" y="224" text-anchor="middle" font-size="21" fill="#00d4ff" font-family="sans-serif" font-weight="900">8</text></svg>`,
+aitactile:`<svg viewBox="0 0 480 270" xmlns="http://www.w3.org/2000/svg"><rect width="480" height="270" fill="#f9f9f7"/><rect x="0" y="0" width="188" height="270" fill="#fff" stroke="#e6e6e2" stroke-width="1"/><rect x="10" y="10" width="30" height="30" rx="8" fill="#7c3aed"/><text x="25" y="29" text-anchor="middle" font-size="13" fill="#fff">&#10022;</text><text x="50" y="21" font-size="10" fill="#111" font-family="sans-serif" font-weight="900">AI Tactile</text><text x="50" y="33" font-size="8" fill="#888" font-family="sans-serif">Graphic Generator</text><rect x="8" y="48" width="172" height="26" rx="6" fill="#f0f0ee" stroke="#e6e6e2" stroke-width="1"/><rect x="10" y="50" width="82" height="22" rx="5" fill="#fff"/><text x="51" y="65" text-anchor="middle" font-size="8" fill="#111" font-family="sans-serif" font-weight="700">Text Prompt</text><text x="140" y="65" text-anchor="middle" font-size="8" fill="#999" font-family="sans-serif">Image Upload</text><rect x="8" y="92" width="172" height="46" rx="6" fill="#f4f4f2" stroke="#d0d0cc" stroke-width="1.5"/><text x="14" y="107" font-size="8.5" fill="#555" font-family="sans-serif">Korean Peninsula topography</text><rect x="8" y="232" width="172" height="26" rx="7" fill="#7c3aed"/><text x="94" y="249" text-anchor="middle" font-size="10" fill="#fff" font-family="sans-serif" font-weight="700">&#10022; Generate</text><rect x="190" y="0" width="186" height="270" fill="#f2f2f0"/><rect x="198" y="18" width="170" height="118" rx="7" fill="#fff" stroke="#e6e6e2" stroke-width="1"/><g fill="#1a1a1a"><circle cx="228" cy="40" r="2.5"/><circle cx="238" cy="37" r="2.5"/><circle cx="248" cy="35" r="2.5"/><circle cx="258" cy="37" r="2.5"/><circle cx="268" cy="40" r="2.5"/><circle cx="276" cy="44" r="2.5"/><circle cx="226" cy="50" r="2.5"/><circle cx="280" cy="50" r="2.5"/><circle cx="224" cy="60" r="2.5"/><circle cx="282" cy="58" r="2.5"/><circle cx="223" cy="70" r="2.5"/><circle cx="284" cy="67" r="2.5"/><circle cx="224" cy="80" r="2.5"/><circle cx="283" cy="77" r="2.5"/><circle cx="226" cy="90" r="2.5"/><circle cx="281" cy="85" r="2.5"/><circle cx="230" cy="100" r="2.5"/><circle cx="258" cy="105" r="2.5"/><circle cx="280" cy="97" r="2.5"/></g><rect x="198" y="140" width="170" height="3" rx="99" fill="#7c3aed"/><rect x="376" y="0" width="104" height="270" fill="#0a0a12" stroke="#181820" stroke-width="1"/><text x="381" y="15" font-size="6.5" fill="#404050" font-family="monospace" letter-spacing="2">DOT PAD 320</text><rect x="380" y="18" width="90" height="68" rx="4" fill="#060610" stroke="#181828" stroke-width="1"/><g fill="#7c3aed" opacity=".82"><circle cx="388" cy="26" r="2"/><circle cx="395" cy="26" r="2"/><circle cx="402" cy="26" r="2"/><circle cx="416" cy="26" r="2"/><circle cx="423" cy="26" r="2"/><circle cx="430" cy="26" r="2"/><circle cx="444" cy="26" r="2"/><circle cx="460" cy="26" r="2"/><circle cx="388" cy="34" r="2"/><circle cx="444" cy="34" r="2"/><circle cx="460" cy="34" r="2"/><circle cx="388" cy="42" r="2"/><circle cx="402" cy="42" r="2"/><circle cx="409" cy="42" r="2"/><circle cx="444" cy="42" r="2"/><circle cx="388" cy="50" r="2"/><circle cx="416" cy="50" r="2"/><circle cx="444" cy="50" r="2"/></g></svg>`,
+dotventure:`<svg viewBox="0 0 480 270" xmlns="http://www.w3.org/2000/svg"><rect width="480" height="270" fill="#080612"/><rect x="0" y="0" width="138" height="270" fill="#0e0c20" stroke="#221f44" stroke-width="1"/><text x="12" y="18" font-size="7" fill="#5a5880" font-family="monospace">LIBRARY</text><rect x="8" y="22" width="122" height="32" rx="5" fill="#181540" stroke="#2a2768" stroke-width="1"/><text x="14" y="37" font-size="9" fill="#eeeeff" font-family="sans-serif" font-weight="700">고대 신전의 비밀</text><rect x="8" y="58" width="122" height="32" rx="5" fill="#181540" stroke="#22d68a" stroke-width="1.5"/><text x="14" y="73" font-size="9" fill="#22d68a" font-family="sans-serif" font-weight="700">마법의 숲 탐험</text><rect x="146" y="34" width="188" height="200" rx="6" fill="#0c0a1e"/><rect x="146" y="34" width="188" height="14" fill="#181540"/><rect x="153" y="118" width="16" height="16" rx="4" fill="#7c6ff7"/><circle cx="161" cy="126" r="4.5" fill="#a29bfe"/><rect x="342" y="0" width="138" height="270" fill="#0a0a18" stroke="#1a1a30" stroke-width="1"/><rect x="344" y="20" width="128" height="95" rx="5" fill="#080810" stroke="#1a1a2e" stroke-width="1.5"/><g fill="#7c6ff7" opacity=".78"><circle cx="354" cy="30" r="2.2"/><circle cx="362" cy="30" r="2.2"/><circle cx="370" cy="30" r="2.2"/><circle cx="378" cy="30" r="2.2"/><circle cx="386" cy="30" r="2.2"/><circle cx="354" cy="39" r="2.2"/><circle cx="448" cy="39" r="2.2"/><circle cx="354" cy="48" r="2.2"/><circle cx="370" cy="48" r="2.2"/><circle cx="378" cy="48" r="2.2"/><circle cx="448" cy="48" r="2.2"/><circle cx="354" cy="57" r="2.2"/><circle cx="448" cy="57" r="2.2"/><circle cx="354" cy="66" r="2.2"/><circle cx="362" cy="66" r="2.2"/><circle cx="448" cy="66" r="2.2"/></g></svg>`,
+tactilelearning:`<svg viewBox="0 0 480 270" xmlns="http://www.w3.org/2000/svg"><rect width="480" height="270" fill="#edf1ff"/><rect width="480" height="42" fill="#fff" stroke="#dce6ff" stroke-width="1"/><rect x="11" y="9" width="26" height="24" rx="5" fill="#1a5cff"/><text x="24" y="25" text-anchor="middle" font-size="8.5" fill="#fff" font-family="sans-serif" font-weight="900">DOT</text><text x="46" y="20" font-size="10.5" fill="#111" font-family="sans-serif" font-weight="700">Dot Tactile Learning</text><rect x="400" y="8" width="70" height="24" rx="6" fill="#1a5cff"/><text x="435" y="24" text-anchor="middle" font-size="8.5" fill="#fff" font-family="sans-serif" font-weight="700">Broadcast All</text><rect x="7" y="50" width="136" height="212" rx="7" fill="#fff" stroke="#dce6ff" stroke-width="1"/><rect x="13" y="70" width="120" height="50" rx="5" fill="#edf1ff" stroke="#bfcfff" stroke-width="1.5" stroke-dasharray="4,3"/><text x="73" y="98" text-anchor="middle" font-size="17">&#x1F4C4;</text><rect x="151" y="50" width="246" height="212" rx="7" fill="#fff" stroke="#dce6ff" stroke-width="1"/><text x="161" y="66" font-size="7.5" fill="#aaa" font-family="monospace">STUDENT TERMINALS (72/80)</text><g><rect x="159" y="74" width="20" height="20" rx="3" fill="#22c55e" opacity=".14" stroke="#22c55e" stroke-width="1"/><text x="169" y="88" text-anchor="middle" font-size="6.5" fill="#16a34a">01</text><rect x="183" y="74" width="20" height="20" rx="3" fill="#22c55e" opacity=".14" stroke="#22c55e" stroke-width="1"/><rect x="207" y="74" width="20" height="20" rx="3" fill="#22c55e" opacity=".14" stroke="#22c55e" stroke-width="1"/><rect x="231" y="74" width="20" height="20" rx="3" fill="#22c55e" opacity=".14" stroke="#22c55e" stroke-width="1"/><rect x="255" y="74" width="20" height="20" rx="3" fill="#f59e0b" opacity=".2" stroke="#f59e0b" stroke-width="1"/><rect x="279" y="74" width="20" height="20" rx="3" fill="#22c55e" opacity=".14" stroke="#22c55e" stroke-width="1"/><rect x="303" y="74" width="20" height="20" rx="3" fill="#22c55e" opacity=".14" stroke="#22c55e" stroke-width="1"/><rect x="327" y="74" width="20" height="20" rx="3" fill="#ef4444" opacity=".18" stroke="#ef4444" stroke-width="1"/><rect x="159" y="98" width="20" height="20" rx="3" fill="#22c55e" opacity=".14" stroke="#22c55e" stroke-width="1"/><rect x="183" y="98" width="20" height="20" rx="3" fill="#22c55e" opacity=".14" stroke="#22c55e" stroke-width="1"/><rect x="207" y="98" width="20" height="20" rx="3" fill="#22c55e" opacity=".14" stroke="#22c55e" stroke-width="1"/><rect x="231" y="98" width="20" height="20" rx="3" fill="#22c55e" opacity=".14" stroke="#22c55e" stroke-width="1"/><text x="252" y="180" text-anchor="middle" font-size="8.5" fill="#bbb">&#8943; 72 connected</text></g></svg>`,
+dotspace:`<svg viewBox="0 0 480 270" xmlns="http://www.w3.org/2000/svg"><rect width="480" height="270" fill="#070b1c"/><ellipse cx="240" cy="310" rx="300" ry="200" fill="rgba(127,214,255,.08)"/><text x="240" y="30" text-anchor="middle" font-size="11" fill="#7fd6ff" font-family="monospace" letter-spacing="2">DOT SPACE QUEST</text><rect x="28" y="50" width="286" height="135" rx="6" fill="#0e1530" stroke="#3b5a86" stroke-width="2"/><g fill="#ffe9a8" opacity=".85"><circle cx="48" cy="72" r="1.8"/><circle cx="57" cy="72" r="1.8"/><circle cx="66" cy="72" r="1.8"/><circle cx="75" cy="72" r="1.8"/><circle cx="84" cy="72" r="1.8"/><circle cx="48" cy="81" r="1.8"/><circle cx="138" cy="81" r="1.8"/><circle cx="48" cy="90" r="1.8"/><circle cx="138" cy="90" r="1.8"/><circle cx="48" cy="99" r="1.8"/><circle cx="57" cy="99" r="1.8"/><circle cx="138" cy="99" r="1.8"/></g><g fill="#ffe9a8" opacity=".7"><circle cx="170" cy="100" r="1.8"/><circle cx="179" cy="95" r="1.8"/><circle cx="188" cy="92" r="1.8"/><circle cx="197" cy="90" r="1.8"/><circle cx="206" cy="90" r="1.8"/><circle cx="215" cy="92" r="1.8"/><circle cx="224" cy="96" r="1.8"/><circle cx="163" cy="120" r="1.8"/><circle cx="240" cy="120" r="1.8"/></g><g fill="#8fe6b0"><polygon points="285,135 278,150 292,150"/><rect x="281" y="150" width="8" height="6" rx="1"/></g><rect x="322" y="50" width="130" height="135" rx="6" fill="#0c1226" stroke="#3b5a86" stroke-width="1.5"/><text x="328" y="68" font-size="7" fill="#a9b7d6" font-family="monospace">MISSIONS</text><rect x="326" y="72" width="122" height="24" rx="4" fill="#7fd6ff" opacity=".12" stroke="#7fd6ff" stroke-width="1"/><text x="330" y="84" font-size="7" fill="#7fd6ff" font-family="monospace">★ 나의 우주</text><rect x="326" y="100" width="122" height="24" rx="4" fill="rgba(255,211,90,.1)" stroke="rgba(255,211,90,.3)" stroke-width="1"/><text x="330" y="112" font-size="7" fill="#ffd35c" font-family="monospace">◐ 행성 질감</text><rect x="326" y="128" width="122" height="24" rx="4" fill="rgba(143,230,176,.08)" stroke="rgba(143,230,176,.25)" stroke-width="1"/><text x="330" y="140" font-size="7" fill="#8fe6b0" font-family="monospace">1 달까지 가기</text></svg>`,
+edulens:`<svg viewBox="0 0 480 270" xmlns="http://www.w3.org/2000/svg"><rect width="480" height="270" fill="#fff"/><rect width="480" height="40" fill="#fff" stroke="#eee" stroke-width="1"/><text x="15" y="17" font-size="16" fill="#1a1a1a" font-family="sans-serif" font-weight="900">dot::Lens</text><text x="80" y="17" font-size="16" fill="#eb5b33" font-family="sans-serif" font-weight="900"> </text><rect x="338" y="8" width="134" height="24" rx="6" fill="#e8f5e9" stroke="#4caf50" stroke-width="1"/><circle cx="352" cy="20" r="4" fill="#4caf50"/><text x="361" y="24" font-size="9" fill="#2e7d32" font-family="sans-serif" font-weight="700">Dot Pad Connected</text><rect x="8" y="46" width="464" height="34" rx="17" fill="#eb5b33"/><text x="240" y="67" text-anchor="middle" font-size="11" fill="#fff" font-family="sans-serif" font-weight="800">Real-time Cursor Sync (ON)</text><rect x="8" y="138" width="464" height="80" rx="5" fill="#1a1a1a"/><g fill="#eb5b33" opacity=".9"><rect x="20" y="145" width="60" height="5" rx="1"/><rect x="86" y="145" width="80" height="5" rx="1"/><rect x="20" y="155" width="200" height="4" rx="1"/><rect x="226" y="155" width="120" height="4" rx="1"/><rect x="20" y="164" width="160" height="4" rx="1"/><rect x="20" y="173" width="100" height="4" rx="1"/><rect x="20" y="182" width="180" height="4" rx="1"/><rect x="20" y="191" width="120" height="4" rx="1"/></g><rect x="8" y="232" width="464" height="32" rx="4" fill="#1a1a1a"/></svg>`,
+election:`<svg viewBox="0 0 480 270" xmlns="http://www.w3.org/2000/svg"><rect width="480" height="270" fill="#f7f7f5"/><rect width="480" height="42" fill="#fff" stroke="#eaeae6" stroke-width="1"/><rect x="0" y="41" width="480" height="3" fill="#1a5cff"/><text x="58" y="26" font-size="12" fill="#111" font-family="sans-serif" font-weight="700">Election Reader</text><rect x="0" y="44" width="192" height="226" fill="#fff" stroke="#eaeae6" stroke-width="1"/><rect x="6" y="66" width="180" height="36" rx="6" fill="#eef2ff" stroke="#1a5cff" stroke-width="1.5"/><circle cx="26" cy="84" r="9" fill="#1a5cff"/><text x="26" y="88" text-anchor="middle" font-size="9" fill="#fff" font-family="sans-serif" font-weight="900">1</text><text x="42" y="80" font-size="10" fill="#111" font-family="sans-serif" font-weight="700">Kim Min-jun</text><text x="42" y="93" font-size="8" fill="#888" font-family="sans-serif">Future Alliance</text><rect x="6" y="106" width="180" height="36" rx="6" fill="#fff" stroke="#eaeae6" stroke-width="1"/><circle cx="26" cy="124" r="9" fill="rgba(220,38,38,.12)"/><text x="26" y="128" text-anchor="middle" font-size="9" fill="#dc2626" font-family="sans-serif" font-weight="900">2</text><text x="42" y="120" font-size="10" fill="#111" font-family="sans-serif" font-weight="700">Lee Su-hyun</text><text x="42" y="133" font-size="8" fill="#888" font-family="sans-serif">People's Innovation</text><rect x="194" y="44" width="286" height="226" fill="#f7f7f5"/><text x="204" y="70" font-size="15" fill="#111" font-family="sans-serif" font-weight="900">No.1 Kim Min-jun</text><rect x="204" y="88" width="266" height="164" rx="7" fill="#fff" stroke="#eaeae6" stroke-width="1"/><rect x="204" y="88" width="266" height="22" rx="7" fill="#111"/><text x="216" y="103" font-size="8" fill="#fff" font-family="sans-serif" font-weight="700">Policy Issue</text><rect x="310" y="88" width="50" height="22" fill="#1a5cff"/><text x="335" y="103" text-anchor="middle" font-size="8" fill="#fff" font-family="sans-serif" font-weight="700">No.1</text><rect x="360" y="88" width="50" height="22" fill="#dc2626"/><rect x="410" y="88" width="50" height="22" fill="#16a34a"/></svg>`,
+dotnori:`<svg viewBox="0 0 480 270" xmlns="http://www.w3.org/2000/svg"><rect width="480" height="270" fill="#091408"/><text x="26" y="20" text-anchor="middle" font-size="16">&#x1F33F;</text><text x="48" y="20" font-size="12.5" fill="#f0eeff" font-family="sans-serif" font-weight="900">Dot Nori</text><text x="48" y="34" font-size="8.5" fill="#22d68a" font-family="sans-serif">AI Tactile Learning Playground</text><rect x="16" y="96" width="240" height="158" rx="9" fill="rgba(255,255,255,.02)" stroke="rgba(255,255,255,.05)" stroke-width="1"/><rect x="22" y="104" width="228" height="90" rx="7" fill="#071205"/><g fill="#22d68a" opacity=".85"><circle cx="58" cy="122" r="2.8"/><circle cx="68" cy="119" r="2.8"/><circle cx="78" cy="117" r="2.8"/><circle cx="88" cy="119" r="2.8"/><circle cx="98" cy="122" r="2.8"/><circle cx="53" cy="132" r="2.8"/><circle cx="103" cy="132" r="2.8"/><circle cx="50" cy="152" r="2.8"/><circle cx="68" cy="157" r="2.8"/><circle cx="88" cy="157" r="2.8"/><circle cx="106" cy="152" r="2.8"/></g><text x="154" y="154" text-anchor="middle" font-size="22">&#x1F42F;</text><rect x="268" y="96" width="196" height="158" rx="9" fill="rgba(255,255,255,.02)" stroke="rgba(255,255,255,.05)" stroke-width="1"/><rect x="274" y="122" width="184" height="70" rx="7" fill="rgba(34,214,138,.08)" stroke="rgba(34,214,138,.2)" stroke-width="1"/><text x="284" y="138" font-size="8.5" fill="#22d68a" font-family="sans-serif" font-weight="700">Pifo &#x1F33F;</text><text x="284" y="153" font-size="8.5" fill="#aadcaa" font-family="sans-serif">Tiger tactile graphic on Dot Pad!</text><text x="284" y="167" font-size="8.5" fill="#aadcaa" font-family="sans-serif">Touch it with both hands &#x1F91A;</text></svg>`,
+dotvillage:`<svg viewBox="0 0 480 270" xmlns="http://www.w3.org/2000/svg"><rect width="480" height="270" fill="#081506"/><rect x="0" y="0" width="480" height="42" fill="rgba(8,24,6,.9)"/><text x="44" y="18" font-size="10.5" fill="#f0eeff" font-family="sans-serif" font-weight="900">Dot Village Arcade</text><text x="44" y="32" font-size="7.5" fill="#22d68a" font-family="sans-serif">Tactile village with Lumi</text><rect x="84" y="50" width="312" height="148" rx="7" fill="rgba(8,24,6,.7)" stroke="rgba(34,197,94,.18)" stroke-width="1"/><text x="100" y="90" font-size="16">&#x1F332;</text><text x="350" y="88" font-size="16">&#x1F332;</text><rect x="167" y="88" width="40" height="34" rx="4" fill="rgba(130,85,40,.4)"/><text x="187" y="112" text-anchor="middle" font-size="13">&#x1F3E1;</text><rect x="238" y="90" width="36" height="30" rx="4" fill="rgba(85,130,40,.3)"/><text x="256" y="112" text-anchor="middle" font-size="12">&#x1F33F;</text><circle cx="213" cy="136" r="9.5" fill="#7c6ff7" opacity=".9"/><circle cx="213" cy="131" r="5.5" fill="#a29bfe"/><text x="213" y="151" text-anchor="middle" font-size="7.5" fill="#f0eeff" font-weight="700">Lumi</text></svg>`,
 };
-
-// ── PROJECTS ──
-const PROJECTS=[{"id": "dotspace", "cat": "game", "title": {"ko": "Dot Space Quest", "en": "Dot Space Quest"}, "tagline": {"ko": "60×40 점으로 만지는 촉각 우주 학습 게임", "en": "Tactile space learning game through 60×40 Dot Pad pins"}, "desc": {"ko": "행성 질감 탐험, 달까지 우주선 조종, 북두칠성 잇기, 일식 체험 — 5가지 미션으로 우주 과학을 손끝으로 배우는 MVP.", "en": "Explore planet textures, pilot a spaceship to the moon, trace the Big Dipper, and simulate a solar eclipse — 5 tactile missions to learn space science."}, "tags": ["Dot Pad", "Game"], "url": "https://byeol-coder.github.io/dot-space/"},{"id": "dotbeat", "cat": "game", "title": {"ko": "Dot Beat", "en": "Dot Beat"}, "tagline": {"ko": "시각장애 아동을 위한 촉각 리듬 게임", "en": "Tactile rhythm game for children with visual impairments"}, "desc": {"ko": "Dot Pad 핀 배열로 리듬 패턴을 손끝으로 느끼며 음악을 배우는 촉각 리듬 게임. 반응 속도 분석으로 난이도 자동 조절.", "en": "A tactile rhythm game where children feel beat patterns through Dot Pad pins and learn music. Difficulty auto-adjusts based on response time."}, "tags": ["Dot Pad", "Game"], "url": "./dot-beat/index.html"}, {"id": "dotventure", "cat": "game", "title": {"ko": "Dot Venture", "en": "Dot Venture"}, "tagline": {"ko": "Dot Pad 기반 아동용 촉각 탐험 게임 플랫폼", "en": "Tactile adventure game platform powered by Dot Pad"}, "desc": {"ko": "촉각 맵 탐색과 멀티포맷 콘텐츠를 하나로 연결한 Dot Pad 기반 아동용 게임 플랫폼.", "en": "A Dot Pad-powered game platform combining tactile map navigation and multi-format content for children."}, "tags": ["Dot Pad", "Game"], "url": "./dot-venture/index.html"}, {"id": "election", "cat": "accessibility", "title": {"ko": "Dot Election Reader", "en": "Dot Election Reader"}, "tagline": {"ko": "시각장애인을 위한 선거 정보 접근성 프로토타입", "en": "Election information accessibility for voters with visual impairments"}, "desc": {"ko": "ARIA 재설계와 Dot Pad 점자 출력을 연결한 공공 접근성 프로토타입. TTS·후보 비교표 포함.", "en": "A public accessibility prototype linking ARIA redesign with Dot Pad braille output. Includes TTS and candidate comparison tables."}, "tags": ["Accessibility", "Public"], "url": "./dot-election/index.html"}, {"id": "concert", "cat": "accessibility", "title": {"ko": "K-pop Barrier-free Concert", "en": "K-pop Barrier-free Concert"}, "tagline": {"ko": "시청각 장애인을 위한 공연 접근성 프로토타입", "en": "Concert accessibility for deaf and visually impaired audiences"}, "desc": {"ko": "실시간 자막, BPM 기반 촉각 진동 동기화, 수어 통역을 하나의 흐름으로 연결한 공연 접근성 프로토타입.", "en": "A concert accessibility prototype connecting real-time captions, BPM-synced tactile vibration, and sign language interpretation."}, "tags": ["Accessibility", "Concert"], "url": "./kpop-concert/index.html"}, {"id": "aitactile", "cat": "ai", "title": {"ko": "AI Tactile Generator", "en": "AI Tactile Generator"}, "tagline": {"ko": "이미지·프롬프트 → Dot Pad 촉각 그래픽 자동 생성", "en": "Image or prompt → auto-generate Dot Pad tactile graphics"}, "desc": {"ko": "이미지를 업로드하거나 텍스트 프롬프트를 입력하면 AI가 윤곽선을 분석해 60×40 점형 그래픽으로 변환합니다.", "en": "Upload an image or type a prompt and AI analyzes contours to convert it into a 60×40 Dot Pad tactile graphic."}, "tags": ["AI", "Dot Pad"], "url": "./ai-tactile-gen/index.html"}, {"id": "edulens", "cat": "accessibility", "title": {"ko": "Dot Edu-Lens Pro", "en": "Dot Edu-Lens Pro"}, "tagline": {"ko": "웹 화면을 실시간 촉각+점자로 변환하는 크롬 확장", "en": "Chrome extension converting web content to tactile+braille in real time"}, "desc": {"ko": "브라우저 사이드패널에서 웹 화면을 그래픽(60×40)과 점자(20셀) 멀티모달로 실시간 변환해 Dot Pad에 전송.", "en": "Converts web pages into multimodal tactile graphics (60×40) and braille (20 cells) in the browser side panel and sends to Dot Pad."}, "tags": ["Extension", "Accessibility"], "url": "./edu-lens/sidepanel.html"}, {"id": "dotnori", "cat": "ai", "title": {"ko": "Dot Nori", "en": "Dot Nori"}, "tagline": {"ko": "AI 기반 시각장애 학생 촉각 학습 놀이터", "en": "AI-powered tactile learning playground for students with visual impairments"}, "desc": {"ko": "AI 캐릭터 피포가 위키백과 이미지를 촉각 그래픽으로 변환하며 학습을 안내하는 MVP 서비스.", "en": "An MVP service where AI character Pifo converts Wikipedia images to tactile graphics and guides learning."}, "tags": ["AI", "Education"], "url": "https://dotnori.netlify.app/"}, {"id": "dotnana", "cat": "ai", "title": {"ko": "Dot Nana", "en": "Dot Nana"}, "tagline": {"ko": "AI 페르소나가 들려주는 촉각 구연동화", "en": "AI persona storytelling with tactile illustrations via Dot Pad"}, "desc": {"ko": "6가지 AI 페르소나가 동화 삽화를 Dot Pad 촉각 그래픽으로 전달하는 구연동화. 음성 입력·STT·BLE 완전 통합.", "en": "6 AI personas deliver story illustrations as Dot Pad tactile graphics. Fully integrates voice input, STT, and BLE."}, "tags": ["AI", "Dot Pad"], "url": "./dot-nana/index.html"}, {"id": "tactilelearning", "cat": "education", "title": {"ko": "Dot Tactile Learning", "en": "Dot Tactile Learning"}, "tagline": {"ko": "원격 교실 Dot Pad 실시간 송출·제어 시스템", "en": "Remote classroom Dot Pad live broadcast and control system"}, "desc": {"ko": "교사가 60~100명 Dot Pad에 촉각 자료를 실시간 송출·제어하는 원격 교육 시스템 MVP.", "en": "An MVP remote education system where teachers broadcast tactile content to 60–100 student Dot Pads in real time."}, "tags": ["Education", "Remote"], "url": "https://dottactilelearning.netlify.app/"}, {"id": "dotvillage", "cat": "game", "title": {"ko": "닷 빌리지 아케이드", "en": "Dot Village Arcade"}, "tagline": {"ko": "루미와 함께하는 Dot Pad 촉각 마을 탐험", "en": "Tactile village exploration with Lumi and the Dotlings"}, "desc": {"ko": "루미와 Dotling 마을 친구들이 등장하는 60×40 촉각 마을 아케이드 게임 아이디에이션.", "en": "A 60×40 tactile village arcade game ideation featuring Lumi and Dotling village characters."}, "tags": ["Game", "Dot Pad"], "url": "https://byeol-coder.github.io/dot-forest/"}];
-
-// ── BADGE COLORS ──
+const PROJECTS=[{"id": "dotspace", "cat": "game", "title": {"ko": "Dot Space Quest", "en": "Dot Space Quest"}, "tagline": {"ko": "60×40 점으로 만지는 촉각 우주 학습 게임", "en": "Tactile space learning game through 60×40 Dot Pad pins"}, "desc": {"ko": "행성 질감 탐험, 달까지 우주선 조종, 북두칠성 잇기, 일식 체험 — 5가지 미션으로 우주 과학을 손끝으로 배웁니다.", "en": "Explore planet textures, pilot to the moon, trace the Big Dipper — 5 tactile missions to learn space science."}, "tags": ["Dot Pad", "Game"], "url": "https://byeol-coder.github.io/dot-space/"}, {"id": "dotbeat", "cat": "game", "title": {"ko": "Dot Beat", "en": "Dot Beat"}, "tagline": {"ko": "시각장애 아동을 위한 촉각 리듬 게임", "en": "Tactile rhythm game for children with visual impairments"}, "desc": {"ko": "Dot Pad 핀 배열로 리듬 패턴을 손끝으로 느끼며 음악을 배우는 촉각 리듬 게임입니다.", "en": "Feel rhythm patterns through Dot Pad pins and learn music with your fingertips."}, "tags": ["Dot Pad", "Game"], "url": "./dot-beat/index.html"}, {"id": "dotventure", "cat": "game", "title": {"ko": "Dot Venture", "en": "Dot Venture"}, "tagline": {"ko": "Dot Pad 기반 아동용 촉각 탐험 게임 플랫폼", "en": "Tactile adventure game platform powered by Dot Pad"}, "desc": {"ko": "촉각 맵 탐색과 멀티포맷 콘텐츠를 하나로 연결한 Dot Pad 기반 아동용 게임 플랫폼입니다.", "en": "A Dot Pad-powered game platform combining tactile map navigation and multi-format content."}, "tags": ["Dot Pad", "Game"], "url": "./dot-venture/index.html"}, {"id": "election", "cat": "accessibility", "title": {"ko": "Dot Election Reader", "en": "Dot Election Reader"}, "tagline": {"ko": "시각장애인을 위한 선거 정보 접근성 프로토타입", "en": "Election information accessibility for voters with visual impairments"}, "desc": {"ko": "ARIA 재설계와 Dot Pad 점자 출력을 연결한 공공 접근성 프로토타입입니다.", "en": "A public accessibility prototype linking ARIA redesign with Dot Pad braille output."}, "tags": ["Accessibility", "Public"], "url": "./dot-election/index.html"}, {"id": "concert", "cat": "accessibility", "title": {"ko": "K-pop Barrier-free Concert", "en": "K-pop Barrier-free Concert"}, "tagline": {"ko": "시청각 장애인을 위한 공연 접근성 프로토타입", "en": "Concert accessibility for deaf and visually impaired audiences"}, "desc": {"ko": "실시간 자막, BPM 촉각 진동 동기화, 수어 통역을 하나의 흐름으로 연결합니다.", "en": "Connecting real-time captions, BPM-synced tactile vibration, and sign language interpretation."}, "tags": ["Accessibility", "Concert"], "url": "./kpop-concert/index.html"}, {"id": "aitactile", "cat": "ai", "title": {"ko": "AI Tactile Generator", "en": "AI Tactile Generator"}, "tagline": {"ko": "이미지·프롬프트 → Dot Pad 촉각 그래픽 자동 생성", "en": "Image or prompt → auto-generate Dot Pad tactile graphics"}, "desc": {"ko": "이미지를 업로드하거나 텍스트 프롬프트를 입력하면 AI가 60×40 점형 그래픽으로 변환합니다.", "en": "Upload an image or type a prompt and AI converts it into a 60×40 Dot Pad tactile graphic."}, "tags": ["AI", "Dot Pad"], "url": "./ai-tactile-gen/index.html"}, {"id": "edulens", "cat": "accessibility", "title": {"ko": "Dot Edu-Lens Pro", "en": "Dot Edu-Lens Pro"}, "tagline": {"ko": "웹 화면을 실시간 촉각+점자로 변환하는 크롬 확장", "en": "Chrome extension converting web content to tactile+braille in real time"}, "desc": {"ko": "브라우저 사이드패널에서 웹 화면을 그래픽(60×40)과 점자(20셀)로 실시간 변환합니다.", "en": "Converts web pages into multimodal tactile graphics (60×40) and braille (20 cells) in real time."}, "tags": ["Extension", "Accessibility"], "url": "./edu-lens/sidepanel.html"}, {"id": "dotnori", "cat": "ai", "title": {"ko": "Dot Nori", "en": "Dot Nori"}, "tagline": {"ko": "AI 기반 시각장애 학생 촉각 학습 놀이터", "en": "AI-powered tactile learning playground for students with visual impairments"}, "desc": {"ko": "AI 캐릭터 피포가 위키백과 이미지를 촉각 그래픽으로 변환하며 학습을 안내합니다.", "en": "AI character Pifo converts Wikipedia images to tactile graphics and guides learning."}, "tags": ["AI", "Education"], "url": "https://dotnori.netlify.app/"}, {"id": "dotnana", "cat": "ai", "title": {"ko": "Dot Nana", "en": "Dot Nana"}, "tagline": {"ko": "AI 페르소나가 들려주는 촉각 구연동화", "en": "AI persona storytelling with tactile illustrations"}, "desc": {"ko": "6가지 AI 페르소나가 동화 삽화를 Dot Pad 촉각 그래픽으로 전달하는 구연동화입니다.", "en": "6 AI personas deliver story illustrations as Dot Pad tactile graphics with voice narration."}, "tags": ["AI", "Dot Pad"], "url": "./dot-nana/index.html"}, {"id": "tactilelearning", "cat": "education", "title": {"ko": "Dot Tactile Learning", "en": "Dot Tactile Learning"}, "tagline": {"ko": "원격 교실 Dot Pad 실시간 송출·제어 시스템", "en": "Remote classroom Dot Pad live broadcast and control system"}, "desc": {"ko": "교사가 최대 100명의 Dot Pad에 촉각 자료를 실시간 송출·제어하는 원격 교육 시스템입니다.", "en": "Teachers broadcast tactile content to up to 100 student Dot Pads in real time."}, "tags": ["Education", "Remote"], "url": "https://dottactilelearning.netlify.app/"}, {"id": "dotvillage", "cat": "game", "title": {"ko": "닷 빌리지 아케이드", "en": "Dot Village Arcade"}, "tagline": {"ko": "루미와 함께하는 Dot Pad 촉각 마을 탐험", "en": "Tactile village exploration with Lumi and the Dotlings"}, "desc": {"ko": "루미와 Dotling 마을 친구들이 등장하는 60×40 촉각 마을 아케이드 게임입니다.", "en": "A 60×40 tactile village arcade game featuring Lumi and Dotling village characters."}, "tags": ["Game", "Dot Pad"], "url": "https://byeol-coder.github.io/dot-forest/"}];
 const BC={"Dot Pad": "#8b78ff", "Game": "#22d68a", "Accessibility": "#4a9eff", "AI": "#f59e0b", "Concert": "#f43f5e", "Education": "#4a9eff", "Remote": "#22d68a", "Public": "#4a9eff", "Extension": "#2dd4b0"};
 
-// ── i18n ──
+// ══════════════════════════════════════════════
+// i18n
+// ══════════════════════════════════════════════
 const I18N = {
-  ko: {
-    navHome:'홈', navA11y:'접근성', navGame:'게임', navAI:'AI 도구',
-    heroTitle:'접근성을 위한\n<span>AI 프로토타입</span> 모음',
-    heroDesc:'바이브코딩으로 제작한 시각장애·청각장애인을 위한 Dot Pad 촉각 그래픽·AI 인터랙티브 프로토타입입니다.',
-    heroPlay:'▶ 첫 번째 프로토타입', heroInfo:'모든 작업 보기',
-    catAccLabel:'접근성 프로토타입', catGameLabel:'게임 & 인터랙션',
-    catAILabel:'AI 도구', catEduLabel:'교육 & 원격',
-    catAllLabel:'모든 프로젝트',
-    footerMeta:'이샛별 · 닷 디자인실 시니어 디자이너',
-    openNew:'새 탭에서 열립니다', projects:'프로젝트',
-    rowArrow:'모두 보기 ›',
+  ko:{
+    skip:'본문으로 건너뛰기',
+    eyebrow:'이샛별 × Dot Inc. — AI 프로토타이핑',
+    heroTitle:'손끝으로 시작되는\n<span class="grad">접근성의 미래</span>',
+    heroSub:'시각장애·청각장애인을 위해 바이브코딩으로 제작한 11개의 AI 프로토타입. Dot Pad 촉각 그래픽과 AI를 연결합니다.',
+    cta1:'모든 프로젝트 보기', cta2:'지금 데모 열기 ↗',
+    statProto:'프로토타입', statPins:'Dot Pad 핀', statAI:'AI 모델',
+    catA11y:'접근성', catGame:'게임', catAI:'AI 도구',
+    secA11yH2:'누구나 즐기는\n공연·선거·웹',
+    secA11yDesc:'청각장애인이 공연을 진동으로 느끼고, 시각장애인이 선거 정보를 점자로 읽으며, 웹을 촉각으로 탐색합니다.',
+    fsConcertKicker:'공연 접근성',
+    fsConcertH3:'K-pop 공연을\n<span>모두가 함께</span>',
+    fsConcertP:'BPM 동기화 촉각 진동, 실시간 자막, 수어 통역, 음성 해설을 단 하나의 인터페이스로 통합했습니다.',
+    fsConcertFeatures:['BPM 기반 Dot Pad 촉각 진동 동기화','실시간 한/영 자막 + AI 음성 해설','수어 통역 패널','FIFTY FIFTY · BTS · BLACKPINK 등 6곡'],
+    fsConcertBtn:'공연 체험하기 →',
+    badgeConcertLive:'● LIVE',
+    fsLensKicker:'크롬 확장 앱',
+    fsLensH3:'웹을 <span>손끝으로</span>\n읽는다',
+    fsLensP:'커서가 이동하는 순간 웹 화면을 캡처해 60×40 핀 그래픽과 20셀 점자로 실시간 변환, Dot Pad로 전송합니다.',
+    fsLensFeatures:['150ms 간격 실시간 캡처','그래픽 60×40 + 점자 20셀 동시 출력','Wikipedia · 차트 · 교과서 데모 내장','BLE 직접 전송'],
+    fsLensBtn:'Edu-Lens 열기 →',
+    quoteText:'"디자인이 모든 사람을 위한 것이라면, 접근성은 디자인의 <em>시작점</em>이어야 합니다."',
+    quoteBy:'— 이샛별, 닷 디자인실 시니어 디자이너',
+    secGameH2:'귀가 아닌 손끝으로\n즐기는 게임',
+    secGameDesc:'리듬·탐험·우주·마을 — 모든 게임이 Dot Pad 촉각 출력과 TTS를 통해 시각 없이도 완전히 플레이 가능합니다.',
+    fsBeatKicker:'촉각 리듬 게임',
+    fsBeatH3:'리듬을 <span>손끝으로</span>\n느끼다',
+    fsBeatP:'핀이 올라오는 패턴을 양손으로 느끼며 박자를 맞춥니다. 음악을 읽지 못해도 리듬을 배울 수 있습니다.',
+    fsBeatFeatures:['Dot Pad 핀 패턴으로 비트 전달','좌우 패닝 촉각 채널','반응 속도 기반 자동 난이도 조절','아기상어 BPM 72 포함 다수 수록'],
+    fsBeatBtn:'Dot Beat 플레이 →', fsVentureBtn:'Dot Venture →',
+    fsSpaceKicker:'촉각 우주 과학',
+    fsSpaceH3:'<span>손끝으로</span>\n우주를 탐험하다',
+    fsSpaceP:'행성 표면 질감을 촉각으로 탐색하고, 우주선을 조종해 달에 착륙합니다. 5가지 미션으로 천문학을 배웁니다.',
+    fsSpaceFeatures:['행성 질감 촉각 패턴 5종','우주선 이동 + 목표 착륙 미션','북두칠성 잇기 · 일식 체험','나의 우주 컬렉션 누적'],
+    fsSpaceBtn:'Space Quest 플레이 →',
+    secAIH2:'AI가 그리는\n새로운 접근성',
+    secAIDesc:'Claude API, Web Speech, BLE를 단일 파일로 통합. AI가 이미지를 분석하고, 이야기를 읽어주고, 위키백과를 촉각으로 변환합니다.',
+    fsNanaKicker:'AI 구연동화',
+    fsNanaH3:'AI가 동화를\n<span>손끝으로</span> 들려준다',
+    fsNanaP:'6가지 AI 페르소나(선생님·용감한 사자·요정 등)가 동화 삽화를 Dot Pad 촉각 그래픽으로 변환하며 이야기를 들려줍니다.',
+    fsNanaFeatures:['Claude API 실시간 나레이션','Web Speech STT 음성 입력','Dot Pad BLE 실기기 전송','DTMS hex 8종 내장 (고래·별·파도·하트 등)'],
+    fsNanaBtn:'Dot Nana 체험하기 →',
+    fsAITactileKicker:'AI 촉각 그래픽',
+    fsAITactileH3:'어떤 이미지도\n<span>촉각으로</span> 변환',
+    fsAITactileP:'텍스트 프롬프트나 이미지 업로드로 AI가 60×40 Dot Pad 그래픽을 즉시 생성합니다. 뇌 단면도, 한반도 지형, DNA 등 15+ 프리셋.',
+    fsAITactileFeatures:['Claude API 프롬프트 → 패턴 매핑','이미지 업로드 엣지 감지 변환','실시간 파라미터 preview','PNG 내보내기 + Dot Pad 직전송'],
+    fsAITactileBtn:'AI Generator 열기 →', fsNoriBtn:'Dot Nori →',
+    gridH2:'모든 프로젝트', gridSub:'클릭하면 새 탭에서 열립니다',
+    filterAll:'전체', filterA11y:'접근성', filterGame:'게임', filterAI:'AI', filterEdu:'교육',
+    openNew:'새 탭에서 열립니다',
+    footerCopy:'이샛별 · 닷 디자인실 시니어 디자이너 · 2026',
+    sb1:'AI 프로토타입', sb2:'Dot Pad 핀', sb3:'카테고리', sb4:'바이브 코딩',
   },
-  en: {
-    navHome:'Home', navA11y:'Accessibility', navGame:'Game', navAI:'AI Tools',
-    heroTitle:'AI Prototypes for\n<span>Accessibility</span>',
-    heroDesc:'Interactive prototypes for visually and hearing-impaired users, built with vibe-coding — Dot Pad tactile graphics and AI-powered experiences.',
-    heroPlay:'▶ First Prototype', heroInfo:'Browse All',
-    catAccLabel:'Accessibility Prototypes', catGameLabel:'Game & Interaction',
-    catAILabel:'AI Tools', catEduLabel:'Education & Remote',
-    catAllLabel:'All Projects',
-    footerMeta:'Byeol Lee · Dot Inc. Senior Designer',
-    openNew:'Opens in new tab', projects:'projects',
-    rowArrow:'Explore all ›',
+  en:{
+    skip:'Skip to main content',
+    eyebrow:'Byeol Lee × Dot Inc. — AI Prototyping',
+    heroTitle:'The Future of Accessibility\n<span class="grad">Starts at Your Fingertips</span>',
+    heroSub:'11 AI prototypes for the visually and hearing-impaired — built with vibe coding, connecting Dot Pad tactile graphics and AI.',
+    cta1:'Browse All Projects', cta2:'Open Live Demo ↗',
+    statProto:'Prototypes', statPins:'Dot Pad Pins', statAI:'AI Models',
+    catA11y:'Accessibility', catGame:'Game', catAI:'AI Tools',
+    secA11yH2:'Concerts, Elections, and Web\nfor Everyone',
+    secA11yDesc:'Deaf audiences feel concerts through vibration. Blind voters read election info in braille. Sighted users experience the web through touch.',
+    fsConcertKicker:'Concert Accessibility',
+    fsConcertH3:'K-pop Concerts\n<span>for Everyone</span>',
+    fsConcertP:'BPM-synced tactile vibration, real-time captions, sign language, and audio description — unified in a single interface.',
+    fsConcertFeatures:['BPM-synced Dot Pad tactile vibration','Real-time bilingual captions + AI audio description','Sign language interpreter panel','6 songs: FIFTY FIFTY · BTS · BLACKPINK'],
+    fsConcertBtn:'Experience the Concert →',
+    badgeConcertLive:'● LIVE',
+    fsLensKicker:'Chrome Extension',
+    fsLensH3:'Read the Web\n<span>by Touch</span>',
+    fsLensP:'The moment your cursor moves, the screen is captured and converted to 60×40 tactile graphics + 20-cell braille, sent to Dot Pad in real time.',
+    fsLensFeatures:['Real-time capture at 150ms intervals','Simultaneous 60×40 graphics + 20-cell braille','Built-in demos: Wikipedia · Charts · Textbook','Direct BLE transmission'],
+    fsLensBtn:'Open Edu-Lens →',
+    quoteText:'"If design is for everyone, accessibility should be the <em>starting point</em> of design."',
+    quoteBy:'— Byeol Lee, Dot Inc. Senior Designer',
+    secGameH2:'Games You Feel\nNot Just See',
+    secGameDesc:'Rhythm · Adventure · Space · Village — every game is fully playable without vision through Dot Pad tactile output and TTS.',
+    fsBeatKicker:'Tactile Rhythm Game',
+    fsBeatH3:'Feel the Rhythm\n<span>by Touch</span>',
+    fsBeatP:'Feel pin patterns rising with both hands and match the beat. You can learn rhythm even without reading music.',
+    fsBeatFeatures:['Beat delivered via Dot Pad pin patterns','Left/right panning tactile channels','Auto difficulty based on response time','Baby Shark BPM 72 + multiple tracks'],
+    fsBeatBtn:'Play Dot Beat →', fsVentureBtn:'Dot Venture →',
+    fsSpaceKicker:'Tactile Space Science',
+    fsSpaceH3:'Explore Space\n<span>by Touch</span>',
+    fsSpaceP:'Explore planet surface textures tactilely and pilot a spaceship to the moon. Learn astronomy through 5 tactile missions.',
+    fsSpaceFeatures:['5 planet tactile texture patterns','Spaceship navigation + landing missions','Big Dipper tracing · Solar eclipse simulation','My Universe collection that accumulates'],
+    fsSpaceBtn:'Play Space Quest →',
+    secAIH2:'AI Draws a New\nKind of Accessibility',
+    secAIDesc:'Claude API, Web Speech, and BLE — integrated in a single file. AI analyzes images, narrates stories, and converts Wikipedia to tactile.',
+    fsNanaKicker:'AI Storytelling',
+    fsNanaH3:'AI Tells Stories\n<span>by Touch</span>',
+    fsNanaP:'6 AI personas (Teacher, Brave Lion, Fairy, etc.) convert story illustrations to Dot Pad tactile graphics and narrate the story.',
+    fsNanaFeatures:['Real-time narration via Claude API','Web Speech STT voice input','BLE direct hardware transmission','8 DTMS hex patterns (whale, star, wave, heart...)'],
+    fsNanaBtn:'Try Dot Nana →',
+    fsAITactileKicker:'AI Tactile Graphics',
+    fsAITactileH3:'Any Image,\n<span>Converted to Touch</span>',
+    fsAITactileP:'AI instantly generates 60×40 Dot Pad graphics from text prompts or uploaded images. 15+ presets: brain cross-section, peninsula map, DNA, and more.',
+    fsAITactileFeatures:['Claude API prompt → pattern mapping','Image upload edge detection conversion','Real-time parameter preview','PNG export + direct Dot Pad transmission'],
+    fsAITactileBtn:'Open AI Generator →', fsNoriBtn:'Dot Nori →',
+    gridH2:'All Projects', gridSub:'Click to open in a new tab',
+    filterAll:'All', filterA11y:'Accessibility', filterGame:'Game', filterAI:'AI', filterEdu:'Education',
+    openNew:'Opens in new tab',
+    footerCopy:'Byeol Lee · Dot Inc. Senior Designer · 2026',
+    sb1:'AI Prototypes', sb2:'Dot Pad Pins', sb3:'Categories', sb4:'Vibe Coded',
   }
 };
 
 let lang = (navigator.language||'').startsWith('en') ? 'en' : 'ko';
-function t(key){ return I18N[lang][key] || key; }
+function t(k){ return I18N[lang][k] || k; }
 
-// ── LANG TOGGLE ──
+// ══════════════════════════════════════════════
+// LANG
+// ══════════════════════════════════════════════
 function setLang(l){
-  lang = l;
-  document.documentElement.lang = l;
-  document.getElementById('btn-ko').classList.toggle('active', l==='ko');
-  document.getElementById('btn-en').classList.toggle('active', l==='en');
-  document.getElementById('btn-ko').setAttribute('aria-pressed', l==='ko' ? 'true':'false');
-  document.getElementById('btn-en').setAttribute('aria-pressed', l==='en' ? 'true':'false');
+  lang=l;
+  document.documentElement.lang=l;
+  document.getElementById('btn-ko').classList.toggle('active',l==='ko');
+  document.getElementById('btn-en').classList.toggle('active',l==='en');
+  document.getElementById('btn-ko').setAttribute('aria-pressed',l==='ko'?'true':'false');
+  document.getElementById('btn-en').setAttribute('aria-pressed',l==='en'?'true':'false');
   renderAll();
 }
 
-// ── HERO ──
-function renderHero(){
-  const el = document.getElementById('heroBg');
-  el.innerHTML = THUMBS['dotnana'] || '';
-  const titleEl = document.getElementById('hero-title');
-  titleEl.innerHTML = t('heroTitle').replace('\n','<br>');
-  document.getElementById('hero-desc').textContent = t('heroDesc');
-  document.getElementById('hero-play-txt').textContent = t('heroPlay');
-  document.getElementById('hero-info-txt').textContent = t('heroInfo');
-  document.getElementById('footer-meta').textContent = t('footerMeta');
-  document.getElementById('nl-home').textContent = t('navHome');
-  document.getElementById('nl-a11y').textContent = t('navA11y');
-  document.getElementById('nl-game').textContent = t('navGame');
-  document.getElementById('nl-ai').textContent = t('navAI');
+// ══════════════════════════════════════════════
+// HERO CANVAS — Dot Pad pin wave animation
+// ══════════════════════════════════════════════
+function initHeroBg(){
+  const cv=document.getElementById('heroBg');
+  const hero=cv.parentElement;
+  function resize(){cv.width=hero.offsetWidth;cv.height=hero.offsetHeight;}
+  resize();
+  window.addEventListener('resize',resize,{passive:true});
+  const ctx=cv.getContext('2d');
+  const COLS=60,ROWS=36;
+  let t=0;
+  function draw(){
+    ctx.clearRect(0,0,cv.width,cv.height);
+    const cw=cv.width/COLS,ch=cv.height/ROWS;
+    for(let y=0;y<ROWS;y++){
+      for(let x=0;x<COLS;x++){
+        const wave=Math.sin((x+y)*0.25+t*0.03)*0.5+0.5;
+        const dist=Math.sqrt((x-COLS*0.65)**2+(y-ROWS*0.4)**2);
+        const radial=Math.max(0,1-dist/(Math.max(COLS,ROWS)*0.55));
+        const alpha=(wave*radial)*0.55+0.02;
+        const r=Math.floor(3+(alpha*0.6)*2);
+        ctx.beginPath();
+        ctx.arc(x*cw+cw/2,y*ch+ch/2,Math.max(.5,r),0,Math.PI*2);
+        const hue=240+wave*60;
+        ctx.fillStyle=`hsla(${hue},70%,75%,${alpha})`;
+        ctx.fill();
+      }
+    }
+    t++;
+    requestAnimationFrame(draw);
+  }
+  draw();
 }
 
-// ── CARD ──
-function createCard(p){
-  const a = document.createElement('a');
-  a.className = 'card';
-  a.href = p.url;
-  a.target = '_blank';
-  a.rel = 'noopener noreferrer';
-  a.setAttribute('aria-label', `${p.title[lang]} — ${p.tagline[lang]} (${t('openNew')})`);
-  a.tabIndex = 0;
-
-  // Inner wrapper
-  const inner = document.createElement('div');
-  inner.className = 'card-inner';
-
-  // Thumb
-  const thumb = document.createElement('div');
-  thumb.className = 'card-thumb';
-  thumb.innerHTML = THUMBS[p.id] || '';
-  thumb.setAttribute('aria-hidden','true');
-
-  // Popup
-  const popup = document.createElement('div');
-  popup.className = 'card-popup';
-
-  const btns = document.createElement('div');
-  btns.className = 'popup-buttons';
-  btns.setAttribute('aria-hidden','true');
-
-  const playBtn = document.createElement('div');
-  playBtn.className = 'popup-btn-play';
-  playBtn.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="#111"><path d="M8 5v14l11-7z"/></svg>';
-
-  const addBtn = document.createElement('div');
-  addBtn.className = 'popup-btn-circle';
-  addBtn.textContent = '+';
-
-  const match = document.createElement('span');
-  match.className = 'popup-match';
-  match.textContent = p.cat === 'ai' ? 'AI' : p.cat === 'game' ? 'Game' : 'A11y';
-
-  btns.appendChild(playBtn);
-  btns.appendChild(addBtn);
-  btns.appendChild(match);
-
-  const tags = document.createElement('div');
-  tags.className = 'popup-tags';
-  tags.setAttribute('aria-hidden','true');
-  p.tags.slice(0,3).forEach(tg => {
-    const c = BC[tg] || '#888';
-    const sp = document.createElement('span');
-    sp.className = 'popup-tag';
-    sp.style.cssText = `background:${c}1e;color:${c};border:1px solid ${c}40`;
-    sp.textContent = tg;
-    tags.appendChild(sp);
+// ══════════════════════════════════════════════
+// COUNTER ANIMATION
+// ══════════════════════════════════════════════
+function animateCounters(){
+  document.querySelectorAll('.counter').forEach(el=>{
+    const target=+el.dataset.target;
+    let cur=0;
+    const step=Math.max(1,Math.floor(target/60));
+    const iv=setInterval(()=>{
+      cur=Math.min(cur+step,target);
+      el.textContent=target>=100?cur.toLocaleString():cur;
+      if(cur>=target)clearInterval(iv);
+    },20);
   });
-
-  const title = document.createElement('div');
-  title.className = 'popup-title';
-  title.textContent = p.title[lang];
-
-  const desc = document.createElement('p');
-  desc.className = 'popup-desc';
-  desc.textContent = p.desc[lang];
-
-  popup.appendChild(btns);
-  popup.appendChild(tags);
-  popup.appendChild(title);
-  popup.appendChild(desc);
-
-  inner.appendChild(thumb);
-  inner.appendChild(popup);
-  a.appendChild(inner);
-
-  const sr = document.createElement('span');
-  sr.className = 'sr-only';
-  sr.textContent = t('openNew') + '.';
-  a.appendChild(sr);
-
-  return a;
 }
 
-// ── ROWS ──
-const ROW_DEFS = [
-  { id:'accessibility', labelKey:'catAccLabel', filter: p => p.cat === 'accessibility' },
-  { id:'game',          labelKey:'catGameLabel', filter: p => p.cat === 'game' },
-  { id:'ai',            labelKey:'catAILabel',   filter: p => p.cat === 'ai' },
-  { id:'education',     labelKey:'catEduLabel',  filter: p => p.cat === 'education' },
-  { id:'all',           labelKey:'catAllLabel',  filter: () => true },
-];
+// ══════════════════════════════════════════════
+// SCROLL REVEAL + NAV
+// ══════════════════════════════════════════════
+function initReveal(){
+  const io=new IntersectionObserver(entries=>{
+    entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('in');});
+  },{threshold:.12,rootMargin:'0px 0px -40px 0px'});
+  document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+  // Counter trigger
+  const heroObs=new IntersectionObserver(entries=>{
+    if(entries[0].isIntersecting){animateCounters();heroObs.disconnect();}
+  },{threshold:.3});
+  const hStats=document.querySelector('.hero-stats');
+  if(hStats)heroObs.observe(hStats);
+}
+window.addEventListener('scroll',()=>{
+  document.getElementById('navbar').classList.toggle('scrolled',scrollY>40);
+},{passive:true});
 
-function renderRows(){
-  const container = document.getElementById('rowsContainer');
-  container.innerHTML = '';
+// ══════════════════════════════════════════════
+// RENDER CONTENT (thumbnails + text)
+// ══════════════════════════════════════════════
+function setHtml(id,html){const el=document.getElementById(id);if(el)el.innerHTML=html;}
+function setText(id,txt){const el=document.getElementById(id);if(el)el.textContent=txt;}
+function setThumb(id,key){
+  const el=document.getElementById(id);
+  if(el&&THUMBS[key])el.innerHTML=THUMBS[key];
+}
+function setFeatures(id,items,color){
+  const el=document.getElementById(id);
+  if(!el)return;
+  el.innerHTML=items.map(f=>`
+    <div class="fs-feature">
+      <div class="fs-feature-icon" style="background:${color}20;color:${color}">✦</div>
+      <span>${f}</span>
+    </div>`).join('');
+}
 
-  ROW_DEFS.forEach(({id, labelKey, filter}) => {
-    const filtered = PROJECTS.filter(filter);
-    if(!filtered.length) return;
+function renderContent(){
+  // hero
+  setHtml('hero-eyebrow',t('eyebrow'));
+  document.getElementById('hero-h1').innerHTML=t('heroTitle').replace('\n','<br>');
+  setText('hero-sub',t('heroSub'));
+  setText('hero-cta1-txt',t('cta1'));
+  setText('hero-cta2-txt',t('cta2'));
+  setText('stat-proto',t('statProto'));
+  setText('stat-pins',t('statPins'));
+  setText('stat-ai',t('statAI'));
+  // stats band
+  setText('sb1',t('sb1'));setText('sb2',t('sb2'));setText('sb3',t('sb3'));setText('sb4',t('sb4'));
+  // nav
+  setText('nl-a11y',t('catA11y'));setText('nl-game',t('catGame'));setText('nl-ai',t('catAI'));
+  setText('navCta',lang==='ko'?'모든 프로젝트':'All Projects');
 
-    const row = document.createElement('section');
-    row.className = 'row';
-    row.id = 'row-' + id;
-    row.setAttribute('aria-label', t(labelKey));
+  // ACCESSIBILITY SECTION
+  setText('cat-a11y-label',t('catA11y'));
+  document.getElementById('sec-a11y-h2').innerHTML=t('secA11yH2').replace('\n','<br>');
+  setText('sec-a11y-desc',t('secA11yDesc'));
+  // Concert
+  setText('fs-concert-kicker',t('fsConcertKicker'));
+  document.getElementById('fs-concert-h3').innerHTML=t('fsConcertH3').replace('\n','<br>');
+  setText('fs-concert-p',t('fsConcertP'));
+  setFeatures('fs-concert-features',t('fsConcertFeatures'),'#f43f5e');
+  setText('fs-concert-btn',t('fsConcertBtn'));
+  setHtml('badge-concert-live',`<span style="color:#f43f5e;font-family:'DM Mono',monospace;font-size:9px">${t('badgeConcertLive')}</span>`);
+  setThumb('thumb-concert','concert');
+  setThumb('thumb-election-float','election');
+  // Edu-Lens
+  setText('fs-lens-kicker',t('fsLensKicker'));
+  document.getElementById('fs-lens-h3').innerHTML=t('fsLensH3').replace('\n','<br>');
+  setText('fs-lens-p',t('fsLensP'));
+  setFeatures('fs-lens-features',t('fsLensFeatures'),'#4a9eff');
+  setText('fs-lens-btn',t('fsLensBtn'));
+  setThumb('thumb-edulens','edulens');
 
-    const titleEl = document.createElement('h2');
-    titleEl.className = 'row-title';
-    titleEl.innerHTML = `${t(labelKey)} <span class="row-arrow">${t('rowArrow')}</span>`;
+  // QUOTE
+  document.getElementById('quote-text').innerHTML=t('quoteText');
+  setText('quote-by',t('quoteBy'));
 
-    const trackWrap = document.createElement('div');
-    trackWrap.className = 'track-wrap';
+  // GAME SECTION
+  setText('cat-game-label',t('catGame'));
+  document.getElementById('sec-game-h2').innerHTML=t('secGameH2').replace('\n','<br>');
+  setText('sec-game-desc',t('secGameDesc'));
+  setText('fs-beat-kicker',t('fsBeatKicker'));
+  document.getElementById('fs-beat-h3').innerHTML=t('fsBeatH3').replace('\n','<br>');
+  setText('fs-beat-p',t('fsBeatP'));
+  setFeatures('fs-beat-features',t('fsBeatFeatures'),'#22d68a');
+  setText('fs-beat-btn',t('fsBeatBtn'));
+  setText('fs-venture-btn',t('fsVentureBtn'));
+  setThumb('thumb-beat','dotbeat');
+  setThumb('thumb-venture-float','dotventure');
+  setText('fs-space-kicker',t('fsSpaceKicker'));
+  document.getElementById('fs-space-h3').innerHTML=t('fsSpaceH3').replace('\n','<br>');
+  setText('fs-space-p',t('fsSpaceP'));
+  setFeatures('fs-space-features',t('fsSpaceFeatures'),'#7fd6ff');
+  setText('fs-space-btn',t('fsSpaceBtn'));
+  setThumb('thumb-space','dotspace');
 
-    const track = document.createElement('div');
-    track.className = 'track';
-    track.setAttribute('role','list');
+  // AI SECTION
+  setText('cat-ai-label',t('catAI'));
+  document.getElementById('sec-ai-h2').innerHTML=t('secAIH2').replace('\n','<br>');
+  setText('sec-ai-desc',t('secAIDesc'));
+  setText('fs-nana-kicker',t('fsNanaKicker'));
+  document.getElementById('fs-nana-h3').innerHTML=t('fsNanaH3').replace('\n','<br>');
+  setText('fs-nana-p',t('fsNanaP'));
+  setFeatures('fs-nana-features',t('fsNanaFeatures'),'#c026d3');
+  setText('fs-nana-btn',t('fsNanaBtn'));
+  setThumb('thumb-nana','dotnana');
+  setText('fs-aitactile-kicker',t('fsAITactileKicker'));
+  document.getElementById('fs-aitactile-h3').innerHTML=t('fsAITactileH3').replace('\n','<br>');
+  setText('fs-aitactile-p',t('fsAITactileP'));
+  setFeatures('fs-aitactile-features',t('fsAITactileFeatures'),'#7c3aed');
+  setText('fs-aitactile-btn',t('fsAITactileBtn'));
+  setText('fs-nori-btn',t('fsNoriBtn'));
+  setThumb('thumb-aitactile','aitactile');
+  setThumb('thumb-nori-float','dotnori');
 
-    filtered.forEach(p => {
-      const card = createCard(p);
-      card.setAttribute('role','listitem');
-      track.appendChild(card);
-    });
+  // grid
+  setText('grid-h2',t('gridH2'));
+  setText('grid-sub',t('gridSub'));
+  setText('footer-copy',t('footerCopy'));
+  document.getElementById('skipNav').textContent=t('skip');
 
-    trackWrap.appendChild(track);
-    row.appendChild(titleEl);
-    row.appendChild(trackWrap);
-    container.appendChild(row);
+  renderFilters();
+  renderGrid();
+}
+
+// ══════════════════════════════════════════════
+// CARD GRID
+// ══════════════════════════════════════════════
+const CATS_KO=['전체','접근성','게임','AI','교육'];
+const CATS_EN=['All','Accessibility','Game','AI','Education'];
+const CAT_MAP_KO={전체:null,접근성:'accessibility',게임:'game','AI':'ai',교육:'education'};
+const CAT_MAP_EN={All:null,Accessibility:'accessibility',Game:'game','AI':'ai',Education:'education'};
+let activeCat=null;
+
+function renderFilters(){
+  const row=document.getElementById('filterRow');
+  row.innerHTML='';
+  const cats=lang==='ko'?CATS_KO:CATS_EN;
+  const catMap=lang==='ko'?CAT_MAP_KO:CAT_MAP_EN;
+  cats.forEach(cat=>{
+    const b=document.createElement('button');
+    b.className='f-btn'+(catMap[cat]===activeCat?' on':'');
+    b.textContent=cat;b.setAttribute('role','tab');
+    b.setAttribute('aria-selected',catMap[cat]===activeCat?'true':'false');
+    b.addEventListener('click',()=>{activeCat=catMap[cat];renderFilters();renderGrid();});
+    row.appendChild(b);
   });
-
-  // footer count
-  document.getElementById('footer-meta').textContent =
-    `${t('footerMeta')} · ${PROJECTS.length} ${t('projects')}`;
 }
 
-function renderAll(){
-  renderHero();
-  renderRows();
+function renderGrid(){
+  const grid=document.getElementById('cardGrid');
+  grid.innerHTML='';
+  const filtered=activeCat?PROJECTS.filter(p=>p.cat===activeCat):PROJECTS;
+  document.getElementById('gridCount').textContent=`${filtered.length} / ${PROJECTS.length} ${lang==='ko'?'프로젝트':'projects'}`;
+  filtered.forEach(p=>{
+    const a=document.createElement('a');
+    a.className='card';a.href=p.url;a.target='_blank';a.rel='noopener noreferrer';
+    a.setAttribute('aria-label',`${p.title[lang]} — ${p.tagline[lang]} (${t('openNew')})`);
+    const thumb=document.createElement('div');
+    thumb.className='card-thumb';
+    const overlay=`<div class="card-overlay">
+      <div class="ov-title">${p.title[lang]}</div>
+      <p class="ov-desc">${p.desc[lang]}</p>
+      <div class="ov-footer">
+        <div class="ov-tags">${p.tags.slice(0,2).map(tg=>{const c=BC[tg]||'#888';return`<span class="ov-tag" style="background:${c}22;color:${c};border:1px solid ${c}44">${tg}</span>`;}).join('')}</div>
+        <span class="ov-open">↗ ${lang==='ko'?'열기':'Open'}</span>
+      </div>
+    </div>`;
+    thumb.innerHTML=(THUMBS[p.id]||'')+overlay;
+    const info=document.createElement('div');info.className='card-info';
+    info.innerHTML=`<div class="card-title">${p.title[lang]}</div><div class="card-sub">${p.tagline[lang]}</div>`;
+    const sr=document.createElement('span');sr.className='sr-only';sr.textContent=t('openNew');
+    a.appendChild(thumb);a.appendChild(info);a.appendChild(sr);
+    grid.appendChild(a);
+  });
 }
 
-// ── HERO ACTIONS ──
-function openFirst(){
-  const first = PROJECTS[0];
-  window.open(first.url, '_blank', 'noopener,noreferrer');
-}
-function scrollToRows(){
-  document.getElementById('rowsContainer').scrollIntoView({behavior:'smooth'});
-}
+function renderAll(){renderContent();}
 
-// ── STICKY NAV ──
-window.addEventListener('scroll', () => {
-  document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 80);
-}, {passive:true});
-
-// ── INIT ──
-renderAll();
+// ══════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════
+document.addEventListener('DOMContentLoaded',()=>{
+  initHeroBg();
+  initReveal();
+  renderAll();
+  document.documentElement.lang=lang;
+});
 </script>
 </body>
 </html>
