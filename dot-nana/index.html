@@ -594,7 +594,37 @@ function renderChat(){
 // ══════════════════════════════════════════════
 // AI API (Anthropic)
 // ══════════════════════════════════════════════
+// ── 배포 환경 감지 ──
+function isApiAvailable(){
+  const h=location.hostname;
+  return h===''||h==='localhost'||h==='127.0.0.1'||h.includes('claude')||h.includes('anthropic');
+}
+// ── 로컬 명령 파싱 (API 불가 시 fallback) ──
+function localCommandReply(userText){
+  const t=userText.toLowerCase();
+  if(/다음|넘겨|next/.test(t)){
+    if(S.story&&S.page<S.story.items.length-1){S.page++;refreshCanvas();updateUI();return '다음 페이지로 넘어갈게! 📖';}
+    return '마지막 페이지야!';
+  }
+  if(/이전|뒤로|prev/.test(t)){
+    if(S.story&&S.page>0){S.page--;refreshCanvas();updateUI();return '이전 페이지로 돌아갈게! 📖';}
+    return '첫 페이지야!';
+  }
+  if(/다시|반복|replay/.test(t)){refreshCanvas();return '이 페이지를 다시 보여줄게! ✨';}
+  if(/안녕|하이|hello|반가/.test(t))return `안녕! 나는 ${S.persona?.name||'카나나'}야. 같이 동화 보자! 😊`;
+  if(/고래/.test(t)){drawKeyword&&refreshCanvas();return '고래를 그려줄게! 🐋 닷패드를 만져봐.';}
+  if(/별/.test(t))return '반짝이는 별이야! ⭐';
+  if(S.story)return `지금 "${S.story.title}" ${S.page+1}페이지를 보고 있어. "다음" 이라고 말하면 넘어가! 📖`;
+  return '동화를 골라줘! 아니면 "다음", "이전" 으로 페이지를 넘길 수 있어 😊';
+}
+
 async function callAI(userText){
+  // API 불가 환경: 로컬 명령 파싱으로 즉시 응답
+  if(!isApiAvailable()){
+    const reply=localCommandReply(userText);
+    addMsg('ai',reply);
+    return;
+  }
   S.isLoading=true;renderChat();
   const storyCtx=(S.mode==='demo'||S.mode==='premium')&&S.story
     ?`동화: "${S.story.title}" ${S.page+1}/${S.story.items.length}페이지. 내용: "${S.story.items[S.page]?.text?.plain||""}"`
@@ -792,9 +822,29 @@ function handleFileUpload(e){
 // ══════════════════════════════════════════════
 // AI STORY GENERATION
 // ══════════════════════════════════════════════
+
+function buildDemoStory(topic){
+  const kws=['고래','별','파도','하트','우주','나무','집','토끼'];
+  const k=kws[topic.length%kws.length];
+  const demo={id:'ai-'+Date.now(),title:`${topic} 이야기`,category:'AI 창작',items:[
+    {text:{plain:`옛날 옛날, ${topic}에 관한 이야기가 시작됐어요.`},graphic:{data:drawKeywordToHex(k)}},
+    {text:{plain:`${topic}는 모두와 친구가 되고 싶었어요.`},graphic:{data:drawKeywordToHex('하트')}},
+    {text:{plain:`그리고 모두 행복하게 지냈답니다. 끝!`},graphic:{data:drawKeywordToHex('별')}},
+  ]};
+  S.story=demo;S.page=0;S.mode='premium';
+  if(typeof LIBRARY!=='undefined')LIBRARY.unshift(demo);
+  addMsg('ai',`✨ "${demo.title}" 완성! ▶ 버튼을 눌러서 들어봐!`);
+  updateUI();
+}
+
 async function generateAIStory(topic){
   if(!topic){showToast('주제를 입력해주세요');return;}
   addMsg('user',`${topic} 주제로 동화 만들어줘.`);
+  // API 불가 환경: 데모 동화 즉시 생성
+  if(!isApiAvailable()){
+    buildDemoStory(topic);
+    return;
+  }
   S.isLoading=true;renderChat();
   try{
     const res=await fetch("https://api.anthropic.com/v1/messages",{
@@ -1113,5 +1163,63 @@ function init(){
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);
 else init();
 </script>
+
+<style id="mobileBannerStyle">
+#mobileBanner{position:fixed;inset:0;z-index:99999;display:none;flex-direction:column;align-items:center;justify-content:center;gap:18px;background:rgba(7,7,15,.97);backdrop-filter:blur(8px);padding:32px;text-align:center;font-family:'Noto Sans KR',sans-serif;color:#f0eeff}
+#mobileBanner.show{display:flex}
+#mobileBanner .mb-icon{font-size:48px}
+#mobileBanner .mb-title{font-size:18px;font-weight:800}
+#mobileBanner .mb-desc{font-size:13px;color:rgba(240,238,255,.6);line-height:1.7;max-width:300px}
+#mobileBanner .mb-btn{margin-top:8px;padding:11px 26px;background:#6b46f0;color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit}
+</style>
+<div id="mobileBanner" role="dialog" aria-label="화면 크기 안내">
+  <div class="mb-icon">🖥️</div>
+  <div class="mb-title">데스크톱에서 최적화된 데모입니다</div>
+  <div class="mb-desc">이 프로토타입은 넓은 화면에 맞춰 설계되었습니다. PC나 태블릿 가로 모드에서 열면 가장 좋습니다.</div>
+  <button class="mb-btn" onclick="document.getElementById('mobileBanner').classList.remove('show')">그래도 계속 보기</button>
+</div>
+<script>
+(function(){function c(){if(window.innerWidth<720)document.getElementById('mobileBanner')?.classList.add('show');}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',c);else c();})();
+</script>
+
+
+<script id="i18nLite">
+(function(){
+  const DICT = {"그래도 계속 보기": "Continue anyway", "데스크톱에서 최적화된 데모입니다": "Optimized for desktop", "이 프로토타입은 넓은 화면에 맞춰 설계되었습니다. PC나 태블릿 가로 모드에서 열면 가장 좋습니다.": "This prototype is designed for wide screens. Best viewed on PC or tablet landscape mode.", "대기 중": "Standby", "내 서재": "My Library", "더 알아보기": "Learn More", "무료 도서관": "Free Library", "빠른 명령": "Quick Commands", "서비스 모드": "Service Mode", "시연 시작": "Start Demo", "시각장애 아동을 위한": "For children with visual impairments", "실시간 Dot Pad 촉각 출력": "Real-time Dot Pad tactile output", "오디오 대기 중": "Audio standby", "별을 삼킨 고래": "The Whale Who Swallowed a Star"};
+  const REV = {};
+  Object.keys(DICT).forEach(k=>REV[DICT[k]]=k);
+  let cur='ko';
+  const btn=document.createElement('button');
+  btn.id='langToggle';
+  btn.textContent='EN';
+  btn.setAttribute('aria-label','Switch to English');
+  btn.style.cssText='position:fixed;bottom:14px;right:14px;z-index:99998;padding:8px 14px;background:rgba(20,20,35,.92);color:#fff;border:1px solid rgba(255,255,255,.25);border-radius:99px;font-size:11px;font-weight:800;font-family:monospace;cursor:pointer;backdrop-filter:blur(8px);letter-spacing:.08em';
+  document.body.appendChild(btn);
+  function walk(node,dict){
+    if(node.nodeType===3){
+      const t=node.nodeValue.trim();
+      if(t&&dict[t])node.nodeValue=node.nodeValue.replace(t,dict[t]);
+      return;
+    }
+    if(node.nodeName==='SCRIPT'||node.nodeName==='STYLE')return;
+    if(node.setAttribute){
+      ['aria-label','placeholder','title'].forEach(a=>{
+        const v=node.getAttribute&&node.getAttribute(a);
+        if(v&&dict[v])node.setAttribute(a,dict[v]);
+      });
+    }
+    Array.from(node.childNodes).forEach(n=>walk(n,dict));
+  }
+  btn.addEventListener('click',()=>{
+    const dict=cur==='ko'?DICT:REV;
+    walk(document.body,dict);
+    cur=cur==='ko'?'en':'ko';
+    btn.textContent=cur==='ko'?'EN':'KO';
+    document.documentElement.lang=cur;
+  });
+})();
+</script>
+
 </body>
 </html>
