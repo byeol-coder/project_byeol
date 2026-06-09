@@ -430,7 +430,36 @@ const GFX = {
     const eye1=(x===26||x===27)&&(y===14||y===15);
     const eye2=(x===33||x===34)&&(y===14||y===15);
     return body||head||earL||earR||eye1||eye2;
-  }))
+  })),
+  fish:()=>gridToHex(makeGrid((x,y)=>{
+    const body=(x-26)**2/121+(y-20)**2/49<1;
+    const tail=x>38&&x<50&&Math.abs(y-20)<(x-38)*0.7;
+    const eye=(x===19||x===20)&&(y===17||y===18);
+    const fin=x>22&&x<30&&y>9&&y<15&&y-9>Math.abs(x-26)*0.8;
+    return (body&&!eye)||tail||fin;
+  })),
+  moon:()=>gridToHex(makeGrid((x,y)=>{
+    const outer=(x-30)**2+(y-20)**2<169;
+    const inner=(x-35)**2+(y-17)**2<121;
+    const star1=(x-12&&x===12&&y===8)||(Math.abs(x-12)+Math.abs(y-8)<2);
+    const star2=Math.abs(x-50)+Math.abs(y-30)<2;
+    return (outer&&!inner)||star1||star2;
+  })),
+  flower:()=>gridToHex(makeGrid((x,y)=>{
+    const c=(x-30)**2+(y-15)**2<16;
+    const petals=[0,1,2,3,4,5].some(i=>{const a=i*Math.PI/3;const px=30+Math.cos(a)*9,py=15+Math.sin(a)*9;return (x-px)**2+(y-py)**2<13;});
+    const stem=Math.abs(x-30)<1.5&&y>20&&y<36;
+    const leaf=x>30&&x<39&&y>26&&y<31&&(y-26)<(x-30)*0.7;
+    return c||petals||stem||leaf;
+  })),
+  turtle:()=>gridToHex(makeGrid((x,y)=>{
+    const shell=(x-30)**2/144+(y-21)**2/64<1&&y<27;
+    const pattern=shell&&((x+y)%7<1);
+    const head=(x-45)**2+(y-22)**2<13;
+    const legs=(y>26&&y<31)&&((x>19&&x<24)||(x>37&&x<42));
+    const base=Math.abs(y-27)<1.2&&x>17&&x<44;
+    return (shell&&!pattern)||head||legs||base;
+  })),
 };
 
 // ══════════════════════════════════════════════
@@ -461,6 +490,30 @@ const LIBRARY = [
     {text:{plain:'우주선이 지구를 떠나 끝없는 우주로 여행을 시작했어요.'},graphic:{data:GFX.space()}},
     {text:{plain:'저 멀리 아름다운 고리를 가진 토성이 보이네요. 정말 신기하죠?'},graphic:{data:GFX.star()}},
     {text:{plain:'탐험대는 새로운 행성을 발견하고 지구로 돌아왔답니다.'},graphic:{data:GFX.heart()}}
+  ]},
+  {id:'os-4',title:'달을 사랑한 토끼',category:'전래동화',items:[
+    {text:{plain:'옛날 깊은 산속에 달을 너무나 사랑하는 토끼가 살았어요.'},graphic:{data:GFX.rabbit()}},
+    {text:{plain:'토끼는 매일 밤 언덕에 올라 둥근 달을 바라보았답니다.'},graphic:{data:GFX.moon()}},
+    {text:{plain:'어느 날 달님이 말했어요. "네 마음이 고와서 별을 선물할게."'},graphic:{data:GFX.star()}},
+    {text:{plain:'그날부터 토끼 곁에는 반짝이는 별이 함께했답니다. 끝!'},graphic:{data:GFX.heart()}}
+  ]},
+  {id:'os-5',title:'바닷속 보물찾기',category:'과학동화',items:[
+    {text:{plain:'파란 바다 깊은 곳에 호기심 많은 물고기 방울이가 살았어요.'},graphic:{data:GFX.fish()}},
+    {text:{plain:'방울이는 출렁이는 파도를 타고 보물을 찾아 떠났어요.'},graphic:{data:GFX.wave()}},
+    {text:{plain:'바다 끝에서 만난 커다란 고래 할아버지가 길을 알려주었죠.'},graphic:{data:GFX.whale()}},
+    {text:{plain:'보물은 바로 친구들과 함께한 모험이었답니다!'},graphic:{data:GFX.heart()}}
+  ]},
+  {id:'os-6',title:'느림보 거북이의 꽃밭',category:'이솝우화',items:[
+    {text:{plain:'느릿느릿 거북이가 작은 씨앗 하나를 심었어요.'},graphic:{data:GFX.turtle()}},
+    {text:{plain:'토끼가 비웃었어요. "그렇게 느려서 언제 꽃을 보겠니?"'},graphic:{data:GFX.rabbit()}},
+    {text:{plain:'거북이는 매일매일 물을 주며 정성껏 돌봤답니다.'},graphic:{data:GFX.tree()}},
+    {text:{plain:'봄이 오자 가장 아름다운 꽃이 피었어요. 꾸준함이 이긴 거죠!'},graphic:{data:GFX.flower()}}
+  ]},
+  {id:'os-7',title:'집으로 가는 길',category:'전래동화',items:[
+    {text:{plain:'숲에서 길을 잃은 아이가 울고 있었어요.'},graphic:{data:GFX.tree()}},
+    {text:{plain:'하늘의 별들이 반짝이며 길을 비춰주었답니다.'},graphic:{data:GFX.star()}},
+    {text:{plain:'별빛을 따라 걷다 보니 저 멀리 따뜻한 불빛이 보였어요.'},graphic:{data:GFX.moon()}},
+    {text:{plain:'드디어 집에 도착! 가족들이 꼭 안아주었답니다.'},graphic:{data:GFX.house()}}
   ]}
 ];
 
@@ -996,8 +1049,14 @@ function renderSidebar(){
   }else if(S.mode==='premium'){
     const cats=['전체','이솝우화','전래동화','과학동화','AI 창작'];
     const filtered=S.libCategory==='전체'?LIBRARY:LIBRARY.filter(b=>b.category===S.libCategory);
+    const todayPick=LIBRARY[new Date().getDate()%LIBRARY.length];
     el.innerHTML=`
       <div>
+        <div class="sec-lbl">오늘의 동화 ✨</div>
+        <button class="book-btn today-pick" data-bid="${todayPick.id}" style="width:100%;background:linear-gradient(135deg,rgba(124,58,237,.1),rgba(192,38,211,.08));border:1.5px solid rgba(124,58,237,.35);margin-bottom:14px;text-align:left">
+          <div class="book-title" style="color:#7c3aed">📖 ${todayPick.title}</div>
+          <div class="book-meta">${todayPick.category} · ${todayPick.items.length}페이지 · 나나의 추천</div>
+        </button>
         <div class="sec-lbl">무료 도서관</div>
         <div class="cat-wrap">
           ${cats.map(c=>`<button class="cat-btn${S.libCategory===c?' on':''}" data-cat="${c}">${c}</button>`).join('')}
