@@ -20,6 +20,54 @@ button,input,textarea{font-family:inherit}
 button{cursor:pointer;border:none}
 :focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
 
+/* ── COMPARE VIEW ── */
+.compare-wrap{position:relative;width:100%;max-width:580px}
+.compare-slider-wrap{position:relative;overflow:hidden;border-radius:14px;border:1px solid var(--border);box-shadow:0 2px 16px rgba(0,0,0,.06)}
+.compare-original{position:absolute;inset:0;overflow:hidden;user-select:none}
+.compare-original canvas{display:block;width:100%;height:auto;image-rendering:pixelated}
+.compare-tactile{position:relative;user-select:none}
+.compare-tactile canvas{display:block;width:100%;height:auto;image-rendering:pixelated}
+.compare-divider{position:absolute;top:0;bottom:0;width:2px;background:#fff;box-shadow:0 0 8px rgba(0,0,0,.3);cursor:ew-resize;transform:translateX(-50%);z-index:10}
+.compare-handle{position:absolute;top:50%;transform:translateY(-50%);width:32px;height:32px;border-radius:50%;background:#fff;box-shadow:0 2px 12px rgba(0,0,0,.3);display:flex;align-items:center;justify-content:center;cursor:ew-resize;left:50%;transform:translate(-50%,-50%)}
+.compare-label{position:absolute;top:8px;font-size:9px;font-weight:700;letter-spacing:.06em;padding:3px 8px;border-radius:99px;pointer-events:none;font-family:'DM Mono',monospace}
+.compare-label.original{left:8px;background:rgba(0,0,0,.55);color:#fff}
+.compare-label.tactile{right:8px;background:rgba(124,58,237,.8);color:#fff}
+
+/* ── TEXTBOOK SAMPLES ── */
+.tb-section{border:1px solid var(--border);border-radius:var(--r);overflow:hidden;margin-bottom:10px}
+.tb-section-head{padding:8px 12px;background:var(--bg);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.tb-section-title{font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--t3)}
+.tb-section-cat{font-size:9px;font-family:'DM Mono',monospace;color:var(--accent);background:var(--accent-s);padding:2px 7px;border-radius:99px}
+.tb-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border)}
+.tb-sample{background:var(--panel);cursor:pointer;transition:all .15s;display:flex;flex-direction:column;overflow:hidden}
+.tb-sample:hover{background:var(--accent-s)}
+.tb-sample.active{background:var(--accent-s);outline:2px solid var(--accent);outline-offset:-2px}
+.tb-sample-canvas{display:block;width:100%;aspect-ratio:3/2;image-rendering:pixelated}
+.tb-sample-label{font-size:9px;font-weight:700;color:var(--t2);padding:4px 5px 5px;text-align:center;line-height:1.3}
+
+/* ── PROCESS STEPS ── */
+.process-steps{display:flex;gap:4px;padding:8px 14px;border-bottom:1px solid var(--border);background:var(--bg)}
+.ps-step{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px}
+.ps-num{width:18px;height:18px;border-radius:50%;font-size:9px;font-weight:700;display:flex;align-items:center;justify-content:center;border:1.5px solid var(--border2);color:var(--t3);transition:all .3s}
+.ps-num.active{background:var(--accent);border-color:var(--accent);color:#fff}
+.ps-num.done{background:var(--green-s);border-color:var(--green);color:var(--green)}
+.ps-label{font-size:8px;color:var(--t3);font-family:'DM Mono',monospace;text-align:center;line-height:1.3}
+.ps-arrow{font-size:8px;color:var(--border2);padding-top:5px;flex-shrink:0}
+
+/* ── COMPARE TOGGLE ── */
+.compare-toggle{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:var(--bg);border-radius:7px;border:1px solid var(--border);margin-bottom:10px}
+.ct-label{font-size:11px;font-weight:600;color:var(--t2)}
+.ct-switch{width:36px;height:20px;border-radius:99px;background:var(--border2);cursor:pointer;position:relative;transition:background .2s;border:none}
+.ct-switch.on{background:var(--accent)}
+.ct-switch::after{content:'';position:absolute;width:14px;height:14px;border-radius:50%;background:#fff;top:3px;left:3px;transition:transform .2s;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.ct-switch.on::after{transform:translateX(16px)}
+
+/* ── UPLOAD ZONE improved ── */
+.upload-zone{border:2px dashed var(--border2);border-radius:10px;padding:16px;text-align:center;cursor:pointer;transition:all .15s;background:var(--bg);position:relative}
+.upload-zone:hover,.upload-zone.drag{border-color:var(--accent);background:var(--accent-s)}
+.upload-remove{position:absolute;top:6px;right:6px;width:20px;height:20px;border-radius:50%;background:var(--border2);border:none;cursor:pointer;font-size:10px;display:none;align-items:center;justify-content:center;color:var(--t3)}
+
+
 .app{display:grid;grid-template-columns:340px 1fr 260px;height:100vh;overflow:hidden}
 
 /* LEFT — INPUT */
@@ -112,6 +160,7 @@ input[type=range]{width:120px;accent-color:var(--accent)}
 .dp-stat-label{color:var(--t3)}
 .dp-stat-val{font-weight:700;font-family:'DM Mono',monospace}
 .history-list{flex:1;overflow-y:auto;padding:10px 14px}
+.history-item-img{width:100%;height:50px;object-fit:cover;border-radius:4px 4px 0 0;image-rendering:pixelated;background:#f4f4f2}
 .history-item{padding:8px;border-radius:7px;border:1px solid var(--border);background:var(--bg);margin-bottom:5px;cursor:pointer;transition:all .13s}
 .history-item:hover{border-color:var(--accent-b);background:var(--accent-s)}
 .history-thumb{width:100%;height:36px;border-radius:4px;overflow:hidden;margin-bottom:5px;background:#f0f0ee;display:flex;align-items:center;justify-content:center}
@@ -214,14 +263,39 @@ input[type=range]{width:120px;accent-color:var(--accent)}
         <button class="action-btn primary" id="btnSend" disabled>Dot Pad 출력</button>
       </div>
     </div>
-    <div class="pv-body">
+    <div class="process-steps" id="processSteps" style="display:none">
+      <div class="ps-step"><div class="ps-num" id="ps1">1</div><div class="ps-label">원본<br>로드</div></div>
+      <div class="ps-arrow">›</div>
+      <div class="ps-step"><div class="ps-num" id="ps2">2</div><div class="ps-label">그레이<br>스케일</div></div>
+      <div class="ps-arrow">›</div>
+      <div class="ps-step"><div class="ps-num" id="ps3">3</div><div class="ps-label">엣지<br>감지</div></div>
+      <div class="ps-arrow">›</div>
+      <div class="ps-step"><div class="ps-num" id="ps4">4</div><div class="ps-label">촉각<br>변환</div></div>
+    </div>
+    <div class="pv-body" id="pvBody">
       <div class="canvas-wrap">
         <div class="canvas-header">
           <div class="canvas-badge"><div class="pulse-dot" id="pulseDot" style="background:#ccc"></div>촉각 그래픽 뷰어</div>
           <div style="font-size:10px;color:var(--t3);font-family:'DM Mono',monospace">60 × 40 DOTS</div>
         </div>
-        <div class="canvas-inner">
+        <div class="canvas-inner" id="canvasInner">
           <canvas id="mainCanvas" width="600" height="400" aria-label="촉각 그래픽 미리보기"></canvas>
+          <!-- compare view (hidden by default) -->
+          <div id="compareView" style="display:none;position:relative;width:100%;max-width:480px">
+            <div class="compare-slider-wrap" id="compareWrap" style="height:320px">
+              <div class="compare-tactile" style="width:100%;height:100%">
+                <canvas id="compareTactileCanvas" width="480" height="320" style="width:100%;height:100%;display:block;image-rendering:pixelated;border-radius:8px"></canvas>
+              </div>
+              <div class="compare-original" id="compareOriginal" style="width:50%">
+                <canvas id="compareOrigCanvas" width="480" height="320" style="width:100%;height:320px;display:block;image-rendering:pixelated"></canvas>
+                <div class="compare-label original">원본</div>
+              </div>
+              <div class="compare-divider" id="compareDivider">
+                <div class="compare-handle" style="left:0">⇄</div>
+              </div>
+              <div class="compare-label tactile">촉각</div>
+            </div>
+          </div>
         </div>
         <div class="canvas-footer">
           <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
@@ -235,7 +309,7 @@ input[type=range]{width:120px;accent-color:var(--accent)}
           <button class="layer-btn" data-layer="detail">세부</button>
         </div>
       </div>
-    </div>
+    </div><!-- /pvBody -->
   </main>
 
   <!-- RIGHT -->
@@ -332,7 +406,52 @@ const GRAPHICS = {
     const as=x>=32&&x<=55&&y>=5&&y<=26;
     const au=x>=40&&x<=53&&y>=27&&y<=36;
     return na||sa||eu||af||as||au;
-  })
+  }),
+  '뇌 단면도':()=>makeGrid((x,y)=>{
+    const brain=((x-30)**2/20**2+(y-18)**2/14**2)<=1;
+    const fissure=brain&&Math.abs(x-30)<1.5&&y<22;
+    const stem=x>=28&&x<=32&&y>=30&&y<=38;
+    const lobe1=brain&&x<22&&y<14&&(x-18)**2+(y-10)**2<20;
+    return (brain&&!fissure)||stem;
+  }),
+  'DNA 이중나선':()=>makeGrid((x,y)=>{
+    const t=y*0.4;
+    const x1=30+Math.round(Math.cos(t)*12);
+    const x2=30+Math.round(Math.cos(t+Math.PI)*12);
+    const strand=Math.abs(x-x1)<=1||Math.abs(x-x2)<=1;
+    const rung=y%5===0&&x>=Math.min(x1,x2)&&x<=Math.max(x1,x2);
+    return strand||rung;
+  }),
+  '나비':()=>makeGrid((x,y)=>{
+    const cx=30,cy=20;
+    const lw=(x-15)**2/100+(y-cy)**2/64;
+    const rw=(x-45)**2/100+(y-cy)**2/64;
+    const lh=(x-18)**2/64+(y-(cy+8))**2/36;
+    const rh=(x-42)**2/64+(y-(cy+8))**2/36;
+    const body=Math.abs(x-cx)<=1.5&&Math.abs(y-cy)<=10;
+    return lw<=1||rw<=1||lh<=1||rh<=1||body;
+  }),
+  '알파벳 점자 A-Z':()=>makeGrid((x,y)=>{
+    const letters="ABCDEFGHIJKLMNOPQRSTUVWX";
+    const col=Math.floor(x/10),row=Math.floor(y/8);
+    const idx=row*6+col;
+    const pat=[0b000001,0b000011,0b001001,0b011001,0b010001,0b001011,0b011011,0b010011,0b001010,0b011010,0b000101,0b000111,0b001101,0b011101,0b010101,0b001111,0b011111,0b010111,0b001110,0b011110,0b100101,0b100111,0b111010,0b101101];
+    if(idx>=pat.length) return false;
+    const lx=x%10,ly=y%8;
+    const dotIdx=(ly<4?0:3)+(lx<4?0:1);
+    const dotRow=ly<4?ly:ly-4;
+    return dotRow<3&&lx<4&&((pat[idx]>>(dotIdx*2+dotRow))&1)===1&&lx>=0&&lx<=3&&ly>=0&&ly<=5;
+  }),
+  '펭귄':()=>makeGrid((x,y)=>{
+    const body=(x-30)**2/64+(y-25)**2/100<=1;
+    const head=(x-30)**2+(y-10)**2<=25;
+    const belly=(x-30)**2/36+(y-26)**2/64<=1&&x>=26&&x<=34;
+    const beak=x>=28&&x<=32&&y>=13&&y<=17&&Math.abs(x-30)<=(17-y)*0.6+1;
+    const eye=((x-26)**2+(y-9)**2<=2)||((x-34)**2+(y-9)**2<=2);
+    const foot1=(x>=24&&x<=28&&y>=38&&y<=40);
+    const foot2=(x>=32&&x<=36&&y>=38&&y<=40);
+    return (body||head||beak||foot1||foot2)&&!belly||eye;
+  }),
 };
 
 const PRESETS=Object.keys(GRAPHICS);
@@ -406,16 +525,20 @@ async function generate(){
   btn.disabled=true;btn.innerHTML='<span style="animation:spin 1s linear infinite;display:inline-block">⟳</span> 생성 중...';
   document.getElementById('pulseDot').style.background='var(--accent)';
   document.getElementById('progressLabel').textContent='AI 분석 중...';
+  // Process steps
+  if(S.mode==='image') setStep(1);
 
-  // Progress simulation
   let prog=0;
-  const steps=['이미지 분석 중...','윤곽선 추출 중...','점형 배열 변환 중...','파라미터 적용 중...','완료!'];
+  const steps=['원본 로드 중...','그레이스케일 변환 중...','Sobel 엣지 감지 중...','촉각 배열 변환 중...','완료!'];
+  let stepIdx=0;
   const interval=setInterval(()=>{
-    prog+=20;
-    document.getElementById('progressFill').style.width=prog+'%';
-    document.getElementById('progressLabel').textContent=steps[Math.floor(prog/20)-1]||'완료!';
+    prog+=18;
+    document.getElementById('progressFill').style.width=Math.min(prog,100)+'%';
+    document.getElementById('progressLabel').textContent=steps[stepIdx]||'완료!';
+    if(S.mode==='image'&&stepIdx<4) setStep(stepIdx+1);
+    stepIdx++;
     if(prog>=100)clearInterval(interval);
-  },300);
+  },320);
 
   await new Promise(r=>setTimeout(r,1600));
 
@@ -440,7 +563,7 @@ async function generate(){
       grid=GRAPHICS[replied]?GRAPHICS[replied]():generateFallback(S.prompt);
     }catch{grid=generateFallback(S.prompt);}
   }else if(S.mode==='image'&&S.imageData){
-    grid=generateFromImage(S.imageData);
+    grid=await generateFromImage(S.imageData);
   }else{
     grid=generateFallback(S.prompt||'기본');
   }
@@ -464,15 +587,40 @@ async function generate(){
   document.getElementById('pvTitle').textContent=`${S.prompt||'이미지'} — 촉각 그래픽`;
 
   addHistory(S.prompt||'이미지 업로드',grid);
-  showToast('촉각 그래픽 생성 완료!');
+  if(S.mode==='image'){ setStep(4); setTimeout(hideSteps,1500); }
+  else hideSteps();
+  if(compareOn) updateCompareView(grid);
+  showToast('촉각 그래픽 생성 완료! ✦');
 
   S.generating=false;
   btn.disabled=false;btn.innerHTML='✦ 촉각 그래픽 생성';
 }
 
+
+// ── LIVE PARAM PREVIEW ──
+function liveParamUpdate(){
+  if(!S.currentGrid)return;
+  const g=applyParams(S.currentGrid);
+  drawGrid(g,mainCtx,600,400);
+  drawDotPad(g);
+  updateStats(g);
+}
 function applyParams(grid){
-  const d=S.density;const s=S.simplify;
-  return grid.map(row=>row.map((v,x)=>v&&Math.random()<(d/5)));
+  const d=S.density; // 1-5: 낮을수록 핀 줄임
+  const s=S.simplify; // 1-5: 높을수록 노이즈 제거
+  return grid.map((row,y)=>row.map((v,x)=>{
+    if(!v) return false;
+    // 고립된 핀 제거 (simplify >= 3)
+    if(s>=3){
+      const nb=[[-1,0],[1,0],[0,-1],[0,1]].filter(([dy,dx])=>grid[y+dy]?.[x+dx]).length;
+      if(nb===0) return false;
+    }
+    // 밀도 감소: 격자 패턴으로 균일하게 간소화 (무작위 없음)
+    if(d<=1) return (x+y)%3===0;
+    if(d<=2) return (x%2===0&&y%2===0)||((x%2===1)&&(y%2===1)&&((x+y)%4===0));
+    if(d<=3) return !((x+y)%4===3&&s>=4);
+    return true; // d>=4: 원형 유지
+  }));
 }
 
 function generateFallback(prompt){
@@ -481,22 +629,396 @@ function generateFallback(prompt){
   return GRAPHICS[keys[h%keys.length]]();
 }
 
-function generateFromImage(dataUrl){
-  const offCanvas=document.createElement('canvas');
-  offCanvas.width=60;offCanvas.height=40;
-  const ctx=offCanvas.getContext('2d');
-  const img=new Image();
-  img.src=dataUrl;
-  ctx.drawImage(img,0,0,60,40);
-  const data=ctx.getImageData(0,0,60,40).data;
-  const g=Array.from({length:40},()=>Array(60).fill(false));
-  const thresh=100+(S.simplify-3)*30;
-  for(let y=0;y<40;y++)for(let x=0;x<60;x++){
-    const i=(y*60+x)*4;
-    const bright=(data[i]+data[i+1]+data[i+2])/3;
-    g[y][x]=bright<thresh;
+// generateFromImage → replaced above
+
+
+// ════════════════════════════════════════════
+// TEXTBOOK SAMPLE DIAGRAMS
+// ════════════════════════════════════════════
+const TB_SAMPLES = [
+  {
+    id:'cell', label:'세포분열', cat:'과학',
+    draw(ctx,w,h){
+      ctx.fillStyle='#f0f8ff';ctx.fillRect(0,0,w,h);
+      // Phase 1: original cell
+      ctx.strokeStyle='#2563eb';ctx.lineWidth=1.5;
+      ctx.beginPath();ctx.ellipse(w*.22,h*.35,w*.12,h*.22,0,0,Math.PI*2);ctx.stroke();
+      ctx.strokeStyle='#1d4ed8';ctx.lineWidth=1;
+      ctx.beginPath();ctx.ellipse(w*.22,h*.35,w*.06,h*.1,0,0,Math.PI*2);ctx.stroke();
+      // Arrow
+      ctx.strokeStyle='#666';ctx.lineWidth=1;
+      ctx.beginPath();ctx.moveTo(w*.37,h*.35);ctx.lineTo(w*.44,h*.35);
+      ctx.lineTo(w*.41,h*.29);ctx.moveTo(w*.44,h*.35);ctx.lineTo(w*.41,h*.41);ctx.stroke();
+      // Phase 2: splitting
+      ctx.strokeStyle='#16a34a';ctx.lineWidth=1.5;
+      ctx.beginPath();ctx.ellipse(w*.55,h*.3,w*.11,h*.18,-.3,0,Math.PI*2);ctx.stroke();
+      ctx.beginPath();ctx.ellipse(w*.72,h*.4,w*.11,h*.18,.3,0,Math.PI*2);ctx.stroke();
+      // Chromosomes (lines)
+      [[w*.52,h*.28],[w*.56,h*.31],[w*.69,h*.38],[w*.74,h*.42]].forEach(([x,y])=>{
+        ctx.strokeStyle='#dc2626';ctx.lineWidth=1.5;
+        ctx.beginPath();ctx.moveTo(x-3,y-4);ctx.lineTo(x+3,y+4);ctx.stroke();
+        ctx.beginPath();ctx.moveTo(x+3,y-4);ctx.lineTo(x-3,y+4);ctx.stroke();
+      });
+      // Labels
+      ctx.fillStyle='#555';ctx.font=`${w*.055}px sans-serif`;ctx.textAlign='center';
+      ctx.fillText('간기',w*.22,h*.65);ctx.fillText('분열중기',w*.63,h*.7);
+    }
+  },
+  {
+    id:'water', label:'물의 순환', cat:'과학',
+    draw(ctx,w,h){
+      ctx.fillStyle='#e0f2fe';ctx.fillRect(0,0,w,h);
+      // Mountain
+      ctx.fillStyle='#6b7280';ctx.beginPath();
+      ctx.moveTo(w*.05,h*.85);ctx.lineTo(w*.35,h*.25);ctx.lineTo(w*.55,h*.55);ctx.lineTo(w*.55,h*.85);ctx.closePath();ctx.fill();
+      // Water/Sea
+      ctx.fillStyle='#0ea5e9';ctx.fillRect(0,h*.75,w,h*.25);
+      // Cloud
+      ctx.fillStyle='#fff';ctx.shadowColor='rgba(0,0,0,.1)';ctx.shadowBlur=4;
+      [[w*.58,h*.2,w*.11],[w*.68,h*.15,w*.09],[w*.74,h*.2,w*.1]].forEach(([x,y,r])=>{
+        ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fill();
+      });
+      ctx.shadowBlur=0;
+      // Evaporation arrows (up)
+      ctx.strokeStyle='#0369a1';ctx.lineWidth=1;ctx.setLineDash([2,2]);
+      [[w*.1,h*.75],[w*.2,h*.75],[w*.3,h*.65]].forEach(([x,y])=>{
+        ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x+w*.06,y-h*.3);ctx.stroke();
+      });
+      ctx.setLineDash([]);
+      // Rain arrows (down)
+      ctx.strokeStyle='#2563eb';ctx.lineWidth=1;
+      [[w*.6,h*.3],[w*.67,h*.32],[w*.74,h*.3]].forEach(([x,y])=>{
+        ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x,y+h*.15);
+        ctx.lineTo(x-3,y+h*.1);ctx.moveTo(x,y+h*.15);ctx.lineTo(x+3,y+h*.1);ctx.stroke();
+      });
+      ctx.fillStyle='#374151';ctx.font=`${w*.05}px sans-serif`;ctx.textAlign='center';
+      ctx.fillText('증발',w*.2,h*.62);ctx.fillText('강수',w*.68,h*.52);
+    }
+  },
+  {
+    id:'pythagorean', label:'피타고라스', cat:'수학',
+    draw(ctx,w,h){
+      ctx.fillStyle='#fff';ctx.fillRect(0,0,w,h);
+      const ox=w*.15,oy=h*.75,aw=w*.45,ah=h*.55;
+      // Main right triangle
+      ctx.strokeStyle='#111';ctx.lineWidth=1.5;ctx.fillStyle='#dbeafe';
+      ctx.beginPath();ctx.moveTo(ox,oy);ctx.lineTo(ox+aw,oy);ctx.lineTo(ox,oy-ah);ctx.closePath();
+      ctx.fill();ctx.stroke();
+      // Right angle marker
+      const s=7;ctx.strokeStyle='#111';ctx.lineWidth=1;
+      ctx.beginPath();ctx.moveTo(ox+s,oy);ctx.lineTo(ox+s,oy-s);ctx.lineTo(ox,oy-s);ctx.stroke();
+      // Square on hypotenuse (simplified label)
+      ctx.strokeStyle='#dc2626';ctx.lineWidth=1;ctx.fillStyle='rgba(239,68,68,.1)';
+      ctx.fillRect(ox+aw*.1,oy-ah*.8,w*.25,h*.25);
+      ctx.strokeRect(ox+aw*.1,oy-ah*.8,w*.25,h*.25);
+      // Labels
+      ctx.fillStyle='#1d4ed8';ctx.font=`bold ${w*.07}px serif`;ctx.textAlign='center';
+      ctx.fillText('a',ox+aw*.5,oy+h*.1);
+      ctx.fillText('b',ox-w*.06,oy-ah*.5);
+      ctx.fillStyle='#dc2626';
+      ctx.fillText('c',ox+aw*.55,oy-ah*.6);
+      ctx.fillStyle='#111';ctx.font=`${w*.055}px sans-serif`;
+      ctx.fillText('a²+b²=c²',w*.62,h*.9);
+    }
+  },
+  {
+    id:'photosynthesis', label:'광합성', cat:'과학',
+    draw(ctx,w,h){
+      ctx.fillStyle='#f0fdf4';ctx.fillRect(0,0,w,h);
+      // Leaf outline
+      ctx.fillStyle='#16a34a';ctx.strokeStyle='#15803d';ctx.lineWidth=1.5;
+      ctx.beginPath();
+      ctx.moveTo(w*.5,h*.1);ctx.quadraticCurveTo(w*.9,h*.3,w*.7,h*.7);
+      ctx.quadraticCurveTo(w*.5,h*.85,w*.3,h*.7);
+      ctx.quadraticCurveTo(w*.1,h*.3,w*.5,h*.1);
+      ctx.fill();ctx.stroke();
+      // Vein
+      ctx.strokeStyle='#15803d';ctx.lineWidth=1;
+      ctx.beginPath();ctx.moveTo(w*.5,h*.1);ctx.lineTo(w*.5,h*.8);ctx.stroke();
+      [[w*.5,h*.35,w*.62,h*.5],[w*.5,h*.35,w*.38,h*.5],
+       [w*.5,h*.55,w*.64,h*.65],[w*.5,h*.55,w*.36,h*.65]].forEach(([x1,y1,x2,y2])=>{
+        ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();
+      });
+      // CO2 arrow in
+      ctx.strokeStyle='#6b7280';ctx.lineWidth=1;ctx.fillStyle='#6b7280';
+      ctx.font=`${w*.048}px sans-serif`;ctx.textAlign='right';
+      ctx.fillText('CO₂',w*.25,h*.45);
+      ctx.beginPath();ctx.moveTo(w*.26,h*.43);ctx.lineTo(w*.38,h*.43);
+      ctx.lineTo(w*.35,h*.4);ctx.moveTo(w*.38,h*.43);ctx.lineTo(w*.35,h*.46);ctx.stroke();
+      // O2 arrow out
+      ctx.textAlign='left';ctx.fillText('O₂',w*.75,h*.55);
+      ctx.beginPath();ctx.moveTo(w*.62,h*.53);ctx.lineTo(w*.74,h*.53);
+      ctx.lineTo(w*.71,h*.5);ctx.moveTo(w*.74,h*.53);ctx.lineTo(w*.71,h*.56);ctx.stroke();
+      ctx.textAlign='center';ctx.fillStyle='#166534';ctx.font=`bold ${w*.055}px sans-serif`;
+      ctx.fillText('광합성',w*.5,h*.95);
+    }
+  },
+  {
+    id:'fraction', label:'분수 나눗셈', cat:'수학',
+    draw(ctx,w,h){
+      ctx.fillStyle='#fff';ctx.fillRect(0,0,w,h);
+      // Number line
+      ctx.strokeStyle='#111';ctx.lineWidth=1.5;
+      ctx.beginPath();ctx.moveTo(w*.08,h*.5);ctx.lineTo(w*.92,h*.5);
+      ctx.lineTo(w*.88,h*.44);ctx.moveTo(w*.92,h*.5);ctx.lineTo(w*.88,h*.56);ctx.stroke();
+      // Ticks 0~3
+      [0,1,2,3].forEach((n,i)=>{
+        const x=w*.15+i*w*.22;
+        ctx.strokeStyle='#111';ctx.lineWidth=1.5;
+        ctx.beginPath();ctx.moveTo(x,h*.43);ctx.lineTo(x,h*.57);ctx.stroke();
+        ctx.fillStyle='#111';ctx.font=`bold ${w*.07}px sans-serif`;ctx.textAlign='center';
+        ctx.fillText(n,x,h*.7);
+      });
+      // 1/2 marks
+      [1,2,3,4].forEach(n=>{
+        const x=w*.15+(n/2)*w*.22;
+        ctx.strokeStyle='#dc2626';ctx.lineWidth=1;
+        ctx.beginPath();ctx.moveTo(x,h*.46);ctx.lineTo(x,h*.54);ctx.stroke();
+      });
+      // Jump arcs
+      [[w*.15,w*.37,'1÷½=2'],[w*.37,w*.59,'→'],[w*.59,w*.81,'→']].forEach(([x1,x2,label],i)=>{
+        ctx.strokeStyle='#2563eb';ctx.lineWidth=1.5;
+        ctx.beginPath();ctx.arc((x1+x2)/2,h*.5,(x2-x1)/2,Math.PI,0);ctx.stroke();
+        if(i===0){ctx.fillStyle='#2563eb';ctx.font=`${w*.05}px sans-serif`;ctx.textAlign='center';ctx.fillText(label,(x1+x2)/2,h*.25);}
+      });
+      // Main equation
+      ctx.fillStyle='#111';ctx.font=`bold ${w*.065}px sans-serif`;ctx.textAlign='center';
+      ctx.fillText('3 ÷ ½ = 6',w*.5,h*.9);
+    }
+  },
+  {
+    id:'earth_orbit', label:'지구 공전', cat:'과학',
+    draw(ctx,w,h){
+      ctx.fillStyle='#0f172a';ctx.fillRect(0,0,w,h);
+      // Stars
+      for(let i=0;i<20;i++){
+        const x=Math.sin(i*2.3)*w*.45+w*.5,y=Math.cos(i*1.7)*h*.43+h*.5;
+        if(x>2&&x<w-2&&y>2&&y<h-2){
+          ctx.fillStyle='rgba(255,255,255,.5)';ctx.beginPath();ctx.arc(x,y,1,0,Math.PI*2);ctx.fill();
+        }
+      }
+      // Sun
+      const g=ctx.createRadialGradient(w*.5,h*.5,0,w*.5,h*.5,w*.1);
+      g.addColorStop(0,'#fde68a');g.addColorStop(.5,'#f59e0b');g.addColorStop(1,'rgba(245,158,11,0)');
+      ctx.fillStyle=g;ctx.beginPath();ctx.arc(w*.5,h*.5,w*.1,0,Math.PI*2);ctx.fill();
+      ctx.fillStyle='#fbbf24';ctx.beginPath();ctx.arc(w*.5,h*.5,w*.07,0,Math.PI*2);ctx.fill();
+      // Orbit ellipse
+      ctx.strokeStyle='rgba(255,255,255,.2)';ctx.lineWidth=1;ctx.setLineDash([3,3]);
+      ctx.beginPath();ctx.ellipse(w*.5,h*.5,w*.38,h*.35,0,0,Math.PI*2);ctx.stroke();
+      ctx.setLineDash([]);
+      // Earth positions (4 seasons)
+      const positions=[[0,0,'봄'],[Math.PI*.5,0,'여름'],[Math.PI,0,'가을'],[Math.PI*1.5,0,'겨울']];
+      positions.forEach(([angle,_,label])=>{
+        const ex=w*.5+Math.cos(angle)*w*.38,ey=h*.5+Math.sin(angle)*h*.35;
+        // earth
+        ctx.fillStyle='#2563eb';ctx.beginPath();ctx.arc(ex,ey,w*.038,0,Math.PI*2);ctx.fill();
+        ctx.fillStyle='#16a34a';
+        ctx.beginPath();ctx.arc(ex,ey-w*.02,w*.02,0,Math.PI);ctx.fill();
+        // label
+        ctx.fillStyle='#e2e8f0';ctx.font=`${w*.05}px sans-serif`;ctx.textAlign='center';
+        const lx=w*.5+Math.cos(angle)*w*.48,ly=h*.5+Math.sin(angle)*h*.44;
+        ctx.fillText(label,lx,ly+4);
+      });
+      // Arrow showing direction
+      ctx.strokeStyle='rgba(255,255,255,.4)';ctx.lineWidth=1;
+      ctx.beginPath();ctx.arc(w*.5,h*.5,w*.15,-.3,.3);ctx.stroke();
+    }
   }
-  return g;
+];
+
+function drawTBSample(sample, canvas){
+  const ctx = canvas.getContext('2d');
+  canvas.width = 120; canvas.height = 80;
+  sample.draw(ctx, 120, 80);
+}
+
+function renderTBSamples(){
+  const wrap = document.getElementById('tbSamplesWrap');
+  if(!wrap) return;
+  // Group by category
+  const cats = {};
+  TB_SAMPLES.forEach(s=>{ if(!cats[s.cat]) cats[s.cat]=[]; cats[s.cat].push(s); });
+  wrap.innerHTML='';
+  Object.entries(cats).forEach(([cat, samples])=>{
+    const sec = document.createElement('div');
+    sec.className = 'tb-section';
+    sec.innerHTML = `<div class="tb-section-head"><span class="tb-section-title">${cat}</span><span class="tb-section-cat">${cat}</span></div>`;
+    const grid = document.createElement('div');
+    grid.className = 'tb-grid';
+    samples.forEach(s=>{
+      const item = document.createElement('div');
+      item.className = 'tb-sample';
+      item.setAttribute('tabindex','0');
+      item.setAttribute('aria-label',`${s.label} 샘플 — 클릭하면 즉시 촉각 변환`);
+      const cv = document.createElement('canvas');
+      cv.className = 'tb-sample-canvas';
+      item.innerHTML = `<div class="tb-sample-label">${s.label}</div>`;
+      item.prepend(cv);
+      requestAnimationFrame(()=>drawTBSample(s, cv));
+      item.addEventListener('click',()=>loadTBSample(s, item));
+      item.addEventListener('keydown',e=>{if(e.key==='Enter')loadTBSample(s,item);});
+      grid.appendChild(item);
+    });
+    sec.appendChild(grid);
+    wrap.appendChild(sec);
+  });
+}
+
+function loadTBSample(sample, itemEl){
+  // Mark active
+  document.querySelectorAll('.tb-sample').forEach(s=>s.classList.remove('active'));
+  itemEl.classList.add('active');
+  // Render sample to offscreen canvas, get dataURL
+  const offCanvas = document.createElement('canvas');
+  offCanvas.width = 480; offCanvas.height = 320;
+  sample.draw(offCanvas.getContext('2d'), 480, 320);
+  S.imageData = offCanvas.toDataURL();
+  S.prompt = sample.label;
+  S.mode = 'image';
+  // Show preview
+  const img = document.getElementById('previewImg');
+  img.src = S.imageData; img.style.display = 'block';
+  document.getElementById('uploadZone').style.display = 'none';
+  showToast(`${sample.label} 샘플 선택 — 생성 버튼을 누르세요`);
+  // Auto-generate
+  setTimeout(()=>generate(), 300);
+}
+
+// ════════════════════════════════════════════
+// SOBEL EDGE DETECTION
+// ════════════════════════════════════════════
+function sobelEdge(data, w, h){
+  const gray = new Float32Array(w*h);
+  for(let i=0;i<w*h;i++) gray[i]=(data[i*4]*0.299+data[i*4+1]*0.587+data[i*4+2]*0.114)/255;
+  const Kx=[-1,0,1,-2,0,2,-1,0,1], Ky=[-1,-2,-1,0,0,0,1,2,1];
+  const edges=new Float32Array(w*h);
+  let maxE=0;
+  for(let y=1;y<h-1;y++) for(let x=1;x<w-1;x++){
+    let gx=0,gy=0;
+    for(let ky=-1;ky<=1;ky++) for(let kx=-1;kx<=1;kx++){
+      const v=gray[(y+ky)*w+(x+kx)];
+      gx+=v*Kx[(ky+1)*3+(kx+1)]; gy+=v*Ky[(ky+1)*3+(kx+1)];
+    }
+    edges[y*w+x]=Math.sqrt(gx*gx+gy*gy);
+    if(edges[y*w+x]>maxE) maxE=edges[y*w+x];
+  }
+  // Normalize
+  if(maxE>0) for(let i=0;i<edges.length;i++) edges[i]/=maxE;
+  return edges;
+}
+
+// ════════════════════════════════════════════
+// IMPROVED generateFromImage (Sobel + invert)
+// ════════════════════════════════════════════
+async function generateFromImage(dataUrl){
+  return new Promise(resolve=>{
+    const COLS=60, ROWS=40;
+    const off=document.createElement('canvas');
+    off.width=COLS; off.height=ROWS;
+    const ctx=off.getContext('2d');
+    const img=new Image();
+    img.onload=()=>{
+      // Step 1: draw image to canvas
+      ctx.drawImage(img,0,0,COLS,ROWS);
+      const data=ctx.getImageData(0,0,COLS,ROWS).data;
+      // Step 2: Sobel edge detection
+      const edges=sobelEdge(data,COLS,ROWS);
+      // Step 3: Threshold — keep strong edges
+      const threshold=0.08+(S.simplify-3)*0.06;
+      const g=Array.from({length:ROWS},(_,y)=>
+        Array.from({length:COLS},(_,x)=>edges[y*COLS+x]>threshold)
+      );
+      // Step 4: Also include dark areas from original (for filled shapes)
+      const brights=[];
+      for(let i=0;i<data.length;i+=4) brights.push((data[i]+data[i+1]+data[i+2])/3);
+      const mean=brights.reduce((a,b)=>a+b,0)/brights.length;
+      const darkThresh=mean*0.55;
+      for(let y=0;y<ROWS;y++) for(let x=0;x<COLS;x++){
+        const i=(y*COLS+x)*4;
+        const bright=(data[i]+data[i+1]+data[i+2])/3;
+        if(bright<darkThresh) g[y][x]=true;
+      }
+      // Store original for compare view
+      S._origImageData=dataUrl;
+      resolve(g);
+    };
+    img.onerror=()=>resolve(generateFallback('이미지'));
+    img.src=dataUrl;
+  });
+}
+
+// ════════════════════════════════════════════
+// PROCESS STEPS UI
+// ════════════════════════════════════════════
+function setStep(n){
+  document.getElementById('processSteps').style.display='flex';
+  [1,2,3,4].forEach(i=>{
+    const el=document.getElementById('ps'+i);
+    if(!el)return;
+    if(i<n){el.className='ps-num done';el.textContent='✓';}
+    else if(i===n){el.className='ps-num active';el.textContent=i;}
+    else{el.className='ps-num';el.textContent=i;}
+  });
+}
+function hideSteps(){
+  document.getElementById('processSteps').style.display='none';
+  [1,2,3,4].forEach(i=>{const el=document.getElementById('ps'+i);if(el){el.className='ps-num';el.textContent=i;}});
+}
+
+// ════════════════════════════════════════════
+// COMPARE VIEW
+// ════════════════════════════════════════════
+let compareOn=false;
+let comparePos=0.5; // 0-1
+let compareDragging=false;
+
+function initCompare(){
+  const wrap=document.getElementById('compareWrap');
+  const div=document.getElementById('compareDivider');
+  if(!div||!wrap)return;
+  function setPos(x){
+    const r=wrap.getBoundingClientRect();
+    comparePos=Math.max(0.05,Math.min(0.95,(x-r.left)/r.width));
+    div.style.left=(comparePos*100)+'%';
+    document.getElementById('compareOriginal').style.width=(comparePos*100)+'%';
+  }
+  div.addEventListener('mousedown',()=>{compareDragging=true;});
+  div.addEventListener('touchstart',()=>{compareDragging=true;},{passive:true});
+  window.addEventListener('mousemove',e=>{if(compareDragging)setPos(e.clientX);});
+  window.addEventListener('touchmove',e=>{if(compareDragging)setPos(e.touches[0].clientX);},{passive:true});
+  window.addEventListener('mouseup',()=>{compareDragging=false;});
+  window.addEventListener('touchend',()=>{compareDragging=false;});
+}
+
+function updateCompareView(grid){
+  if(!compareOn)return;
+  // Draw tactile on compareTactileCanvas
+  const cv=document.getElementById('compareTactileCanvas');
+  const ctx=cv.getContext('2d');
+  drawGrid(grid,ctx,480,320);
+  // Draw original on compareOrigCanvas
+  if(S._origImageData){
+    const img=new Image();
+    img.onload=()=>{
+      const oc=document.getElementById('compareOrigCanvas');
+      const octx=oc.getContext('2d');
+      octx.drawImage(img,0,0,480,320);
+    };
+    img.src=S._origImageData;
+  }
+  // Reset divider
+  document.getElementById('compareDivider').style.left='50%';
+  document.getElementById('compareOriginal').style.width='50%';
+  comparePos=0.5;
+}
+
+function toggleCompare(){
+  compareOn=!compareOn;
+  document.getElementById('btnCompare').classList.toggle('on',compareOn);
+  document.getElementById('btnCompare').setAttribute('aria-pressed',compareOn?'true':'false');
+  document.getElementById('mainCanvas').style.display=compareOn?'none':'block';
+  document.getElementById('compareView').style.display=compareOn?'block':'none';
+  if(compareOn&&S.currentGrid) updateCompareView(S.currentGrid);
 }
 
 function addHistory(title,grid){
@@ -537,6 +1059,12 @@ function init(){
   dotCtx=document.getElementById('dotCanvas').getContext('2d');
   drawEmpty();drawEmptyDot();
 
+  // Textbook samples
+  renderTBSamples();
+  // Compare toggle
+  const btnC=document.getElementById('btnCompare');
+  if(btnC) btnC.addEventListener('click',toggleCompare);
+  initCompare();
   // Mode tabs
   document.querySelectorAll('.mode-tab').forEach(b=>{
     b.addEventListener('click',()=>{
@@ -606,9 +1134,13 @@ function init(){
   });
   document.getElementById('btnSend').addEventListener('click',()=>{showToast('Dot Pad 320으로 DTMS 전송 완료! ✅');});
   document.getElementById('btnSave').addEventListener('click',()=>{
-    const a=document.createElement('a');a.download='tactile-graphic.png';
-    a.href=document.getElementById('mainCanvas').toDataURL();a.click();
-    showToast('PNG 저장 완료!');
+    // PNG export
+    const cv=document.getElementById('mainCanvas');
+    const a=document.createElement('a');
+    a.download=`tactile-${S.prompt||'graphic'}-${Date.now()}.png`;
+    a.href=cv.toDataURL('image/png');
+    a.click();
+    showToast('PNG로 저장됨');
   });
   document.getElementById('btnDotPad').addEventListener('click',async()=>{
     try{
