@@ -430,7 +430,36 @@ const GFX = {
     const eye1=(x===26||x===27)&&(y===14||y===15);
     const eye2=(x===33||x===34)&&(y===14||y===15);
     return body||head||earL||earR||eye1||eye2;
-  }))
+  })),
+  fish:()=>gridToHex(makeGrid((x,y)=>{
+    const body=(x-26)**2/121+(y-20)**2/49<1;
+    const tail=x>38&&x<50&&Math.abs(y-20)<(x-38)*0.7;
+    const eye=(x===19||x===20)&&(y===17||y===18);
+    const fin=x>22&&x<30&&y>9&&y<15&&y-9>Math.abs(x-26)*0.8;
+    return (body&&!eye)||tail||fin;
+  })),
+  moon:()=>gridToHex(makeGrid((x,y)=>{
+    const outer=(x-30)**2+(y-20)**2<169;
+    const inner=(x-35)**2+(y-17)**2<121;
+    const star1=(x-12&&x===12&&y===8)||(Math.abs(x-12)+Math.abs(y-8)<2);
+    const star2=Math.abs(x-50)+Math.abs(y-30)<2;
+    return (outer&&!inner)||star1||star2;
+  })),
+  flower:()=>gridToHex(makeGrid((x,y)=>{
+    const c=(x-30)**2+(y-15)**2<16;
+    const petals=[0,1,2,3,4,5].some(i=>{const a=i*Math.PI/3;const px=30+Math.cos(a)*9,py=15+Math.sin(a)*9;return (x-px)**2+(y-py)**2<13;});
+    const stem=Math.abs(x-30)<1.5&&y>20&&y<36;
+    const leaf=x>30&&x<39&&y>26&&y<31&&(y-26)<(x-30)*0.7;
+    return c||petals||stem||leaf;
+  })),
+  turtle:()=>gridToHex(makeGrid((x,y)=>{
+    const shell=(x-30)**2/144+(y-21)**2/64<1&&y<27;
+    const pattern=shell&&((x+y)%7<1);
+    const head=(x-45)**2+(y-22)**2<13;
+    const legs=(y>26&&y<31)&&((x>19&&x<24)||(x>37&&x<42));
+    const base=Math.abs(y-27)<1.2&&x>17&&x<44;
+    return (shell&&!pattern)||head||legs||base;
+  })),
 };
 
 // ══════════════════════════════════════════════
@@ -461,6 +490,30 @@ const LIBRARY = [
     {text:{plain:'우주선이 지구를 떠나 끝없는 우주로 여행을 시작했어요.'},graphic:{data:GFX.space()}},
     {text:{plain:'저 멀리 아름다운 고리를 가진 토성이 보이네요. 정말 신기하죠?'},graphic:{data:GFX.star()}},
     {text:{plain:'탐험대는 새로운 행성을 발견하고 지구로 돌아왔답니다.'},graphic:{data:GFX.heart()}}
+  ]},
+  {id:'os-4',title:'달을 사랑한 토끼',category:'전래동화',items:[
+    {text:{plain:'옛날 깊은 산속에 달을 너무나 사랑하는 토끼가 살았어요.'},graphic:{data:GFX.rabbit()}},
+    {text:{plain:'토끼는 매일 밤 언덕에 올라 둥근 달을 바라보았답니다.'},graphic:{data:GFX.moon()}},
+    {text:{plain:'어느 날 달님이 말했어요. "네 마음이 고와서 별을 선물할게."'},graphic:{data:GFX.star()}},
+    {text:{plain:'그날부터 토끼 곁에는 반짝이는 별이 함께했답니다. 끝!'},graphic:{data:GFX.heart()}}
+  ]},
+  {id:'os-5',title:'바닷속 보물찾기',category:'과학동화',items:[
+    {text:{plain:'파란 바다 깊은 곳에 호기심 많은 물고기 방울이가 살았어요.'},graphic:{data:GFX.fish()}},
+    {text:{plain:'방울이는 출렁이는 파도를 타고 보물을 찾아 떠났어요.'},graphic:{data:GFX.wave()}},
+    {text:{plain:'바다 끝에서 만난 커다란 고래 할아버지가 길을 알려주었죠.'},graphic:{data:GFX.whale()}},
+    {text:{plain:'보물은 바로 친구들과 함께한 모험이었답니다!'},graphic:{data:GFX.heart()}}
+  ]},
+  {id:'os-6',title:'느림보 거북이의 꽃밭',category:'이솝우화',items:[
+    {text:{plain:'느릿느릿 거북이가 작은 씨앗 하나를 심었어요.'},graphic:{data:GFX.turtle()}},
+    {text:{plain:'토끼가 비웃었어요. "그렇게 느려서 언제 꽃을 보겠니?"'},graphic:{data:GFX.rabbit()}},
+    {text:{plain:'거북이는 매일매일 물을 주며 정성껏 돌봤답니다.'},graphic:{data:GFX.tree()}},
+    {text:{plain:'봄이 오자 가장 아름다운 꽃이 피었어요. 꾸준함이 이긴 거죠!'},graphic:{data:GFX.flower()}}
+  ]},
+  {id:'os-7',title:'집으로 가는 길',category:'전래동화',items:[
+    {text:{plain:'숲에서 길을 잃은 아이가 울고 있었어요.'},graphic:{data:GFX.tree()}},
+    {text:{plain:'하늘의 별들이 반짝이며 길을 비춰주었답니다.'},graphic:{data:GFX.star()}},
+    {text:{plain:'별빛을 따라 걷다 보니 저 멀리 따뜻한 불빛이 보였어요.'},graphic:{data:GFX.moon()}},
+    {text:{plain:'드디어 집에 도착! 가족들이 꼭 안아주었답니다.'},graphic:{data:GFX.house()}}
   ]}
 ];
 
@@ -594,7 +647,37 @@ function renderChat(){
 // ══════════════════════════════════════════════
 // AI API (Anthropic)
 // ══════════════════════════════════════════════
+// ── 배포 환경 감지 ──
+function isApiAvailable(){
+  const h=location.hostname;
+  return h===''||h==='localhost'||h==='127.0.0.1'||h.includes('claude')||h.includes('anthropic');
+}
+// ── 로컬 명령 파싱 (API 불가 시 fallback) ──
+function localCommandReply(userText){
+  const t=userText.toLowerCase();
+  if(/다음|넘겨|next/.test(t)){
+    if(S.story&&S.page<S.story.items.length-1){S.page++;refreshCanvas();updateUI();return '다음 페이지로 넘어갈게! 📖';}
+    return '마지막 페이지야!';
+  }
+  if(/이전|뒤로|prev/.test(t)){
+    if(S.story&&S.page>0){S.page--;refreshCanvas();updateUI();return '이전 페이지로 돌아갈게! 📖';}
+    return '첫 페이지야!';
+  }
+  if(/다시|반복|replay/.test(t)){refreshCanvas();return '이 페이지를 다시 보여줄게! ✨';}
+  if(/안녕|하이|hello|반가/.test(t))return `안녕! 나는 ${S.persona?.name||'카나나'}야. 같이 동화 보자! 😊`;
+  if(/고래/.test(t)){drawKeyword&&refreshCanvas();return '고래를 그려줄게! 🐋 닷패드를 만져봐.';}
+  if(/별/.test(t))return '반짝이는 별이야! ⭐';
+  if(S.story)return `지금 "${S.story.title}" ${S.page+1}페이지를 보고 있어. "다음" 이라고 말하면 넘어가! 📖`;
+  return '동화를 골라줘! 아니면 "다음", "이전" 으로 페이지를 넘길 수 있어 😊';
+}
+
 async function callAI(userText){
+  // API 불가 환경: 로컬 명령 파싱으로 즉시 응답
+  if(!isApiAvailable()){
+    const reply=localCommandReply(userText);
+    addMsg('ai',reply);
+    return;
+  }
   S.isLoading=true;renderChat();
   const storyCtx=(S.mode==='demo'||S.mode==='premium')&&S.story
     ?`동화: "${S.story.title}" ${S.page+1}/${S.story.items.length}페이지. 내용: "${S.story.items[S.page]?.text?.plain||""}"`
@@ -792,9 +875,29 @@ function handleFileUpload(e){
 // ══════════════════════════════════════════════
 // AI STORY GENERATION
 // ══════════════════════════════════════════════
+
+function buildDemoStory(topic){
+  const kws=['고래','별','파도','하트','우주','나무','집','토끼'];
+  const k=kws[topic.length%kws.length];
+  const demo={id:'ai-'+Date.now(),title:`${topic} 이야기`,category:'AI 창작',items:[
+    {text:{plain:`옛날 옛날, ${topic}에 관한 이야기가 시작됐어요.`},graphic:{data:drawKeywordToHex(k)}},
+    {text:{plain:`${topic}는 모두와 친구가 되고 싶었어요.`},graphic:{data:drawKeywordToHex('하트')}},
+    {text:{plain:`그리고 모두 행복하게 지냈답니다. 끝!`},graphic:{data:drawKeywordToHex('별')}},
+  ]};
+  S.story=demo;S.page=0;S.mode='premium';
+  if(typeof LIBRARY!=='undefined')LIBRARY.unshift(demo);
+  addMsg('ai',`✨ "${demo.title}" 완성! ▶ 버튼을 눌러서 들어봐!`);
+  updateUI();
+}
+
 async function generateAIStory(topic){
   if(!topic){showToast('주제를 입력해주세요');return;}
   addMsg('user',`${topic} 주제로 동화 만들어줘.`);
+  // API 불가 환경: 데모 동화 즉시 생성
+  if(!isApiAvailable()){
+    buildDemoStory(topic);
+    return;
+  }
   S.isLoading=true;renderChat();
   try{
     const res=await fetch("https://api.anthropic.com/v1/messages",{
@@ -946,8 +1049,14 @@ function renderSidebar(){
   }else if(S.mode==='premium'){
     const cats=['전체','이솝우화','전래동화','과학동화','AI 창작'];
     const filtered=S.libCategory==='전체'?LIBRARY:LIBRARY.filter(b=>b.category===S.libCategory);
+    const todayPick=LIBRARY[new Date().getDate()%LIBRARY.length];
     el.innerHTML=`
       <div>
+        <div class="sec-lbl">오늘의 동화 ✨</div>
+        <button class="book-btn today-pick" data-bid="${todayPick.id}" style="width:100%;background:linear-gradient(135deg,rgba(124,58,237,.1),rgba(192,38,211,.08));border:1.5px solid rgba(124,58,237,.35);margin-bottom:14px;text-align:left">
+          <div class="book-title" style="color:#7c3aed">📖 ${todayPick.title}</div>
+          <div class="book-meta">${todayPick.category} · ${todayPick.items.length}페이지 · 나나의 추천</div>
+        </button>
         <div class="sec-lbl">무료 도서관</div>
         <div class="cat-wrap">
           ${cats.map(c=>`<button class="cat-btn${S.libCategory===c?' on':''}" data-cat="${c}">${c}</button>`).join('')}
@@ -1113,5 +1222,83 @@ function init(){
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);
 else init();
 </script>
+
+<style id="mobileBannerStyle">
+#mobileBanner{position:fixed;inset:0;z-index:99999;display:none;flex-direction:column;align-items:center;justify-content:center;gap:18px;background:rgba(7,7,15,.97);backdrop-filter:blur(8px);padding:32px;text-align:center;font-family:'Noto Sans KR',sans-serif;color:#f0eeff}
+#mobileBanner.show{display:flex}
+#mobileBanner .mb-icon{font-size:48px}
+#mobileBanner .mb-title{font-size:18px;font-weight:800}
+#mobileBanner .mb-desc{font-size:13px;color:rgba(240,238,255,.6);line-height:1.7;max-width:300px}
+#mobileBanner .mb-btn{margin-top:8px;padding:11px 26px;background:#6b46f0;color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit}
+</style>
+<div id="mobileBanner" role="dialog" aria-label="화면 크기 안내">
+  <div class="mb-icon">🖥️</div>
+  <div class="mb-title">데스크톱에서 최적화된 데모입니다</div>
+  <div class="mb-desc">이 프로토타입은 넓은 화면에 맞춰 설계되었습니다. PC나 태블릿 가로 모드에서 열면 가장 좋습니다.</div>
+  <button class="mb-btn" onclick="document.getElementById('mobileBanner').classList.remove('show')">그래도 계속 보기</button>
+</div>
+<script>
+(function(){function c(){if(window.innerWidth<720)document.getElementById('mobileBanner')?.classList.add('show');}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',c);else c();})();
+</script>
+
+
+<script id="i18nLite">
+(function(){
+  const DICT = {"그래도 계속 보기": "Continue anyway", "데스크톱에서 최적화된 데모입니다": "Optimized for desktop", "이 프로토타입은 넓은 화면에 맞춰 설계되었습니다. PC나 태블릿 가로 모드에서 열면 가장 좋습니다.": "This prototype is designed for wide screens. Best viewed on PC or tablet landscape mode.", "대기 중": "Standby", "화면 크기 안내": "Screen size notice", "내 서재": "My Library", "더 알아보기": "Learn More", "무료 도서관": "Free Library", "빠른 명령": "Quick Commands", "서비스 모드": "Service Mode", "시연 시작": "Start Demo", "시각장애 아동을 위한": "For children with visual impairments", "실시간 Dot Pad 촉각 출력": "Real-time Dot Pad tactile output", "오디오 대기 중": "Audio standby", "별을 삼킨 고래": "The Whale Who Swallowed a Star", "다음 페이지": "Next page", "이전 페이지": "Previous page", "음성 입력": "Voice input", "음성으로 조작": "Voice control", "이야기 친구,": "Story friend,", "인트로로 돌아가기": "Back to intro", "재생": "Play", "전송": "Send", "체험 시작하기": "Start Experience", "촉각 구연동화 플랫폼": "Tactile storytelling platform", "오늘의 동화 ✨": "Today's Story ✨"};
+  const REV = {};
+  Object.keys(DICT).forEach(k=>REV[DICT[k]]=k);
+  let cur='ko';
+  const btn=document.createElement('button');
+  btn.id='langToggle';
+  btn.textContent='EN';
+  btn.setAttribute('aria-label','Switch to English');
+  btn.style.cssText='position:fixed;bottom:14px;right:14px;z-index:99998;padding:8px 14px;background:rgba(20,20,35,.92);color:#fff;border:1px solid rgba(255,255,255,.25);border-radius:99px;font-size:11px;font-weight:800;font-family:monospace;cursor:pointer;backdrop-filter:blur(8px);letter-spacing:.08em';
+  document.body.appendChild(btn);
+  function applyDict(root,dict){
+    const w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT|NodeFilter.SHOW_ELEMENT,null);
+    let n=root;
+    const nodes=[root];
+    while(n=w.nextNode())nodes.push(n);
+    nodes.forEach(node=>{
+      if(node.nodeType===3){
+        const t=node.nodeValue.trim();
+        if(t&&dict[t])node.nodeValue=node.nodeValue.replace(t,dict[t]);
+      }else if(node.nodeType===1){
+        if(node.nodeName==='SCRIPT'||node.nodeName==='STYLE')return;
+        ['aria-label','placeholder','title'].forEach(a=>{
+          const v=node.getAttribute&&node.getAttribute(a);
+          if(v&&dict[v])node.setAttribute(a,dict[v]);
+        });
+      }
+    });
+  }
+  // 동적 렌더 대응: 새 노드에 현재 언어 적용
+  let observing=false;
+  const obs=new MutationObserver(muts=>{
+    if(cur==='ko')return;
+    obs.disconnect();observing=false;
+    muts.forEach(m=>m.addedNodes.forEach(n=>{
+      if(n.nodeType===1||n.nodeType===3)applyDict(n,DICT);
+    }));
+    startObs();
+  });
+  function startObs(){
+    if(observing)return;
+    obs.observe(document.body,{childList:true,subtree:true});
+    observing=true;
+  }
+  btn.addEventListener('click',()=>{
+    const dict=cur==='ko'?DICT:REV;
+    obs.disconnect();observing=false;
+    applyDict(document.body,dict);
+    cur=cur==='ko'?'en':'ko';
+    btn.textContent=cur==='ko'?'EN':'KO';
+    document.documentElement.lang=cur;
+    if(cur==='en')startObs();
+  });
+})();
+</script>
+
 </body>
 </html>

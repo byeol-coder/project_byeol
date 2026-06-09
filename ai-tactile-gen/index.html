@@ -335,6 +335,14 @@ input[type=range]{width:120px;accent-color:var(--accent)}
 </div>
 
 <script>
+
+// ── 배포 환경 감지: GitHub Pages 등에서는 Anthropic API 직접 호출 불가 ──
+function isApiAvailable(){
+  const h=location.hostname;
+  // Claude.ai 아티팩트/localhost에서만 API 동작, 그 외(github.io 등)는 fallback
+  return h===''||h==='localhost'||h==='127.0.0.1'||h.includes('claude')||h.includes('anthropic');
+}
+
 // ── GRAPHIC GENERATORS ──
 function makeGrid(fn){const g=Array.from({length:40},()=>Array(60).fill(false));for(let y=0;y<40;y++)for(let x=0;x<60;x++)if(fn(x,y))g[y][x]=true;return g;}
 function gridToHex(g){let h="";for(let cr=0;cr<10;cr++)for(let cc=0;cc<30;cc++){const map=[[0,0],[0,1],[0,2],[1,0],[1,1],[1,2],[0,3],[1,3]];let b=0;map.forEach(([dx,dy],bit)=>{const px=cc*2+dx,py=cr*4+dy;if(py<40&&px<60&&g[py]?.[px])b|=(1<<bit);});h+=b.toString(16).padStart(2,"0");}return h;}
@@ -547,8 +555,8 @@ async function generate(){
   const key=Object.keys(GRAPHICS).find(k=>S.prompt.includes(k.split(' ')[0]));
   if(S.mode==='prompt'&&key){
     grid=GRAPHICS[key]();
-  }else if(S.mode==='prompt'&&S.prompt){
-    // AI-based generation via Anthropic API
+  }else if(S.mode==='prompt'&&S.prompt&&isApiAvailable()){
+    // AI-based generation via Anthropic API (Claude.ai 환경에서만)
     try{
       const res=await fetch("https://api.anthropic.com/v1/messages",{
         method:"POST",headers:{"Content-Type":"application/json"},
@@ -562,6 +570,9 @@ async function generate(){
       const replied=data.content?.[0]?.text?.trim();
       grid=GRAPHICS[replied]?GRAPHICS[replied]():generateFallback(S.prompt);
     }catch{grid=generateFallback(S.prompt);}
+  }else if(S.mode==='prompt'&&S.prompt){
+    // API 불가 환경: 프롬프트 → 결정적 매핑
+    grid=generateFallback(S.prompt);
   }else if(S.mode==='image'&&S.imageData){
     grid=await generateFromImage(S.imageData);
   }else{
@@ -1155,5 +1166,95 @@ function init(){
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);
 else init();
 </script>
+
+<style id="mobileBannerStyle">
+#mobileBanner{
+  position:fixed;inset:0;z-index:99999;display:none;
+  flex-direction:column;align-items:center;justify-content:center;gap:18px;
+  background:rgba(7,7,15,.97);backdrop-filter:blur(8px);padding:32px;text-align:center;
+  font-family:'Noto Sans KR',sans-serif;color:#f0eeff;
+}
+#mobileBanner.show{display:flex}
+#mobileBanner .mb-icon{font-size:48px}
+#mobileBanner .mb-title{font-size:18px;font-weight:800;letter-spacing:-.02em}
+#mobileBanner .mb-desc{font-size:13px;color:rgba(240,238,255,.6);line-height:1.7;max-width:300px}
+#mobileBanner .mb-btn{margin-top:8px;padding:11px 26px;background:#6b46f0;color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit}
+</style>
+<div id="mobileBanner" role="dialog" aria-label="화면 크기 안내">
+  <div class="mb-icon">🖥️</div>
+  <div class="mb-title">데스크톱에서 최적화된 데모입니다</div>
+  <div class="mb-desc">이 프로토타입은 넓은 화면에 맞춰 설계되었습니다. PC나 태블릿 가로 모드에서 열면 가장 좋습니다.</div>
+  <button class="mb-btn" onclick="document.getElementById('mobileBanner').classList.remove('show')">그래도 계속 보기</button>
+</div>
+<script>
+(function(){
+  function checkMobile(){
+    if(window.innerWidth<720){
+      document.getElementById('mobileBanner')?.classList.add('show');
+    }
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',checkMobile);
+  else checkMobile();
+})();
+</script>
+
+
+<script id="i18nLite">
+(function(){
+  const DICT = {"그래도 계속 보기": "Continue anyway", "데스크톱에서 최적화된 데모입니다": "Optimized for desktop", "이 프로토타입은 넓은 화면에 맞춰 설계되었습니다. PC나 태블릿 가로 모드에서 열면 가장 좋습니다.": "This prototype is designed for wide screens. Best viewed on PC or tablet landscape mode.", "대기 중": "Standby", "화면 크기 안내": "Screen size notice", "단순화 레벨": "Simplify Level", "변환 파라미터": "Parameters", "빠른 선택": "Quick Select", "생성 히스토리": "History", "레이어": "Layers", "외곽선": "Outline", "외곽선 강조": "Edge Emphasis", "전체": "All", "내부": "Fill", "세부": "Detail", "교과서 샘플": "Textbook Samples", "직접 업로드": "Upload Image", "점 밀도": "Dot Density", "활성 핀": "Active Pins", "밀도": "Density", "저장": "Save", "원본↔촉각 비교 모드": "Original-Tactile Compare", "촉각 그래픽 생성": "Generate Tactile", "결과 미리보기 (60 × 40)": "Preview (60 x 40)", "감지": "Detect", "그레이": "Gray", "로드": "Load", "변환": "Convert", "스케일": "scale", "엣지": "Edge", "원본": "Original", "촉각": "Tactile", "예: 한반도 지형도, 인간의 심장 단면도, 태양계 행성 배치...": "e.g. Korea topography, heart cross-section, solar system...", "이미지 업로드": "Image Upload", "입력 방식": "Input Mode", "촉각 그래픽 미리보기": "Tactile preview", "촉각 그래픽 뷰어": "Tactile viewer", "클릭하거나 파일을 드래그하세요": "Click or drag a file", "텍스트 프롬프트": "Text Prompt", "프롬프트 입력": "Enter prompt"};
+  const REV = {};
+  Object.keys(DICT).forEach(k=>REV[DICT[k]]=k);
+  let cur='ko';
+  const btn=document.createElement('button');
+  btn.id='langToggle';
+  btn.textContent='EN';
+  btn.setAttribute('aria-label','Switch to English');
+  btn.style.cssText='position:fixed;bottom:14px;right:14px;z-index:99998;padding:8px 14px;background:rgba(20,20,35,.92);color:#fff;border:1px solid rgba(255,255,255,.25);border-radius:99px;font-size:11px;font-weight:800;font-family:monospace;cursor:pointer;backdrop-filter:blur(8px);letter-spacing:.08em';
+  document.body.appendChild(btn);
+  function applyDict(root,dict){
+    const w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT|NodeFilter.SHOW_ELEMENT,null);
+    let n=root;
+    const nodes=[root];
+    while(n=w.nextNode())nodes.push(n);
+    nodes.forEach(node=>{
+      if(node.nodeType===3){
+        const t=node.nodeValue.trim();
+        if(t&&dict[t])node.nodeValue=node.nodeValue.replace(t,dict[t]);
+      }else if(node.nodeType===1){
+        if(node.nodeName==='SCRIPT'||node.nodeName==='STYLE')return;
+        ['aria-label','placeholder','title'].forEach(a=>{
+          const v=node.getAttribute&&node.getAttribute(a);
+          if(v&&dict[v])node.setAttribute(a,dict[v]);
+        });
+      }
+    });
+  }
+  // 동적 렌더 대응: 새 노드에 현재 언어 적용
+  let observing=false;
+  const obs=new MutationObserver(muts=>{
+    if(cur==='ko')return;
+    obs.disconnect();observing=false;
+    muts.forEach(m=>m.addedNodes.forEach(n=>{
+      if(n.nodeType===1||n.nodeType===3)applyDict(n,DICT);
+    }));
+    startObs();
+  });
+  function startObs(){
+    if(observing)return;
+    obs.observe(document.body,{childList:true,subtree:true});
+    observing=true;
+  }
+  btn.addEventListener('click',()=>{
+    const dict=cur==='ko'?DICT:REV;
+    obs.disconnect();observing=false;
+    applyDict(document.body,dict);
+    cur=cur==='ko'?'en':'ko';
+    btn.textContent=cur==='ko'?'EN':'KO';
+    document.documentElement.lang=cur;
+    if(cur==='en')startObs();
+  });
+})();
+</script>
+
 </body>
 </html>

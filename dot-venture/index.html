@@ -313,6 +313,75 @@ button{font-family:inherit;cursor:pointer;border:none}
   font-family:'Space Grotesk',sans-serif;
 }
 
+
+/* ── QUIZ OVERLAY ── */
+.quiz-overlay{
+  position:absolute;inset:0;z-index:30;display:none;
+  align-items:center;justify-content:center;
+  background:rgba(7,7,13,.85);backdrop-filter:blur(8px);
+}
+.quiz-overlay.show{display:flex}
+.quiz-card{
+  background:var(--s2);border:1.5px solid var(--bdr2);border-radius:var(--r);
+  padding:24px;max-width:380px;width:90%;
+  box-shadow:0 24px 64px rgba(0,0,0,.7);
+  animation:quizIn .3s cubic-bezier(.4,0,.2,1);
+}
+@keyframes quizIn{from{opacity:0;transform:scale(.94) translateY(10px)}to{opacity:1;transform:scale(1) translateY(0)}}
+.quiz-badge{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--amber);background:rgba(245,158,11,.12);border:1px solid rgba(245,158,11,.3);padding:3px 10px;border-radius:99px;display:inline-block;margin-bottom:12px}
+.quiz-q{font-size:15px;font-weight:700;line-height:1.55;margin-bottom:18px;word-break:keep-all}
+.quiz-options{display:flex;flex-direction:column;gap:8px;margin-bottom:8px}
+.quiz-opt{
+  padding:12px 16px;border-radius:var(--r-sm);text-align:left;
+  background:var(--s3);border:1.5px solid var(--bdr);color:var(--tx);
+  font-size:13px;font-weight:600;transition:all .15s;cursor:pointer;
+  display:flex;align-items:center;gap:10px;
+}
+.quiz-opt:hover{border-color:var(--acc);background:var(--acc-g)}
+.quiz-opt.correct{border-color:var(--green);background:rgba(34,214,138,.15);color:var(--green)}
+.quiz-opt.wrong{border-color:var(--red);background:rgba(239,68,68,.12);color:var(--red)}
+.quiz-opt-num{
+  width:22px;height:22px;border-radius:50%;flex-shrink:0;
+  background:rgba(255,255,255,.08);border:1px solid var(--bdr2);
+  display:flex;align-items:center;justify-content:center;
+  font-family:'DM Mono',monospace;font-size:10px;font-weight:700;
+}
+.quiz-reward{font-family:'DM Mono',monospace;font-size:10px;color:var(--tx3);text-align:center;margin-top:6px}
+
+/* ── BRAILLE COLLECT POPUP ── */
+.braille-popup{
+  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  z-index:25;display:none;flex-direction:column;align-items:center;gap:10px;
+  background:var(--s2);border:1.5px solid rgba(180,90,255,.4);border-radius:var(--r);
+  padding:20px 28px;box-shadow:0 16px 48px rgba(0,0,0,.7);
+  animation:quizIn .25s cubic-bezier(.4,0,.2,1);
+}
+.braille-popup.show{display:flex}
+.bp-char{font-family:'Space Grotesk',sans-serif;font-size:44px;font-weight:800;color:var(--tx)}
+.bp-cell{display:grid;grid-template-columns:repeat(2,16px);grid-template-rows:repeat(3,16px);gap:5px}
+.bp-dot{width:16px;height:16px;border-radius:50%;background:rgba(255,255,255,.08);border:1px solid var(--bdr2);transition:all .2s}
+.bp-dot.on{background:#b45aff;border-color:#b45aff;box-shadow:0 0 12px rgba(180,90,255,.6)}
+.bp-desc{font-size:11px;color:var(--tx2);font-family:'DM Mono',monospace}
+
+/* ── BADGES ── */
+.badge-row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:4px}
+.badge-item{
+  display:flex;flex-direction:column;align-items:center;gap:5px;
+  padding:10px 14px;background:var(--s2);border:1.5px solid var(--bdr);border-radius:var(--r-sm);
+  min-width:76px;transition:all .3s;
+}
+.badge-item.earned{border-color:var(--amber);background:rgba(245,158,11,.08)}
+.badge-item.earned .badge-icon{filter:none;transform:scale(1.1)}
+.badge-icon{font-size:24px;filter:grayscale(1);opacity:.35;transition:all .3s}
+.badge-item.earned .badge-icon{opacity:1}
+.badge-name{font-size:9px;font-weight:700;color:var(--tx3);font-family:'DM Mono',monospace;text-align:center}
+.badge-item.earned .badge-name{color:var(--amber)}
+.total-score-banner{
+  font-family:'DM Mono',monospace;font-size:11px;color:var(--tx3);
+  display:flex;align-items:center;gap:8px;
+}
+.total-score-banner b{color:var(--acc);font-size:14px}
+
 /* ─ CLEAR PARTICLES ─ */
 .clear-particle{position:absolute;pointer-events:none;border-radius:50%;animation:cParticle linear forwards}
 @keyframes cParticle{0%{opacity:1;transform:translate(0,0) rotate(0deg) scale(1)}100%{opacity:0;transform:var(--tx) rotate(720deg) scale(0)}}
@@ -422,6 +491,19 @@ button{font-family:inherit;cursor:pointer;border:none}
       <div class="g-canvas-wrap" id="gCanvasWrap">
         <canvas id="mapCanvas" aria-label="게임 맵 — 방향키로 이동"></canvas>
         <div class="g-hint" id="gHint">방향키로 이동하세요</div>
+        <div class="quiz-overlay" id="quizOverlay" role="dialog" aria-label="NPC 퀴즈">
+          <div class="quiz-card">
+            <div class="quiz-badge" id="quizBadge">QUIZ</div>
+            <div class="quiz-q" id="quizQ"></div>
+            <div class="quiz-options" id="quizOptions"></div>
+            <div class="quiz-reward" id="quizReward"></div>
+          </div>
+        </div>
+        <div class="braille-popup" id="braillePopup" aria-live="polite">
+          <div class="bp-char" id="bpChar"></div>
+          <div class="bp-cell" id="bpCell"></div>
+          <div class="bp-desc" id="bpDesc"></div>
+        </div>
         <div class="npc-overlay" id="npcOverlay">
           <button class="npc-overlay-close" id="npcOverlayClose" aria-label="NPC 대화 닫기">✕</button>
           <div class="npc-overlay-name" id="npcOverlayName"></div>
@@ -504,6 +586,8 @@ button{font-family:inherit;cursor:pointer;border:none}
       <div class="cmp-stat-label">아이템</div>
     </div>
   </div>
+  <div class="total-score-banner">누적 점수 <b id="cmpTotalScore">0</b> · 클리어한 세계 <b id="cmpClearedCount">0</b>/4</div>
+  <div class="badge-row" id="badgeRow"></div>
   <div class="cmp-actions">
     <button class="btn-replay" id="btnReplay">다시 도전</button>
     <button class="btn-next" id="btnNextMap">다음 세계 →</button>
@@ -589,12 +673,46 @@ const MAPS={
       [1,1,1,1,1,1,1,1,1,1,1,1]
     ],
     items:[[1,1,'🔭','망원경',25],[4,2,'⚡','에너지셀',35],[8,5,'🛸','탈출선 코드',40],[2,7,'⭐','별',50]],
-    npcs:[[6,3,'🤖','AI 로봇','에너지셀과 탈출선 코드를 찾아야 해. 서두르라구!']],
+    npcs:[[6,3,'🤖','AI 로봇','에너지셀과 탈출선 코드를 찾아야 해. 서두르라구!',
+      {q:'우주에서 가장 가까운 별은 무엇일까요?',options:['태양','북극성','시리우스'],answer:0,reward:50}
+    ]],
+    start:[1,1],
+  },
+  braille:{
+    id:'braille',title:'점자 마법학교',desc:'한글 점자 글자를 모아 마법을 완성하자',
+    cat:'학습',diff:'보통',emoji:'🔤',themeKey:'braille',
+    layout:[
+      [1,1,1,1,1,1,1,1,1,1,1],
+      [1,0,0,0,1,0,0,0,1,0,1],
+      [1,0,1,0,1,0,1,0,0,0,1],
+      [1,0,1,0,0,0,1,1,1,0,1],
+      [1,0,1,1,1,0,0,0,1,0,1],
+      [1,0,0,0,1,1,1,0,1,0,1],
+      [1,1,1,0,0,0,1,0,0,0,1],
+      [1,0,0,0,1,0,1,1,1,0,1],
+      [1,0,1,1,1,0,0,0,0,0,1],
+      [1,0,0,0,0,0,1,0,1,2,1],
+      [1,1,1,1,1,1,1,1,1,1,1]
+    ],
+    items:[
+      [1,1,'⠈','점자 ㄱ',20],[7,1,'⠉','점자 ㄴ',20],[3,3,'⠊','점자 ㄷ',20],
+      [5,5,'⠐','점자 ㄹ',20],[1,7,'⠑','점자 ㅁ',20],[9,5,'⭐','별',50]
+    ],
+    brailleInfo:{
+      '점자 ㄱ':{char:'ㄱ',dots:'4번 점',pattern:0b001000},
+      '점자 ㄴ':{char:'ㄴ',dots:'1, 4번 점',pattern:0b001001},
+      '점자 ㄷ':{char:'ㄷ',dots:'2, 4번 점',pattern:0b001010},
+      '점자 ㄹ':{char:'ㄹ',dots:'5번 점',pattern:0b010000},
+      '점자 ㅁ':{char:'ㅁ',dots:'1, 5번 점',pattern:0b010001},
+    },
+    npcs:[[5,8,'🦉','점자 부엉이','점자 글자 5개를 모두 모으면 내 퀴즈에 도전할 수 있어!',
+      {q:'한글 점자에서 ㄱ을 나타내는 점은 몇 번일까요?',options:['1번 점','4번 점','6번 점'],answer:1,reward:100}
+    ]],
     start:[1,1],
   }
 };
 
-const MAP_ORDER=['temple','forest','space'];
+const MAP_ORDER=['temple','forest','space','braille'];
 
 /* ════════════════════════════════════════════
    THEMES
@@ -623,6 +741,14 @@ const THEMES={
     exitFill:'#ff2d78',itemGlow:'rgba(74,158,255,.45)',
     accentColor:'#4a9eff',panelBg:'rgba(10,10,30,.4)',topBg:'rgba(10,10,30,.95)',
     cssAcc:'#4a9eff',cssPanelBg:'#030310',
+  },
+  braille:{
+    bg:'#0c0810',wallFill:'#241430',wallStroke:'#4a2a60',wallTop:'#6a3a85',
+    floorFill:'#140c1a',floorStroke:'rgba(180,90,255,.08)',
+    playerFill:'#e8b339',playerGlow:'rgba(232,179,57,.55)',
+    exitFill:'#22d68a',itemGlow:'rgba(180,90,255,.5)',
+    accentColor:'#b45aff',panelBg:'rgba(36,20,48,.4)',topBg:'rgba(36,20,48,.95)',
+    cssAcc:'#b45aff',cssPanelBg:'#0e0814',
   }
 };
 
@@ -636,7 +762,25 @@ let S={
   bleConn:false,device:null,
   animT:0,rafId:null,
   itemCount:0,
+  quizDone:new Set(), // 맵별 퀴즈 완료
 };
+
+// 세션 누적 (게임 전체)
+const TOTAL={
+  score:0,
+  cleared:new Set(),
+  badges:new Set(),
+  brailleLearned:new Set(),
+};
+
+const BADGES=[
+  {id:'first_clear', icon:'🏆', name:'첫 클리어', check:()=>TOTAL.cleared.size>=1},
+  {id:'all_clear',   icon:'👑', name:'전 세계 정복', check:()=>TOTAL.cleared.size>=4},
+  {id:'braille_master', icon:'🔤', name:'점자 마스터', check:()=>TOTAL.brailleLearned.size>=5},
+  {id:'quiz_genius', icon:'🧠', name:'퀴즈 천재', check:()=>TOTAL.quizCorrect>=2},
+  {id:'star_hunter', icon:'⭐', name:'별 사냥꾼', check:()=>TOTAL.stars>=3},
+];
+TOTAL.quizCorrect=0;TOTAL.stars=0;
 
 /* ════════════════════════════════════════════
    SCREEN ROUTER
@@ -671,7 +815,7 @@ document.getElementById('btnTitleStart').addEventListener('click',()=>{
    SELECT SCREEN
 ════════════════════════════════════════════ */
 const DIFF_COLORS={쉬움:{bg:'rgba(34,214,138,.15)',color:'#22d68a'},보통:{bg:'rgba(245,158,11,.15)',color:'#f59e0b'},어려움:{bg:'rgba(239,68,68,.15)',color:'#ef4444'}};
-const CAT_COLORS={탐험:{bg:'rgba(34,214,138,.15)',color:'#22d68a'},퍼즐:{bg:'rgba(245,158,11,.15)',color:'#f59e0b'},어드벤처:{bg:'rgba(124,111,247,.15)',color:'#7c6ff7'}};
+const CAT_COLORS={탐험:{bg:'rgba(34,214,138,.15)',color:'#22d68a'},퍼즐:{bg:'rgba(245,158,11,.15)',color:'#f59e0b'},어드벤처:{bg:'rgba(124,111,247,.15)',color:'#7c6ff7'},학습:{bg:'rgba(180,90,255,.15)',color:'#b45aff'}};
 
 function renderSelectScreen(){
   const grid=document.getElementById('mapGrid');
@@ -750,7 +894,7 @@ function drawCardPreview(id,m,th){
 function startGame(id){
   const m=MAPS[id];
   S.mapId=id;S.px=m.start[0];S.py=m.start[1];
-  S.score=0;S.hp=3;S.keys=0;S.collected=new Set();S.animT=0;S.itemCount=0;
+  S.score=0;S.hp=3;S.keys=0;S.collected=new Set();S.animT=0;S.itemCount=0;S.quizDone.delete(id);
   applyTheme(m.themeKey);
   document.getElementById('gTopTitle').textContent=m.title;
   document.getElementById('hudKeysNeeded').textContent=m.items.filter(it=>it[3].includes('열쇠')).length;
@@ -1082,6 +1226,89 @@ function spawnParticle(emoji,x,y){
 /* ════════════════════════════════════════════
    MOVEMENT
 ════════════════════════════════════════════ */
+
+/* ════════════════════════════════════════════
+   QUIZ SYSTEM
+════════════════════════════════════════════ */
+let _quizActive=false;
+function showQuiz(npc, quiz){
+  if(_quizActive)return;
+  _quizActive=true;
+  const overlay=document.getElementById('quizOverlay');
+  document.getElementById('quizBadge').textContent=`${npc[2]} ${npc[3]}의 퀴즈`;
+  document.getElementById('quizQ').textContent=quiz.q;
+  document.getElementById('quizReward').textContent=`정답 시 +${quiz.reward}점`;
+  const optWrap=document.getElementById('quizOptions');
+  optWrap.innerHTML='';
+  quiz.options.forEach((opt,i)=>{
+    const b=document.createElement('button');
+    b.className='quiz-opt';
+    b.innerHTML=`<span class="quiz-opt-num">${i+1}</span><span>${opt}</span>`;
+    b.setAttribute('aria-label',`${i+1}번. ${opt}`);
+    b.addEventListener('click',()=>answerQuiz(i,quiz,b));
+    optWrap.appendChild(b);
+  });
+  overlay.classList.add('show');
+  speak(`퀴즈! ${quiz.q}. 1번 ${quiz.options[0]}. 2번 ${quiz.options[1]}. 3번 ${quiz.options[2]}. 숫자 키로 답해주세요.`,true);
+  // keyboard 1-3
+  document.addEventListener('keydown',quizKeyHandler);
+}
+function quizKeyHandler(e){
+  if(!_quizActive)return;
+  const n={'Digit1':0,'Digit2':1,'Digit3':2,'Numpad1':0,'Numpad2':1,'Numpad3':2}[e.code];
+  if(n===undefined)return;
+  const btns=document.querySelectorAll('.quiz-opt');
+  if(btns[n])btns[n].click();
+}
+function answerQuiz(idx,quiz,btnEl){
+  const correct=idx===quiz.answer;
+  const btns=document.querySelectorAll('.quiz-opt');
+  btns.forEach(b=>b.style.pointerEvents='none');
+  if(correct){
+    btnEl.classList.add('correct');
+    S.score+=quiz.reward;
+    TOTAL.quizCorrect++;
+    addEvent(`🎉 퀴즈 정답! +${quiz.reward}점`,'success');
+    speak(`정답입니다! ${quiz.reward}점 획득!`,true);
+    showToast(`🎉 정답! +${quiz.reward}점`,'success');
+    S.quizDone.add(S.mapId);
+    renderHUD();renderLeftPanel();
+  }else{
+    btnEl.classList.add('wrong');
+    btns[quiz.answer].classList.add('correct');
+    addEvent(`❌ 오답... 정답은 "${quiz.options[quiz.answer]}"`,'warn');
+    speak(`아쉬워요. 정답은 ${quiz.options[quiz.answer]}입니다.`,true);
+  }
+  setTimeout(()=>{
+    document.getElementById('quizOverlay').classList.remove('show');
+    _quizActive=false;
+    document.removeEventListener('keydown',quizKeyHandler);
+  },2200);
+}
+
+/* ════════════════════════════════════════════
+   BRAILLE COLLECT POPUP
+════════════════════════════════════════════ */
+function showBraillePopup(info){
+  const pop=document.getElementById('braillePopup');
+  document.getElementById('bpChar').textContent=info.char;
+  document.getElementById('bpDesc').textContent=info.dots;
+  // braille cell render (6 dots, 2 cols × 3 rows)
+  // dot order: 1,2,3 (left col top→bottom), 4,5,6 (right col)
+  const cell=document.getElementById('bpCell');
+  cell.innerHTML='';
+  // grid order: row-major → [1,4,2,5,3,6]
+  const order=[0,3,1,4,2,5]; // bit index per grid position
+  order.forEach(bit=>{
+    const d=document.createElement('div');
+    d.className='bp-dot'+((info.pattern>>bit&1)?' on':'');
+    cell.appendChild(d);
+  });
+  pop.classList.add('show');
+  TOTAL.brailleLearned.add(info.char);
+  setTimeout(()=>pop.classList.remove('show'),2800);
+}
+
 function move(dir){
   const m=MAPS[S.mapId];
   const dx={up:0,down:0,left:-1,right:1}[dir];
@@ -1098,7 +1325,14 @@ function move(dir){
     document.getElementById('npcText').textContent=npc[4];
     document.getElementById('infoBraille').textContent=npc[3];
     addEvent(`${npc[2]} ${npc[3]}: "${npc[4]}"`,'npc');
-    speak(`${npc[3]}: ${npc[4]}`);
+    // 퀴즈가 있고 아직 안 풀었으면 → 퀴즈 표시
+    const quiz=npc[5];
+    if(quiz&&!S.quizDone.has(S.mapId)){
+      speak(`${npc[3]}: ${npc[4]}`,true);
+      setTimeout(()=>showQuiz(npc,quiz),1200);
+    }else{
+      speak(`${npc[3]}: ${npc[4]}`);
+    }
   }else{
     document.getElementById('npcBubble').style.display='none';
   }
@@ -1117,7 +1351,15 @@ function move(dir){
     spawnParticle(it[2],nx,ny);
     showToast(`${it[2]} ${it[3]} +${pts}점`,'success');
     addEvent(`✨ ${it[3]} 획득! +${pts}점`,'success');
-    speak(`${it[3]} 획득! ${pts}점`);
+    if(it[3].includes('별'))TOTAL.stars++;
+    // 점자 아이템 → 학습 팝업
+    const bInfo=m.brailleInfo?.[it[3]];
+    if(bInfo){
+      showBraillePopup(bInfo);
+      speak(`${bInfo.char} 획득! 점자로 ${bInfo.dots}입니다. ${pts}점`,true);
+    }else{
+      speak(`${it[3]} 획득! ${pts}점`);
+    }
     renderLeftPanel();
   }
 
@@ -1168,12 +1410,42 @@ function spawnClearParticles(){
 
 function showComplete(){
   const m=MAPS[S.mapId];
+  // 누적 갱신
+  TOTAL.score+=S.score;
+  const firstClear=!TOTAL.cleared.has(S.mapId);
+  TOTAL.cleared.add(S.mapId);
+
   document.getElementById('cmpTitle').textContent=`${m.title} 클리어!`;
   document.getElementById('cmpSub').textContent=m.desc;
   document.getElementById('cmpScore').textContent=S.score;
   document.getElementById('cmpKeys').textContent=S.keys;
   document.getElementById('cmpItems').textContent=S.itemCount;
+  document.getElementById('cmpTotalScore').textContent=TOTAL.score.toLocaleString();
+  document.getElementById('cmpClearedCount').textContent=TOTAL.cleared.size;
+
+  // 뱃지 체크
+  const newBadges=[];
+  BADGES.forEach(b=>{
+    if(!TOTAL.badges.has(b.id)&&b.check()){
+      TOTAL.badges.add(b.id);
+      newBadges.push(b);
+    }
+  });
+  // 뱃지 렌더링
+  const row=document.getElementById('badgeRow');
+  row.innerHTML=BADGES.map(b=>`
+    <div class="badge-item ${TOTAL.badges.has(b.id)?'earned':''}" aria-label="${b.name} 뱃지 ${TOTAL.badges.has(b.id)?'획득':'미획득'}">
+      <div class="badge-icon">${b.icon}</div>
+      <div class="badge-name">${b.name}</div>
+    </div>`).join('');
+
   goScreen('complete');
+  spawnClearParticles();
+
+  // TTS — 새 뱃지 알림
+  let msg=`${m.title} 클리어! 이번 점수 ${S.score}점. 누적 ${TOTAL.score}점.`;
+  if(newBadges.length)msg+=` 새 뱃지 획득: ${newBadges.map(b=>b.name).join(', ')}!`;
+  speak(msg,true);
 }
 
 document.getElementById('btnReplay').addEventListener('click',()=>startGame(S.mapId));
@@ -1245,5 +1517,83 @@ document.getElementById('btnSelConnect').addEventListener('click',e=>connectPad(
 ════════════════════════════════════════════ */
 speak('Dot Venture에 오신 것을 환영합니다. 탐험 시작하기 버튼을 누르세요.',true);
 </script>
+
+<style id="mobileBannerStyle">
+#mobileBanner{position:fixed;inset:0;z-index:99999;display:none;flex-direction:column;align-items:center;justify-content:center;gap:18px;background:rgba(7,7,15,.97);backdrop-filter:blur(8px);padding:32px;text-align:center;font-family:'Noto Sans KR',sans-serif;color:#f0eeff}
+#mobileBanner.show{display:flex}
+#mobileBanner .mb-icon{font-size:48px}
+#mobileBanner .mb-title{font-size:18px;font-weight:800}
+#mobileBanner .mb-desc{font-size:13px;color:rgba(240,238,255,.6);line-height:1.7;max-width:300px}
+#mobileBanner .mb-btn{margin-top:8px;padding:11px 26px;background:#6b46f0;color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit}
+</style>
+<div id="mobileBanner" role="dialog" aria-label="화면 크기 안내">
+  <div class="mb-icon">🖥️</div>
+  <div class="mb-title">데스크톱에서 최적화된 데모입니다</div>
+  <div class="mb-desc">이 프로토타입은 넓은 화면에 맞춰 설계되었습니다. PC나 태블릿 가로 모드에서 열면 가장 좋습니다.</div>
+  <button class="mb-btn" onclick="document.getElementById('mobileBanner').classList.remove('show')">그래도 계속 보기</button>
+</div>
+<script>
+(function(){function c(){if(window.innerWidth<720)document.getElementById('mobileBanner')?.classList.add('show');}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',c);else c();})();
+</script>
+
+
+<script id="i18nLite">
+(function(){
+  const DICT = {"그래도 계속 보기": "Continue anyway", "데스크톱에서 최적화된 데모입니다": "Optimized for desktop", "이 프로토타입은 넓은 화면에 맞춰 설계되었습니다. PC나 태블릿 가로 모드에서 열면 가장 좋습니다.": "This prototype is designed for wide screens. Best viewed on PC or tablet landscape mode.", "대기 중": "Standby", "화면 크기 안내": "Screen size notice", "미니맵": "Minimap", "아이템": "Items", "이벤트": "Events", "점자 출력": "Braille", "주변 아이템": "Nearby Items", "다시 도전": "Retry", "다음 세계 →": "Next World →", "누적 점수 ": "Total Score ", "누적 점수": "Total Score", "탐험 시작하기": "Start Adventure", "방향키로 이동하세요": "Use arrow keys to move", "현재 위치": "Position", "진행률": "Progress", "점수": "Score", "열쇠": "Keys", "탐험 세계를 선택하세요": "Choose Your World", "게임 맵 — 방향키로 이동": "Game map — arrow keys to move", "맵 선택": "Map Select", "맵 선택으로 돌아가기": "Back to map select", "방향 컨트롤": "Direction controls", "방향키로 이동 · Tab으로 메뉴 탐색": "Arrows to move · Tab to navigate", "아래로 이동": "Move down", "오른쪽으로 이동": "Move right", "왼쪽으로 이동": "Move left", "위로 이동": "Move up", "어디로 모험을 떠날까요?": "Where shall we explore?", "열쇠 현황": "Key status", "위치": "Position", "주변 요소": "Surroundings", "주변에 특별한 것이 없어요": "Nothing special nearby", "촉각 탐험 게임 플랫폼 · Dot Pad 60×40": "Tactile adventure platform · Dot Pad 60×40", "키보드 단축키": "Keyboard shortcuts", "탐험 세계 선택": "Select world", "현황": "Status"};
+  const REV = {};
+  Object.keys(DICT).forEach(k=>REV[DICT[k]]=k);
+  let cur='ko';
+  const btn=document.createElement('button');
+  btn.id='langToggle';
+  btn.textContent='EN';
+  btn.setAttribute('aria-label','Switch to English');
+  btn.style.cssText='position:fixed;bottom:14px;right:14px;z-index:99998;padding:8px 14px;background:rgba(20,20,35,.92);color:#fff;border:1px solid rgba(255,255,255,.25);border-radius:99px;font-size:11px;font-weight:800;font-family:monospace;cursor:pointer;backdrop-filter:blur(8px);letter-spacing:.08em';
+  document.body.appendChild(btn);
+  function applyDict(root,dict){
+    const w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT|NodeFilter.SHOW_ELEMENT,null);
+    let n=root;
+    const nodes=[root];
+    while(n=w.nextNode())nodes.push(n);
+    nodes.forEach(node=>{
+      if(node.nodeType===3){
+        const t=node.nodeValue.trim();
+        if(t&&dict[t])node.nodeValue=node.nodeValue.replace(t,dict[t]);
+      }else if(node.nodeType===1){
+        if(node.nodeName==='SCRIPT'||node.nodeName==='STYLE')return;
+        ['aria-label','placeholder','title'].forEach(a=>{
+          const v=node.getAttribute&&node.getAttribute(a);
+          if(v&&dict[v])node.setAttribute(a,dict[v]);
+        });
+      }
+    });
+  }
+  // 동적 렌더 대응: 새 노드에 현재 언어 적용
+  let observing=false;
+  const obs=new MutationObserver(muts=>{
+    if(cur==='ko')return;
+    obs.disconnect();observing=false;
+    muts.forEach(m=>m.addedNodes.forEach(n=>{
+      if(n.nodeType===1||n.nodeType===3)applyDict(n,DICT);
+    }));
+    startObs();
+  });
+  function startObs(){
+    if(observing)return;
+    obs.observe(document.body,{childList:true,subtree:true});
+    observing=true;
+  }
+  btn.addEventListener('click',()=>{
+    const dict=cur==='ko'?DICT:REV;
+    obs.disconnect();observing=false;
+    applyDict(document.body,dict);
+    cur=cur==='ko'?'en':'ko';
+    btn.textContent=cur==='ko'?'EN':'KO';
+    document.documentElement.lang=cur;
+    if(cur==='en')startObs();
+  });
+})();
+</script>
+
 </body>
 </html>
