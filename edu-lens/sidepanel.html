@@ -1,235 +1,624 @@
 <!DOCTYPE html>
-<html>
+<html lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <style>
-    :root { --dot-orange: #EB5B33; --dot-bg: #FFFFFF; --dot-card: #F4F3EF; --dot-text: #1A1A1A; }
-    body { padding: 15px; font-family: sans-serif; background: var(--dot-bg); color: var(--dot-text); margin: 0; overflow-x: hidden; }
-    .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; border-bottom: 1px solid #EEE; padding-bottom: 8px; }
-    .logo { font-size: 18px; font-weight: 800; }
-    .logo span { color: var(--dot-orange); }
-    
-    button { width: 100%; padding: 12px; margin: 4px 0; border: none; border-radius: 25px; font-weight: bold; cursor: pointer; font-size: 13px; }
-    #btnConnect { background: var(--dot-orange); color: white; }
-    #btnCursorSync { background: #E0E0E0; color: #333; transition: 0.3s; }
-    
-    .status-box { background: var(--dot-card); padding: 10px; border-radius: 10px; font-size: 12px; margin-top: 10px; border-left: 4px solid var(--dot-orange); min-height: 20px; word-break: break-all; }
-    
-    .label { font-size: 11px; font-weight: bold; margin-top: 15px; color: #555; }
-    
-    /* 그래픽 영역 (60x40) */
-    #dotGrid { display: grid; grid-template-columns: repeat(60, 1fr); gap: 1px; background: #D6D4CD; padding: 4px; border-radius: 4px; margin-top: 5px; }
-    .dot { width: 100%; aspect-ratio: 1/1; border-radius: 50%; background: #F4F3EF; }
-    .dot.active { background: #1A1A1A; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dot Edu-Lens Pro — 실시간 촉각+점자 변환</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#ffffff;--panel:#f4f3ef;--card:#fff;--border:#e8e7e3;--border2:#d0cfc9;
+  --orange:#eb5b33;--orange-s:#fef2ee;--orange-b:#fbc8b5;
+  --green:#16a34a;--green-s:#f0fdf4;
+  --t1:#1a1a1a;--t2:#555550;--t3:#999994;
+  --r:10px;
+}
+html,body{height:100%;overflow:hidden;-webkit-font-smoothing:antialiased}
+body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--t1)}
+button{font-family:inherit;cursor:pointer;border:none}
+:focus-visible{outline:2px solid var(--orange);outline-offset:2px;border-radius:4px}
 
-    /* 점자 텍스트 바 (20셀) */
-    #brailleBar { display: flex; gap: 4px; background: #1A1A1A; padding: 10px 5px; border-radius: 4px; margin-top: 5px; }
-    .cell { flex: 1; aspect-ratio: 2/3; background: #2A2A2A; border-radius: 2px; display: grid; grid-template-columns: repeat(2, 1fr); grid-template-rows: repeat(3, 1fr); gap: 2px; padding: 3px; }
-    .b-dot { background: #3D3D3D; border-radius: 50%; }
-    .b-dot.active { background: #EB5B33; box-shadow: 0 0 4px #EB5B33; }
+.app{display:grid;grid-template-rows:48px 1fr;height:100vh}
+.topbar{background:var(--card);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 16px;flex-shrink:0}
+.logo-area{display:flex;align-items:center;gap:8px}
+.logo-text{font-size:15px;font-weight:900;letter-spacing:-.3px}
+.logo-text em{font-style:normal;color:var(--orange)}
+.version-badge{font-size:9px;font-family:'DM Mono',monospace;background:var(--orange-s);color:var(--orange);border:1px solid var(--orange-b);padding:2px 7px;border-radius:99px}
+.tb-right{display:flex;align-items:center;gap:8px}
+.conn-btn{padding:6px 14px;border-radius:99px;font-size:11px;font-weight:700;transition:all .18s}
+.conn-btn.idle{background:var(--orange);color:#fff}
+.conn-btn.connected{background:var(--green-s);color:var(--green);border:1.5px solid rgba(22,163,74,.3)}
+.conn-dot{width:6px;height:6px;border-radius:50%;display:inline-block;margin-right:4px;vertical-align:middle}
+.conn-dot.idle{background:#ccc}
+.conn-dot.on{background:var(--green);animation:blink 1.4s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
 
-    canvas { display: none; }
-  </style>
+.body{display:grid;grid-template-columns:1fr 280px;overflow:hidden}
+
+/* LEFT — DEMO BROWSER */
+.demo-browser{display:flex;flex-direction:column;border-right:1px solid var(--border);overflow:hidden}
+.browser-chrome{background:#f9f9f7;border-bottom:1px solid var(--border);padding:8px 12px;display:flex;align-items:center;gap:8px;flex-shrink:0}
+.browser-dots{display:flex;gap:5px}
+.bdot{width:10px;height:10px;border-radius:50%}
+.bdot.r{background:#ff5f57}.bdot.y{background:#ffbd2e}.bdot.g{background:#28c840}
+.browser-bar{flex:1;background:var(--bg);border:1px solid var(--border2);border-radius:6px;padding:5px 10px;font-size:11px;color:var(--t3);font-family:'DM Mono',monospace;display:flex;align-items:center;gap:8px}
+.browser-bar .lock{color:var(--green);font-size:10px}
+.browser-bar .url{flex:1}
+.demo-tabs{display:flex;gap:2px;padding:0 12px;border-bottom:1px solid var(--border);background:var(--panel);flex-shrink:0}
+.demo-tab{padding:7px 14px;font-size:11px;font-weight:600;color:var(--t3);cursor:pointer;border-bottom:2px solid transparent;transition:all .15s}
+.demo-tab.on{color:var(--orange);border-bottom-color:var(--orange)}
+.demo-content{flex:1;overflow-y:auto;position:relative}
+.demo-page{padding:24px;display:none}
+.demo-page.on{display:block}
+
+/* Demo page content styles */
+.dp-header{background:var(--t1);color:#fff;padding:20px 24px;margin:-24px -24px 24px;border-radius:0}
+.dp-header h1{font-size:22px;font-weight:900;margin-bottom:4px}
+.dp-header p{font-size:12px;color:rgba(255,255,255,.6)}
+.dp-nav{display:flex;gap:6px;margin-bottom:20px}
+.dp-nav a{font-size:12px;padding:5px 12px;border-radius:6px;background:var(--panel);color:var(--t2);transition:all .15s}
+.dp-nav a:hover,.dp-nav a.on{background:var(--orange);color:#fff}
+.dp-article h2{font-size:18px;font-weight:900;margin-bottom:10px;line-height:1.3}
+.dp-article p{font-size:13px;line-height:1.85;color:var(--t2);margin-bottom:14px}
+.dp-article h3{font-size:14px;font-weight:700;margin-bottom:8px;margin-top:16px;color:var(--t1)}
+.dp-img-placeholder{width:100%;height:180px;background:var(--panel);border:1px solid var(--border);border-radius:var(--r);display:flex;align-items:center;justify-content:center;margin-bottom:16px;font-size:40px}
+.dp-tag-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px}
+.dp-tag{font-size:10px;font-weight:700;padding:3px 9px;border-radius:99px;background:var(--orange-s);color:var(--orange)}
+
+/* SCAN OVERLAY — cursor ring */
+.scan-ring{position:absolute;pointer-events:none;width:140px;height:140px;border-radius:50%;border:2px solid var(--orange);box-shadow:0 0 0 4px rgba(235,91,51,.1);transform:translate(-50%,-50%);transition:all .12s;display:none;z-index:10}
+.scan-ring.active{display:block}
+
+/* RIGHT — CONTROL PANEL */
+.ctrl-panel{background:var(--bg);display:flex;flex-direction:column;overflow:hidden}
+.cp-section{padding:14px 14px;border-bottom:1px solid var(--border)}
+.cp-label{font-size:9px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--t3);margin-bottom:9px;font-family:'DM Mono',monospace}
+
+/* Sync toggle */
+.sync-toggle{width:100%;padding:11px;border-radius:10px;font-size:12px;font-weight:700;transition:all .18s;display:flex;align-items:center;gap:8px;justify-content:center}
+.sync-toggle.off{background:var(--panel);color:var(--t2);border:1.5px solid var(--border2)}
+.sync-toggle.on{background:var(--orange);color:#fff;box-shadow:0 4px 16px rgba(235,91,51,.3)}
+.sync-indicator{width:8px;height:8px;border-radius:50%;background:currentColor}
+.sync-indicator.on{animation:blink .7s infinite}
+
+/* Status box */
+.status-box{background:var(--panel);border-radius:8px;border-left:3px solid var(--orange);padding:10px 12px}
+.sb-row{display:flex;justify-content:space-between;align-items:center;font-size:11px;margin-bottom:5px}
+.sb-row:last-child{margin-bottom:0}
+.sb-label{color:var(--t3)}
+.sb-val{font-weight:700;color:var(--t1);font-family:'DM Mono',monospace;font-size:10px;max-width:140px;text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sb-val.detecting{color:var(--orange)}
+
+/* Graphic area */
+.graphic-area-wrap{background:#d6d4cd;border-radius:6px;padding:3px}
+.graphic-grid{display:grid;grid-template-columns:repeat(60,1fr);gap:.5px}
+.g-dot{aspect-ratio:1;border-radius:50%;background:#f4f3ef;transition:background .08s}
+.g-dot.on{background:#1a1a1a}
+.g-dot.focus{background:var(--orange)}
+
+/* Braille bar */
+.braille-bar-wrap{background:#1a1a1a;border-radius:6px;padding:6px 5px;display:flex;gap:2.5px}
+.b-cell{flex:1;aspect-ratio:2/3;background:#2a2a2a;border-radius:2px;display:grid;grid-template-columns:repeat(2,1fr);grid-template-rows:repeat(3,1fr);gap:1.5px;padding:2px}
+.b-pin{border-radius:50%;background:#333}
+.b-pin.on{background:var(--orange);box-shadow:0 0 4px rgba(235,91,51,.6)}
+
+/* Mode selector */
+.mode-row{display:flex;gap:4px}
+.mode-btn{flex:1;padding:7px 4px;border-radius:7px;font-size:10px;font-weight:700;background:var(--panel);border:1.5px solid var(--border);color:var(--t3);transition:all .15s}
+.mode-btn.on{background:var(--orange-s);border-color:var(--orange-b);color:var(--orange)}
+
+/* Tech info */
+.tech-row{display:flex;justify-content:space-between;font-size:10px;margin-bottom:6px}
+.tech-label{color:var(--t3)}
+.tech-val{font-family:'DM Mono',monospace;font-weight:600}
+
+/* Log */
+.log-area{flex:1;overflow-y:auto;padding:10px 14px}
+.log-item{font-size:10px;padding:5px 8px;border-radius:5px;background:var(--panel);margin-bottom:4px;display:flex;gap:8px;align-items:flex-start;line-height:1.5}
+.log-time{font-family:'DM Mono',monospace;color:var(--t3);flex-shrink:0}
+.log-text{color:var(--t2)}
+.log-item.scan{background:var(--orange-s);border-left:2px solid var(--orange)}
+.log-item.connect{background:var(--green-s);border-left:2px solid var(--green)}
+</style>
 </head>
 <body>
-  <div class="header">
-    <div class="logo">dot<span>::</span> Lens</div>
-    <div style="font-size: 9px; color: #7A7A7A;">v0.4 Multi-Modal</div>
+<div class="app">
+
+<header class="topbar">
+  <div class="logo-area">
+    <div class="logo-text">dot<em>::</em>Lens</div>
+    <span class="version-badge">v0.4 Pro</span>
   </div>
-  
-  <button id="btnConnect">닷패드 기기 연결</button>
-  <button id="btnCursorSync">Real-time Cursor Sync (OFF)</button>
+  <div class="tb-right">
+    <span style="font-size:10px;color:var(--t3)" id="connLabel"><span class="conn-dot idle" id="connDot"></span>연결 안됨</span>
+    <button class="conn-btn idle" id="btnConnect">Dot Pad 연결</button>
+  </div>
+</header>
 
-  <div class="status-box">
-    <strong>Text:</strong> <span id="currentText">탐색 대기 중...</span>
+<div class="body">
+
+  <!-- DEMO BROWSER -->
+  <div class="demo-browser">
+    <div class="browser-chrome">
+      <div class="browser-dots"><div class="bdot r"></div><div class="bdot y"></div><div class="bdot g"></div></div>
+      <div class="browser-bar">
+        <span class="lock">🔒</span>
+        <span class="url" id="urlBar">https://ko.wikipedia.org/wiki/시각장애</span>
+      </div>
+    </div>
+    <div class="demo-tabs" role="tablist">
+      <div class="demo-tab on" data-page="wiki" role="tab" tabindex="0">📖 Wikipedia</div>
+      <div class="demo-tab" data-page="chart" role="tab" tabindex="0">📊 데이터 차트</div>
+      <div class="demo-tab" data-page="textbook" role="tab" tabindex="0">📚 교과서</div>
+    </div>
+
+    <div class="demo-content" id="demoContent">
+      <div class="scan-ring" id="scanRing"></div>
+
+      <!-- PAGE 1: Wikipedia -->
+      <div class="demo-page on" id="page-wiki">
+        <div class="dp-header">
+          <h1>시각장애 (視覺障碍)</h1>
+          <p>Wikipedia · 한국어</p>
+        </div>
+        <div class="dp-nav">
+          <a class="on">개요</a><a>원인</a><a>통계</a><a>보조기술</a>
+        </div>
+        <div class="dp-article">
+          <div class="dp-img-placeholder" data-label="시각장애 안내견 이미지">🦮</div>
+          <div class="dp-tag-row"><span class="dp-tag">접근성</span><span class="dp-tag">보건</span><span class="dp-tag">사회</span></div>
+          <p><strong>시각장애</strong>(視覺障碍)는 시력이 매우 약하거나 전혀 없는 상태를 말합니다. 세계보건기구(WHO)의 기준에 따르면 교정 시력이 0.3 미만인 경우를 시각장애로 분류합니다.</p>
+          <h3>전 세계 시각장애 현황</h3>
+          <p>WHO에 따르면 전 세계적으로 약 <strong>2억 2천만 명</strong>이 시각 손상을 가지고 있으며, 그 중 약 <strong>3,600만 명</strong>이 완전 실명 상태입니다. 저·중소득 국가에서 시각장애 유병률이 특히 높습니다.</p>
+          <h3>디지털 접근성</h3>
+          <p>스크린 리더, 점자 디스플레이, 화면 확대 소프트웨어 등 다양한 보조 기술이 시각장애인의 디지털 접근성을 높이는 데 사용됩니다. Dot Pad와 같은 촉각 그래픽 디스플레이는 이미지와 도표를 점자 핀 패턴으로 변환하여 시각 정보를 촉각으로 전달합니다.</p>
+          <h3>관련 기술</h3>
+          <p>최근 AI 기술의 발전으로 이미지 내용을 자동으로 설명하는 기술, 실시간 텍스트 인식(OCR), 장면 이해(Scene Understanding) 등이 접근성 도구에 통합되고 있습니다.</p>
+        </div>
+      </div>
+
+      <!-- PAGE 2: Chart -->
+      <div class="demo-page" id="page-chart">
+        <div class="dp-header" style="background:var(--t1)">
+          <h1>세계 시각장애 통계</h1>
+          <p>WHO 2024 데이터</p>
+        </div>
+        <div class="dp-article">
+          <h2>지역별 시각장애 인구 (백만 명)</h2>
+          <div class="dp-img-placeholder" id="chartImg">📊</div>
+          <div style="margin-top:8px">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+              <div style="background:var(--panel);padding:12px;border-radius:8px">
+                <div style="font-size:22px;font-weight:900;color:var(--orange)">2.2억</div>
+                <div style="font-size:11px;color:var(--t3);margin-top:2px">전 세계 시각 손상 인구</div>
+              </div>
+              <div style="background:var(--panel);padding:12px;border-radius:8px">
+                <div style="font-size:22px;font-weight:900;color:var(--t1)">3,600만</div>
+                <div style="font-size:11px;color:var(--t3);margin-top:2px">완전 실명 인구</div>
+              </div>
+            </div>
+          </div>
+          <h3>연령별 분포</h3>
+          <p>시각장애의 약 90%는 저·중소득 국가에서 발생하며, 50세 이상 연령층에서 집중적으로 나타납니다. 굴절 이상(근시·원시 등)이 가장 흔한 원인이며, 백내장이 그 뒤를 잇습니다.</p>
+          <div style="background:var(--panel);border-radius:8px;padding:14px;margin-top:8px">
+            <div style="font-size:11px;font-weight:700;margin-bottom:10px">원인별 비율</div>
+            <div style="display:flex;flex-direction:column;gap:7px">
+              <div><div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:3px"><span>굴절 이상</span><span style="font-weight:700;color:var(--orange)">43%</span></div><div style="height:6px;background:#e8e7e3;border-radius:3px"><div style="width:43%;height:100%;background:var(--orange);border-radius:3px"></div></div></div>
+              <div><div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:3px"><span>백내장</span><span style="font-weight:700;color:var(--t1)">33%</span></div><div style="height:6px;background:#e8e7e3;border-radius:3px"><div style="width:33%;height:100%;background:var(--t1);border-radius:3px"></div></div></div>
+              <div><div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:3px"><span>녹내장</span><span style="font-weight:700;color:var(--t3)">12%</span></div><div style="height:6px;background:#e8e7e3;border-radius:3px"><div style="width:12%;height:100%;background:var(--t3);border-radius:3px"></div></div></div>
+              <div><div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:3px"><span>기타</span><span style="font-weight:700;color:var(--t3)">12%</span></div><div style="height:6px;background:#e8e7e3;border-radius:3px"><div style="width:12%;height:100%;background:var(--t3);border-radius:3px"></div></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PAGE 3: Textbook -->
+      <div class="demo-page" id="page-textbook">
+        <div class="dp-header" style="background:linear-gradient(135deg,#1e3a5f,#0f2040)">
+          <h1>중학교 과학 2 — 8단원</h1>
+          <p>빛과 파동</p>
+        </div>
+        <div class="dp-article">
+          <h2>8-2. 빛의 굴절과 렌즈</h2>
+          <div class="dp-img-placeholder">🔬</div>
+          <p>빛이 서로 다른 매질을 통과할 때 경계면에서 방향이 바뀌는 현상을 <strong>굴절</strong>이라 합니다. 굴절의 정도는 매질의 굴절률에 따라 달라지며, 이를 스넬의 법칙(Snell's Law)으로 표현합니다.</p>
+          <h3>볼록 렌즈와 오목 렌즈</h3>
+          <p>볼록 렌즈는 빛을 한 점으로 모으는 성질을 가지며, 오목 렌즈는 빛을 퍼트리는 성질을 가집니다. 눈의 수정체는 볼록 렌즈 역할을 하며, 근시는 상이 망막 앞에 맺혀 발생합니다.</p>
+          <h3>핵심 개념 정리</h3>
+          <div style="background:var(--panel);border-radius:8px;padding:12px;margin-top:8px">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:11px">
+              <div style="background:var(--card);padding:8px;border-radius:6px"><div style="font-weight:700;margin-bottom:4px">굴절</div><div style="color:var(--t3)">매질 경계에서 빛의 방향 변화</div></div>
+              <div style="background:var(--card);padding:8px;border-radius:6px"><div style="font-weight:700;margin-bottom:4px">굴절률</div><div style="color:var(--t3)">매질에서 빛의 속도 비율</div></div>
+              <div style="background:var(--card);padding:8px;border-radius:6px"><div style="font-weight:700;margin-bottom:4px">볼록렌즈</div><div style="color:var(--t3)">빛을 모으는 수렴 렌즈</div></div>
+              <div style="background:var(--card);padding:8px;border-radius:6px"><div style="font-weight:700;margin-bottom:4px">오목렌즈</div><div style="color:var(--t3)">빛을 퍼트리는 발산 렌즈</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
-  <div class="label">Graphic Area (60x40)</div>
-  <div id="dotGrid"></div>
+  <!-- CONTROL PANEL -->
+  <aside class="ctrl-panel">
 
-  <div class="label">Braille Text Bar (20 Cells Preview)</div>
-  <div id="brailleBar"></div>
+    <div class="cp-section">
+      <div class="cp-label">실시간 동기화</div>
+      <button class="sync-toggle off" id="btnSync">
+        <span class="sync-indicator" id="syncDot"></span>
+        <span id="syncTxt">Cursor Sync OFF</span>
+      </button>
+      <div style="margin-top:8px;font-size:10px;color:var(--t3);line-height:1.6">
+        커서 이동 시 150ms 간격으로 화면을 캡처해 Dot Pad에 전송합니다.
+      </div>
+    </div>
 
-  <canvas id="mainCanvas"></canvas>
-  <script>
-/**
- * Dot Edu-Lens Pro 0.4 - 최종 통합 엔진
- * 그래픽(60x40) + 점자(20셀) + BLE 하드웨어 연동 및 성능 최적화
- */
+    <div class="cp-section">
+      <div class="cp-label">탐지 모드</div>
+      <div class="mode-row">
+        <button class="mode-btn on" data-mode="auto">자동</button>
+        <button class="mode-btn" data-mode="img">이미지</button>
+        <button class="mode-btn" data-mode="text">텍스트</button>
+      </div>
+    </div>
 
-document.addEventListener('DOMContentLoaded', () => {
-    // 1. UI 요소 참조
-    const grid = document.getElementById('dotGrid');
-    const brailleBar = document.getElementById('brailleBar');
-    const statusText = document.getElementById('currentText');
-    const btnConnect = document.getElementById('btnConnect');
-    const btnCursorSync = document.getElementById('btnCursorSync');
-    
-    const dots = [];
-    const cellElements = [];
-    let isCursorSyncActive = false;
-    let isCapturing = false;
-    let lastCaptureTime = 0;
-    const CAPTURE_INTERVAL = 150; // 실시간성을 위한 0.15초 간격
+    <div class="cp-section">
+      <div class="cp-label">현재 탐지 내용</div>
+      <div class="status-box">
+        <div class="sb-row"><span class="sb-label">텍스트</span><span class="sb-val detecting" id="detectedText">탐색 대기 중</span></div>
+        <div class="sb-row"><span class="sb-label">영역</span><span class="sb-val" id="detectedType">—</span></div>
+        <div class="sb-row"><span class="sb-label">좌표</span><span class="sb-val" id="detectedPos">—</span></div>
+        <div class="sb-row"><span class="sb-label">전송 속도</span><span class="sb-val">150ms</span></div>
+      </div>
+    </div>
 
-    // 2. BLE 하드웨어 설정
-    let dotPadCharacteristic = null;
-    const SERVICE_UUID = '6e400001-b5a3-f393-e0a9-e50e24dcca9e';
-    const CHARACTERISTIC_UUID = '6e400002-b5a3-f393-e0a9-e50e24dcca9e';
+    <div class="cp-section">
+      <div class="cp-label">그래픽 영역 (60×40)</div>
+      <div class="graphic-area-wrap">
+        <div class="graphic-grid" id="gGrid"></div>
+      </div>
+    </div>
 
-    // 3. 점자 매핑 테이블 (영문, 숫자, 주요 기호)
-    const BRAILLE_MAP = {
-        'a': 0b000001, 'b': 0b000011, 'c': 0b001001, 'd': 0b011001, 'e': 0b010001,
-        'f': 0b001011, 'g': 0b011011, 'h': 0b010011, 'i': 0b001010, 'j': 0b011010,
-        'k': 0b000101, 'l': 0b000111, 'm': 0b001101, 'n': 0b011101, 'o': 0b010101,
-        'p': 0b001111, 'q': 0b011111, 'r': 0b010111, 's': 0b001110, 't': 0b011110,
-        'u': 0b100101, 'v': 0b100111, 'w': 0b111010, 'x': 0b101101, 'y': 0b111101, 'z': 0b110101,
-        '1': 0b000001, '2': 0b000011, '3': 0b001001, '4': 0b011001, '5': 0b010001,
-        '6': 0b001011, '7': 0b011011, '8': 0b010011, '9': 0b001010, '0': 0b011010,
-        '.': 0b010010, ':': 0b010010, '-': 0b010000, ' ': 0b000000
-    };
+    <div class="cp-section">
+      <div class="cp-label">점자 텍스트 바 (20셀)</div>
+      <div class="braille-bar-wrap" id="brailleBar"></div>
+    </div>
 
-    // 4. UI 초기화 (그리드 및 셀 생성)
-    function initUI() {
-        if (!grid || !brailleBar) return;
-        grid.innerHTML = '';
-        brailleBar.innerHTML = '';
-        
-        // 그래픽 그리드 2400개 생성
-        for (let i = 0; i < 2400; i++) {
-            const d = document.createElement('div');
-            d.className = 'dot';
-            grid.appendChild(d);
-            dots.push(d);
-        }
-        
-        // 점자 바 20셀 생성 (각 셀당 6개 점)
-        for (let i = 0; i < 20; i++) {
-            const c = document.createElement('div');
-            c.className = 'cell';
-            const cDots = [];
-            for (let j = 0; j < 6; j++) {
-                const b = document.createElement('div');
-                b.className = 'b-dot';
-                c.appendChild(b);
-                cDots.push(b);
-            }
-            brailleBar.appendChild(c);
-            cellElements.push(cDots);
-        }
-    }
-    initUI();
+    <div class="cp-section" style="border-bottom:none">
+      <div class="cp-label">시스템 정보</div>
+      <div class="tech-row"><span class="tech-label">패킷 크기</span><span class="tech-val">300 bytes</span></div>
+      <div class="tech-row"><span class="tech-label">해상도</span><span class="tech-val">60×40 + 20셀</span></div>
+      <div class="tech-row"><span class="tech-label">프로토콜</span><span class="tech-val">BLE 4.2</span></div>
+      <div class="tech-row"><span class="tech-label">전송 상태</span><span class="tech-val" id="txState" style="color:var(--t3)">대기</span></div>
+    </div>
 
-    // 5. 점자 바 업데이트 로직
-    function updateBrailleBar(text) {
-        if (statusText) statusText.innerText = text.substring(0, 80);
-        const clean = (text || "").toLowerCase().trim().substring(0, 20);
-        const dotMapping = [0, 2, 4, 1, 3, 5]; // 표준 점자 위치 매핑
-        
-        cellElements.forEach((cel, i) => {
-            if (i < clean.length) {
-                const pat = BRAILLE_MAP[clean[i]] || (clean[i] ? (clean.charCodeAt(i) % 63) : 0);
-                cel.forEach((d, idx) => {
-                    const bit = dotMapping.indexOf(idx);
-                    if ((pat >> bit) & 1) d.classList.add('active');
-                    else d.classList.remove('active');
-                });
-            } else {
-                cel.forEach(d => d.classList.remove('active'));
-            }
-        });
-    }
+    <div class="log-area" id="logArea"></div>
+  </aside>
+</div>
+</div>
 
-    // 6. 하드웨어 전송 (300바이트 바이너리 패킷)
-    async function sendToHardware(dotArray) {
-        if (!dotPadCharacteristic) return;
-        const payload = new Uint8Array(300);
-        for (let i = 0; i < dotArray.length; i++) {
-            if (dotArray[i] === 1) {
-                payload[Math.floor(i / 8)] |= (1 << (7 - (i % 8)));
-            }
-        }
-        const packet = new Uint8Array([0x02, 0x47, 0x01, 0x2C, ...payload, 0x00, 0x03]);
-        try { await dotPadCharacteristic.writeValue(packet); } 
-        catch (e) { console.warn("BLE 데이터 전송 실패"); }
-    }
+<script>
+const BRAILLE = {
+  'a':0b000001,'b':0b000011,'c':0b001001,'d':0b011001,'e':0b010001,
+  'f':0b001011,'g':0b011011,'h':0b010011,'i':0b001010,'j':0b011010,
+  'k':0b000101,'l':0b000111,'m':0b001101,'n':0b011101,'o':0b010101,
+  'p':0b001111,'q':0b011111,'r':0b010111,'s':0b001110,'t':0b011110,
+  'u':0b100101,'v':0b100111,'w':0b111010,'x':0b101101,'y':0b111101,'z':0b110101,
+  ' ':0,'0':0b011010,'1':0b000001,'2':0b000011,'3':0b001001,'4':0b011001,'5':0b010001,
+};
 
-    // 7. 실시간 캡처 및 그래픽 변환
-    function startCapture(rect, dpr) {
-        const now = Date.now();
-        if (isCapturing || (now - lastCaptureTime < CAPTURE_INTERVAL)) return;
+// DEMO DATA: content blocks per page with their dot patterns
+const PAGE_CONTENT = {
+  wiki:[
+    {label:'안내견 이미지',type:'image',text:'시각장애 안내견',grid:()=>makeCircle(30,20,14)},
+    {label:'소제목: 디지털 접근성',type:'heading',text:'디지털 접근성',grid:()=>makeText()},
+    {label:'본문 텍스트',type:'paragraph',text:'Dot Pad 촉각 그래픽',grid:()=>makeLines()},
+    {label:'기사 본문 2',type:'paragraph',text:'AI 접근성 기술',grid:()=>makeWave()},
+  ],
+  chart:[
+    {label:'WHO 통계 차트',type:'chart',text:'세계 시각장애 통계',grid:()=>makeBarChart()},
+    {label:'백분율 바 그래프',type:'chart',text:'굴절 이상 43%',grid:()=>makePieSlice()},
+  ],
+  textbook:[
+    {label:'렌즈 다이어그램',type:'image',text:'볼록렌즈 굴절 도',grid:()=>makeLens()},
+    {label:'개념 정리표',type:'table',text:'굴절 / 굴절률',grid:()=>makeGrid2()},
+  ]
+};
 
-        isCapturing = true;
-        chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
-            if (!tabs[0]) { isCapturing = false; return; }
-            chrome.tabs.captureVisibleTab(tabs[0].windowId, { format: 'png' }, (url) => {
-                if (chrome.runtime.lastError || !url) { isCapturing = false; return; }
-                const img = new Image();
-                img.onload = () => {
-                    const canvas = document.getElementById('mainCanvas');
-                    const ctx = canvas.getContext('2d', { willReadFrequently: true });
-                    canvas.width = 600; canvas.height = 400;
-                    
-                    ctx.drawImage(img, rect.x * dpr, rect.y * dpr, rect.width * dpr, rect.height * dpr, 0, 0, 600, 400);
-                    
-                    const data = ctx.getImageData(0, 0, 600, 400).data;
-                    const hDots = [];
+// DOT PATTERN GENERATORS
+function empty(){return Array.from({length:40},()=>Array(60).fill(false));}
+function makeCircle(cx,cy,r){
+  const g=empty();
+  for(let y=0;y<40;y++)for(let x=0;x<60;x++){
+    const d=Math.sqrt((x-cx)**2+(y-cy)**2);
+    if(Math.abs(d-r)<1.2||d<3)g[y][x]=true;
+  }
+  return g;
+}
+function makeLines(){
+  const g=empty();
+  [8,12,16,20,24,28].forEach(y=>{for(let x=5;x<55;x+=2)g[y][x]=true;});
+  return g;
+}
+function makeText(){
+  const g=empty();
+  // "TEXT" stylized as dot matrix
+  const pts=[[5,5],[5,10],[5,15],[5,20],[5,25],[5,30],[7,5],[7,9],[7,13],[7,17],[7,21],[7,25],[7,29]];
+  for(let y=3;y<18;y++)for(let x=3;x<57;x++)if((y===3||y===17)&&x<57)g[y][x]=true;
+  for(let y=3;y<18;y++)[3,56].forEach(x=>g[y][x]=true);
+  for(let x=20;x<40;x++)g[10][x]=true;
+  return g;
+}
+function makeWave(){
+  const g=empty();
+  for(let x=0;x<60;x++){
+    const y1=Math.round(10+Math.sin(x*0.3)*5);
+    const y2=Math.round(20+Math.sin(x*0.3+1)*6);
+    const y3=Math.round(30+Math.sin(x*0.3+2)*5);
+    [y1,y2,y3].forEach(y=>{if(y>=0&&y<40)g[y][x]=true;});
+  }
+  return g;
+}
+function makeBarChart(){
+  const g=empty();
+  const bars=[{x:5,h:30},{x:15,h:22},{x:25,h:15},{x:35,h:18},{x:45,h:10}];
+  bars.forEach(({x,h})=>{
+    for(let y=38-h;y<=38;y++)for(let dx=0;dx<8;dx++)g[y][x+dx]=true;
+  });
+  for(let x=0;x<60;x++)g[38][x]=true;
+  return g;
+}
+function makePieSlice(){
+  const g=empty();
+  for(let y=0;y<40;y++)for(let x=0;x<60;x++){
+    const a=Math.atan2(y-20,x-30);
+    const r=Math.sqrt((x-30)**2+(y-20)**2);
+    if(r<14&&(a<-Math.PI/2||(a>0&&a<Math.PI*0.86)))g[y][x]=true;
+    if(Math.abs(r-14)<1)g[y][x]=true;
+  }
+  return g;
+}
+function makeLens(){
+  const g=empty();
+  // convex lens shape
+  for(let y=5;y<35;y++){
+    const w=Math.round(Math.sqrt(Math.max(0,100-(y-20)**2))*2);
+    [30-w,30+w].forEach(x=>{if(x>=0&&x<60)g[y][x]=true;});
+  }
+  // light rays
+  [8,14,20,26,32].forEach(y=>{
+    for(let x=0;x<30;x+=2)g[y][x]=true;
+    const fy=20+((y-20)*0.3);
+    for(let x=30;x<55;x+=2){const ry=Math.round(y+(fy-y)*(x-30)/25);if(ry>=0&&ry<40)g[ry][x]=true;}
+  });
+  return g;
+}
+function makeGrid2(){
+  const g=empty();
+  [5,15,25,35].forEach(y=>{for(let x=2;x<58;x++)g[y][x]=true;});
+  [2,20,38].forEach(x=>{for(let y=5;y<35;y++)g[y][x]=true;});
+  return g;
+}
 
-                    for (let i = 0; i < 2400; i++) {
-                        const x = i % 60, y = Math.floor(i / 60);
-                        const idx = (y * 10 * 600 + x * 10) * 4;
-                        const avg = (data[idx] + data[idx+1] + data[idx+2]) / 3;
-                        const active = avg < 210; // 임계값
-                        dots[i].className = active ? 'dot active' : 'dot';
-                        hDots.push(active ? 1 : 0);
-                    }
-                    
-                    sendToHardware(hDots);
-                    isCapturing = false;
-                    lastCaptureTime = Date.now();
-                };
-                img.src = url;
-            });
-        });
-    }
+// INIT GRIDS
+const gGrid=document.getElementById('gGrid');
+const bBar=document.getElementById('brailleBar');
+const gDots=[];const bCells=[];
 
-    // 8. 메시지 수신부
-    chrome.runtime.onMessage.addListener((req) => {
-        if (!isCursorSyncActive) return;
-        if (req.action === "mouseMove" || req.action === "focusTracking") {
-            if (req.text !== undefined) updateBrailleBar(req.text);
-            startCapture(req.rect, req.dpr);
-        }
-    });
+for(let i=0;i<2400;i++){
+  const d=document.createElement('div');d.className='g-dot';
+  gGrid.appendChild(d);gDots.push(d);
+}
+for(let i=0;i<20;i++){
+  const c=document.createElement('div');c.className='b-cell';
+  const pins=[];
+  for(let j=0;j<6;j++){const p=document.createElement('div');p.className='b-pin';c.appendChild(p);pins.push(p);}
+  bBar.appendChild(c);bCells.push(pins);
+}
 
-    // 9. 버튼 이벤트 (연결 로직 개선)
-    btnConnect.onclick = async () => {
-        try {
-            statusText.innerText = "기기 검색 중... (팝업창 확인)";
-            const dev = await navigator.bluetooth.requestDevice({
-                acceptAllDevices: true, // 검색 범위를 넓혀 기기 찾기 성공률 향상
-                optionalServices: [SERVICE_UUID]
-            });
-            const srv = await dev.gatt.connect();
-            const svc = await srv.getPrimaryService(SERVICE_UUID);
-            dotPadCharacteristic = await svc.getCharacteristic(CHARACTERISTIC_UUID);
-            
-            btnConnect.style.background = "#27ae60";
-            btnConnect.innerText = "닷패드 연결됨";
-            statusText.innerText = "연결 성공! 실시간 탐색을 시작하세요.";
-        } catch (e) {
-            console.error(e);
-            statusText.innerText = "기기 연결 실패: 블루투스가 켜져 있는지 확인하세요.";
-        }
-    };
+function renderDotGrid(grid){
+  for(let y=0;y<40;y++)for(let x=0;x<60;x++){
+    const i=y*60+x;
+    gDots[i].className=grid[y][x]?'g-dot on':'g-dot';
+  }
+}
 
-    btnCursorSync.onclick = () => {
-        isCursorSyncActive = !isCursorSyncActive;
-        btnCursorSync.style.background = isCursorSyncActive ? "#27ae60" : "#E0E0E0";
-        btnCursorSync.style.color = isCursorSyncActive ? "white" : "#333";
-        btnCursorSync.innerText = `Real-time Cursor Sync (${isCursorSyncActive ? 'ON' : 'OFF'})`;
-    };
+function renderBraille(text){
+  const t=(text||'').toLowerCase().substring(0,20);
+  bCells.forEach((pins,i)=>{
+    const ch=i<t.length?t[i]:' ';
+    const pat=BRAILLE[ch]||0;
+    pins.forEach((p,j)=>{p.className=(pat>>j&1)?'b-pin on':'b-pin';});
+  });
+}
+
+function addLog(text,type=''){
+  const now=new Date();
+  const ts=`${String(now.getMinutes()).padStart(2,'0')}:${String(now.getSeconds()).padStart(2,'0')}`;
+  const log=document.getElementById('logArea');
+  const el=document.createElement('div');
+  el.className=`log-item ${type}`;
+  el.innerHTML=`<span class="log-time">${ts}</span><span class="log-text">${text}</span>`;
+  log.insertBefore(el,log.firstChild);
+  while(log.children.length>20)log.removeChild(log.lastChild);
+}
+
+// STATE
+let syncOn=false;let connected=false;let currentPage='wiki';let scanTimer=null;
+let contentIdx=0;let txCount=0;
+
+// CURSOR TRACKING DEMO
+const demoContent=document.getElementById('demoContent');
+const scanRing=document.getElementById('scanRing');
+let mouseX=200,mouseY=200;
+
+demoContent.addEventListener('mousemove',e=>{
+  const r=demoContent.getBoundingClientRect();
+  mouseX=e.clientX-r.left;mouseY=e.clientY-r.top;
+  scanRing.style.left=mouseX+'px';scanRing.style.top=mouseY+'px';
+  if(syncOn)triggerScan();
 });
+
+function triggerScan(){
+  const contents=PAGE_CONTENT[currentPage]||[];
+  const item=contents[contentIdx%contents.length];
+  if(!item)return;
+  renderDotGrid(item.grid());
+  renderBraille(item.text);
+  document.getElementById('detectedText').textContent=item.text.substring(0,20);
+  document.getElementById('detectedType').textContent=item.type;
+  document.getElementById('detectedPos').textContent=`x:${Math.round(mouseX)} y:${Math.round(mouseY)}`;
+  txCount++;
+  document.getElementById('txState').textContent=`${txCount}회 전송`;
+  document.getElementById('txState').style.color='var(--orange)';
+  setTimeout(()=>document.getElementById('txState').style.color='var(--t3)',300);
+  if(txCount%4===0){contentIdx++;addLog(`📡 전송 #${txCount} — ${item.label}`,'scan');}
+}
+
+// AUTO DEMO when sync is on but not moving
+let autoDemo=null;
+function startAutoDemo(){
+  autoDemo=setInterval(()=>{
+    if(!syncOn)return;
+    const r=demoContent.getBoundingClientRect();
+    mouseX=100+Math.random()*400;mouseY=50+Math.random()*300;
+    scanRing.style.left=mouseX+'px';scanRing.style.top=mouseY+'px';
+    triggerScan();
+  },900);
+}
+
+// CONNECT
+document.getElementById('btnConnect').addEventListener('click',async()=>{
+  const btn=document.getElementById('btnConnect');
+  const dot=document.getElementById('connDot');
+  const label=document.getElementById('connLabel');
+  if(!connected){
+    if(navigator.bluetooth){
+      try{
+        btn.textContent='검색 중...';btn.disabled=true;
+        const dev=await navigator.bluetooth.requestDevice({
+          filters:[{namePrefix:'DotPad'}],
+          optionalServices:['49535343-fe7d-4ae5-8fa9-9fafd205e455']
+        });
+        connected=true;
+        btn.textContent='연결됨';btn.className='conn-btn connected';btn.disabled=false;
+        dot.className='conn-dot on';label.innerHTML='<span class="conn-dot on"></span>'+dev.name;
+        addLog(`✅ ${dev.name} 연결 완료`,'connect');
+      }catch(e){
+        btn.textContent='Dot Pad 연결';btn.disabled=false;
+        addLog('❌ 연결 취소 — 기기를 찾지 못했습니다');
+      }
+    }else{
+      // Demo mode
+      connected=true;
+      btn.textContent='연결됨 (Demo)';btn.className='conn-btn connected';
+      dot.className='conn-dot on';label.innerHTML='<span class="conn-dot on"></span>DotPad 320 (Demo)';
+      addLog('✅ Demo 모드 — 실제 기기 없이 시뮬레이션합니다','connect');
+    }
+  }
+});
+
+// SYNC TOGGLE
+document.getElementById('btnSync').addEventListener('click',()=>{
+  syncOn=!syncOn;
+  const btn=document.getElementById('btnSync');
+  const dot=document.getElementById('syncDot');
+  const txt=document.getElementById('syncTxt');
+  btn.className=`sync-toggle ${syncOn?'on':'off'}`;
+  dot.className=`sync-indicator ${syncOn?'on':''}`;
+  txt.textContent=`Cursor Sync ${syncOn?'ON':'OFF'}`;
+  scanRing.className=`scan-ring ${syncOn?'active':''}`;
+  if(syncOn){addLog('🟢 실시간 동기화 시작 · 150ms 간격');startAutoDemo();}
+  else{clearInterval(autoDemo);addLog('⛔ 동기화 중지');}
+});
+
+// PAGE TABS
+document.querySelectorAll('.demo-tab').forEach(t=>{
+  t.addEventListener('click',()=>{
+    document.querySelectorAll('.demo-tab').forEach(x=>x.classList.remove('on'));
+    document.querySelectorAll('.demo-page').forEach(x=>x.classList.remove('on'));
+    t.classList.add('on');
+    currentPage=t.dataset.page;
+    document.getElementById('page-'+currentPage).classList.add('on');
+    contentIdx=0;
+    const urls={wiki:'https://ko.wikipedia.org/wiki/시각장애',chart:'https://who.int/data/visual-impairment',textbook:'https://textbook.co.kr/science/ch8-lens'};
+    document.getElementById('urlBar').textContent=urls[currentPage]||'';
+    addLog(`🌐 페이지 전환 — ${t.textContent.trim()}`);
+    if(syncOn){clearInterval(autoDemo);startAutoDemo();}
+  });
+});
+
+// MODE BUTTONS
+document.querySelectorAll('.mode-btn').forEach(b=>{
+  b.addEventListener('click',()=>{
+    document.querySelectorAll('.mode-btn').forEach(x=>x.classList.remove('on'));
+    b.classList.add('on');
+    addLog(`🔧 탐지 모드 변경 — ${b.dataset.mode}`);
+  });
+});
+
+// INIT
+renderDotGrid(empty());renderBraille('');
+addLog('Dot Edu-Lens Pro v0.4 시작');
+addLog('🖱️ 브라우저 화면 위로 커서를 이동하거나 Sync를 켜세요');
 </script>
+
+<style id="mobileBannerStyle">
+#mobileBanner{position:fixed;inset:0;z-index:99999;display:none;flex-direction:column;align-items:center;justify-content:center;gap:18px;background:rgba(7,7,15,.97);backdrop-filter:blur(8px);padding:32px;text-align:center;font-family:'Noto Sans KR',sans-serif;color:#f0eeff}
+#mobileBanner.show{display:flex}
+#mobileBanner .mb-icon{font-size:48px}
+#mobileBanner .mb-title{font-size:18px;font-weight:800}
+#mobileBanner .mb-desc{font-size:13px;color:rgba(240,238,255,.6);line-height:1.7;max-width:300px}
+#mobileBanner .mb-btn{margin-top:8px;padding:11px 26px;background:#6b46f0;color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit}
+</style>
+<div id="mobileBanner" role="dialog" aria-label="화면 크기 안내">
+  <div class="mb-icon">🖥️</div>
+  <div class="mb-title">데스크톱에서 최적화된 데모입니다</div>
+  <div class="mb-desc">이 프로토타입은 넓은 화면에 맞춰 설계되었습니다. PC나 태블릿 가로 모드에서 열면 가장 좋습니다.</div>
+  <button class="mb-btn" onclick="document.getElementById('mobileBanner').classList.remove('show')">그래도 계속 보기</button>
+</div>
+<script>
+(function(){function c(){if(window.innerWidth<720)document.getElementById('mobileBanner')?.classList.add('show');}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',c);else c();})();
+</script>
+
+
+<script id="i18nLite">
+(function(){
+  const DICT = {"그래도 계속 보기": "Continue anyway", "데스크톱에서 최적화된 데모입니다": "Optimized for desktop", "이 프로토타입은 넓은 화면에 맞춰 설계되었습니다. PC나 태블릿 가로 모드에서 열면 가장 좋습니다.": "This prototype is designed for wide screens. Best viewed on PC or tablet landscape mode.", "대기 중": "Standby", "관련 기술": "Related Tech", "디지털 접근성": "Digital Accessibility", "보조기술": "Assistive Tech", "실시간 스캔": "Live Scan", "점자 출력": "Braille Output", "촉각 변환": "Tactile Convert", "데모 페이지": "Demo Pages"};
+  const REV = {};
+  Object.keys(DICT).forEach(k=>REV[DICT[k]]=k);
+  let cur='ko';
+  const btn=document.createElement('button');
+  btn.id='langToggle';
+  btn.textContent='EN';
+  btn.setAttribute('aria-label','Switch to English');
+  btn.style.cssText='position:fixed;bottom:14px;right:14px;z-index:99998;padding:8px 14px;background:rgba(20,20,35,.92);color:#fff;border:1px solid rgba(255,255,255,.25);border-radius:99px;font-size:11px;font-weight:800;font-family:monospace;cursor:pointer;backdrop-filter:blur(8px);letter-spacing:.08em';
+  document.body.appendChild(btn);
+  function walk(node,dict){
+    if(node.nodeType===3){
+      const t=node.nodeValue.trim();
+      if(t&&dict[t])node.nodeValue=node.nodeValue.replace(t,dict[t]);
+      return;
+    }
+    if(node.nodeName==='SCRIPT'||node.nodeName==='STYLE')return;
+    if(node.setAttribute){
+      ['aria-label','placeholder','title'].forEach(a=>{
+        const v=node.getAttribute&&node.getAttribute(a);
+        if(v&&dict[v])node.setAttribute(a,dict[v]);
+      });
+    }
+    Array.from(node.childNodes).forEach(n=>walk(n,dict));
+  }
+  btn.addEventListener('click',()=>{
+    const dict=cur==='ko'?DICT:REV;
+    walk(document.body,dict);
+    cur=cur==='ko'?'en':'ko';
+    btn.textContent=cur==='ko'?'EN':'KO';
+    document.documentElement.lang=cur;
+  });
+})();
+</script>
+
 </body>
 </html>
