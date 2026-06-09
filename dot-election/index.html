@@ -108,6 +108,32 @@ button{font-family:inherit;cursor:pointer;border:none}
 .dp-info-label{color:var(--t3)}
 .dp-info-val{font-weight:700;font-family:'DM Mono',monospace}
 
+
+/* POLL BARS */
+.poll-section{padding:14px 16px;background:var(--panel);border-radius:var(--r);margin-bottom:16px}
+.poll-title{font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--t3);margin-bottom:12px}
+.poll-row{margin-bottom:10px}
+.poll-cand{display:flex;align-items:center;gap:8px;margin-bottom:5px}
+.poll-avatar{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;color:#fff;flex-shrink:0}
+.poll-name{font-size:12px;font-weight:700;flex:1}
+.poll-pct{font-size:13px;font-weight:900;font-family:'DM Mono',monospace;min-width:36px;text-align:right}
+.poll-bar-track{height:7px;background:var(--border);border-radius:99px;overflow:hidden}
+.poll-bar-fill{height:100%;border-radius:99px;transition:width .6s cubic-bezier(.4,0,.2,1)}
+
+/* CANDIDATE HEADER */
+.cand-header{display:flex;align-items:center;gap:14px;margin-bottom:16px;padding:16px;background:var(--panel);border-radius:var(--r);border:1.5px solid var(--border)}
+.cand-avatar-lg{width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:900;color:#fff;flex-shrink:0;border:2px solid rgba(255,255,255,.2)}
+.cand-header-info{flex:1}
+.cand-header-name{font-size:22px;font-weight:900;letter-spacing:-.5px;margin-bottom:2px}
+.cand-header-sub{font-size:12px;color:var(--t2)}
+.cand-num-badge{padding:4px 12px;border-radius:99px;font-size:11px;font-weight:900;color:#fff}
+
+/* POLICY RADAR */
+.radar-wrap{background:var(--panel);border-radius:var(--r);padding:16px;margin-bottom:16px}
+.radar-title{font-size:11px;font-weight:700;letter-spacing:.5px;color:var(--t3);margin-bottom:10px;text-transform:uppercase}
+
+/* LEFT sidebar poll card */
+.sb-poll-card{margin:10px 12px;background:var(--panel);border-radius:8px;overflow:hidden}
 /* TOAST */
 .toast{position:fixed;top:64px;left:50%;transform:translateX(-50%);background:var(--t1);color:#fff;padding:8px 18px;border-radius:99px;font-size:12px;font-weight:700;opacity:0;transition:opacity .2s;pointer-events:none;z-index:999}
 .toast.show{opacity:1}
@@ -142,12 +168,16 @@ button{font-family:inherit;cursor:pointer;border:none}
           <option value="president">제21대 대통령 선거</option>
           <option value="local">제9회 전국동시지방선거</option>
           <option value="nation">제23대 국회의원 선거</option>
+          <option value="edu">서울시 교육감 선거</option>
         </select>
         <select class="select-box" id="selRegion" aria-label="지역 선택">
           <option value="seoul">서울특별시</option>
           <option value="busan">부산광역시</option>
           <option value="daegu">대구광역시</option>
         </select>
+      </div>
+      <div class="sb-section" style="margin-top:16px">
+        <button class="btn-voting-guide" id="btnVotingGuide" aria-label="투표 절차 안내 보기" style="width:100%;padding:11px;background:var(--accent-s);border:1.5px solid var(--accent-b);color:var(--accent);border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px">🗳️ 투표 절차 안내</button>
       </div>
       <div class="sb-section" style="flex-shrink:0">
         <div class="sb-label">후보자</div>
@@ -194,68 +224,88 @@ button{font-family:inherit;cursor:pointer;border:none}
 
 <script>
 // ── DATA ──
-const CANDIDATES = [
-  {
-    id:'c1',num:1,name:'김민준',party:'미래연합당',color:'#1a5cff',
-    age:58,career:'전 국무총리 / 서울시장',
-    intro:'30년 공직 경험을 바탕으로 안정적인 국가 운영을 약속합니다.',
-    pledges:['청년 주거 지원 50만 호 공급','AI 산업 육성 100조 투자','의료비 본인부담 30% 인하','탄소중립 2045 달성'],
-    policies:{
-      교육:'대학 등록금 50% 인하, 직업훈련 의무화',
-      복지:'기본소득 월 30만원 단계적 도입',
-      경제:'중소기업 세금 감면 확대',
-      안보:'한미동맹 강화 및 북핵 대화 병행',
-      환경:'2045 탄소중립 법제화'
-    },
-    positions:{
-      '기본소득 도입':'agree',
-      '대학 무상교육':'neutral',
-      '의료 국유화':'oppose',
-      '법인세 인상':'oppose',
-      '재생에너지 전환':'agree'
-    }
+const ISSUES_BY_ELECTION = {
+  president:['기본소득 도입','대학 무상교육','의료 국유화','법인세 인상','재생에너지 전환'],
+  local:['지하철 연장','청년 주택 공급','녹지 확대','지방세 인하','교통 무료화'],
+  nation:['주 4일제 도입','부동산 규제','최저임금 인상','연금 개혁','규제 완화'],
+  edu:['자율형 사립고','무상급식 확대','교사 증원','디지털 교과서','입시 개편'],
+};
+
+const ELECTIONS = {
+  president:{
+    title:'제21대 대통령 선거', region:'전국', regionLabel:'지역구 없음 (전국)',
+    candidates:[
+      {id:'p1',num:1,name:'김민준',party:'미래연합당',color:'#1a5cff',age:58,career:'전 국무총리 / 서울시장',
+       intro:'30년 공직 경험을 바탕으로 안정적인 국가 운영을 약속합니다.',poll:38.2,trend:'+1.2',
+       pledges:['청년 주거 지원 50만 호 공급','AI 산업 육성 100조 투자','의료비 본인부담 30% 인하','탄소중립 2045 달성'],
+       policies:{교육:'대학 등록금 50% 인하, 직업훈련 의무화',복지:'기본소득 월 30만원 단계적 도입',경제:'중소기업 세금 감면 확대',안보:'한미동맹 강화 및 북핵 대화 병행',환경:'2045 탄소중립 법제화'},
+       positions:{'기본소득 도입':'agree','대학 무상교육':'neutral','의료 국유화':'oppose','법인세 인상':'oppose','재생에너지 전환':'agree'}},
+      {id:'p2',num:2,name:'이수현',party:'국민혁신당',color:'#dc2626',age:54,career:'전 경제부총리 / 국회의원 3선',
+       intro:'경제 전문가로서 성장과 복지의 균형을 실현하겠습니다.',poll:32.7,trend:'-0.8',
+       pledges:['GDP 4% 성장률 달성','청년 창업 지원 2조원','국민건강보험 강화','그린뉴딜 200조 투자'],
+       policies:{교육:'고교 무상교육 완성, 직업교육 내실화',복지:'맞춤형 복지 강화, 저소득층 지원 확대',경제:'규제 혁신으로 투자 활성화',안보:'자주국방력 강화',환경:'그린뉴딜로 일자리 50만 창출'},
+       positions:{'기본소득 도입':'oppose','대학 무상교육':'agree','의료 국유화':'neutral','법인세 인상':'neutral','재생에너지 전환':'agree'}},
+      {id:'p3',num:3,name:'박지영',party:'녹색시민당',color:'#16a34a',age:47,career:'전 환경부 장관 / 시민단체 대표',
+       intro:'기후위기 대응과 사회 불평등 해소를 최우선 과제로 삼겠습니다.',poll:22.1,trend:'+2.1',
+       pledges:['2040 탄소중립 조기 달성','기본소득 월 50만원 즉시 시행','공공의대 설립','청년 빚 탕감 프로그램'],
+       policies:{교육:'대학 완전 무상교육',복지:'기본소득 50만원 즉시 도입',경제:'재벌 해체 및 중소기업 생태계 구축',안보:'평화협정 체결 추진',환경:'2040 탄소중립, 원전 즉각 폐지'},
+       positions:{'기본소득 도입':'agree','대학 무상교육':'agree','의료 국유화':'agree','법인세 인상':'agree','재생에너지 전환':'agree'}},
+    ]
   },
-  {
-    id:'c2',num:2,name:'이수현',party:'국민혁신당',color:'#dc2626',
-    age:54,career:'전 경제부총리 / 국회의원 3선',
-    intro:'경제 전문가로서 성장과 복지의 균형을 실현하겠습니다.',
-    pledges:['GDP 4% 성장률 달성','청년 창업 지원 2조원','국민건강보험 강화','그린뉴딜 200조 투자'],
-    policies:{
-      교육:'고교 무상교육 완성, 직업교육 내실화',
-      복지:'맞춤형 복지 강화, 저소득층 지원 확대',
-      경제:'규제 혁신으로 투자 활성화',
-      안보:'자주국방력 강화',
-      환경:'그린뉴딜로 일자리 50만 창출'
-    },
-    positions:{
-      '기본소득 도입':'oppose',
-      '대학 무상교육':'agree',
-      '의료 국유화':'neutral',
-      '법인세 인상':'neutral',
-      '재생에너지 전환':'agree'
-    }
+  local:{
+    title:'제9회 전국동시지방선거', region:'서울특별시장', regionLabel:'서울특별시',
+    candidates:[
+      {id:'l1',num:1,name:'정태웅',party:'미래연합당',color:'#1a5cff',age:61,career:'전 서울시 부시장 / 구청장 2선',
+       intro:'교통과 주거 문제를 해결해 살기 좋은 서울을 만들겠습니다.',poll:44.5,trend:'+0.5',
+       pledges:['지하철 9호선 연장','청년 임대주택 10만 호','한강변 녹지 2배 확대','시내버스 심야 운행 확대'],
+       policies:{교통:'지하철 연장 및 환승 할인 확대',주거:'청년·신혼 임대주택 대량 공급',환경:'도심 녹지율 30% 목표',복지:'어르신 무료 급식 확대',경제:'전통시장 디지털 전환 지원'},
+       positions:{'지하철 연장':'agree','청년 주택 공급':'agree','녹지 확대':'agree','지방세 인하':'neutral','교통 무료화':'oppose'}},
+      {id:'l2',num:2,name:'한소영',party:'국민혁신당',color:'#dc2626',age:49,career:'전 국회의원 / 도시계획 전문가',
+       intro:'시민이 주인인 투명한 서울 시정을 약속합니다.',poll:41.2,trend:'+1.8',
+       pledges:['대중교통 요금 동결','반지하 주택 전면 개선','미세먼지 절반 감축','시민참여 예산 3배 확대'],
+       policies:{교통:'대중교통 요금 동결 및 노선 확충',주거:'반지하·옥탑방 거주환경 개선',환경:'미세먼지 저감 종합대책',복지:'1인 가구 지원센터 설립',경제:'소상공인 임대료 지원'},
+       positions:{'지하철 연장':'neutral','청년 주택 공급':'agree','녹지 확대':'agree','지방세 인하':'agree','교통 무료화':'neutral'}},
+      {id:'l3',num:3,name:'오민재',party:'녹색시민당',color:'#16a34a',age:45,career:'환경운동가 / 시의원',
+       intro:'기후위기에 대응하는 지속가능한 서울을 만들겠습니다.',poll:11.8,trend:'+0.9',
+       pledges:['대중교통 완전 무료화','자전거 도로 3배 확대','옥상 정원 의무화','노후 경유차 퇴출'],
+       policies:{교통:'대중교통 단계적 무료화',주거:'그린 리모델링 지원',환경:'2035 탄소중립 도시 선언',복지:'기후 취약계층 보호',경제:'녹색 일자리 창출'},
+       positions:{'지하철 연장':'oppose','청년 주택 공급':'neutral','녹지 확대':'agree','지방세 인하':'oppose','교통 무료화':'agree'}},
+    ]
   },
-  {
-    id:'c3',num:3,name:'박지영',party:'녹색시민당',color:'#16a34a',
-    age:47,career:'전 환경부 장관 / 시민단체 대표',
-    intro:'기후위기 대응과 사회 불평등 해소를 최우선 과제로 삼겠습니다.',
-    pledges:['2040 탄소중립 조기 달성','기본소득 월 50만원 즉시 시행','공공의대 설립','청년 빚 탕감 프로그램'],
-    policies:{
-      교육:'대학 완전 무상교육',
-      복지:'기본소득 50만원 즉시 도입',
-      경제:'재벌 해체 및 중소기업 생태계 구축',
-      안보:'평화협정 체결 추진',
-      환경:'2040 탄소중립, 원전 즉각 폐지'
-    },
-    positions:{
-      '기본소득 도입':'agree',
-      '대학 무상교육':'agree',
-      '의료 국유화':'agree',
-      '법인세 인상':'agree',
-      '재생에너지 전환':'agree'
-    }
-  }
-];
+  nation:{
+    title:'제23대 국회의원 선거', region:'서울 종로구', regionLabel:'서울 종로구',
+    candidates:[
+      {id:'n1',num:1,name:'강현우',party:'미래연합당',color:'#1a5cff',age:52,career:'변호사 / 지역위원장',
+       intro:'종로의 발전과 민생 안정을 책임지겠습니다.',poll:46.1,trend:'-0.3',
+       pledges:['종로 도심 재개발 추진','노후 학교 시설 개선','전통시장 활성화','경제 규제 완화'],
+       policies:{노동:'유연근무 확대',부동산:'재개발 규제 완화',경제:'기업 투자 인센티브',복지:'선별적 복지 강화',연금:'민간 연금 활성화'},
+       positions:{'주 4일제 도입':'oppose','부동산 규제':'oppose','최저임금 인상':'neutral','연금 개혁':'agree','규제 완화':'agree'}},
+      {id:'n2',num:2,name:'문서윤',party:'국민혁신당',color:'#dc2626',age:43,career:'노동운동가 / 시민단체 대표',
+       intro:'일하는 사람이 존중받는 사회를 만들겠습니다.',poll:43.9,trend:'+1.1',
+       pledges:['주 4일제 시범 도입','최저임금 단계적 인상','공공임대 확대','국민연금 강화'],
+       policies:{노동:'주 4일제 및 노동시간 단축',부동산:'투기 규제 강화',경제:'중소기업·소상공인 지원',복지:'보편 복지 확대',연금:'국민연금 소득대체율 인상'},
+       positions:{'주 4일제 도입':'agree','부동산 규제':'agree','최저임금 인상':'agree','연금 개혁':'neutral','규제 완화':'oppose'}},
+    ]
+  },
+  edu:{
+    title:'서울특별시 교육감 선거', region:'서울특별시', regionLabel:'서울특별시',
+    candidates:[
+      {id:'e1',num:1,name:'서경원',party:'무소속 (진보)',color:'#16a34a',age:56,career:'전 고교 교장 / 교육학 박사',
+       intro:'경쟁보다 협력하는 공교육을 만들겠습니다.',poll:39.4,trend:'+2.4',
+       pledges:['무상급식 전면 확대','교사 1만 명 증원','디지털 교과서 도입','혁신학교 확대'],
+       policies:{공교육:'혁신학교 모델 전면 확대',급식:'친환경 무상급식 100%',인력:'교사 증원 및 처우 개선',디지털:'전 학년 디지털 교과서',입시:'고교학점제 정착'},
+       positions:{'자율형 사립고':'oppose','무상급식 확대':'agree','교사 증원':'agree','디지털 교과서':'agree','입시 개편':'agree'}},
+      {id:'e2',num:2,name:'조한별',party:'무소속 (보수)',color:'#1a5cff',age:60,career:'전 교육부 차관 / 대학 총장',
+       intro:'학력 향상과 교육 자율성을 보장하겠습니다.',poll:36.8,trend:'-1.2',
+       pledges:['자율형 사립고 확대','기초학력 보장제','방과후 학교 강화','입시 공정성 강화'],
+       policies:{공교육:'학교 자율성 확대',급식:'급식 질 관리 강화',인력:'우수 교원 확보',디지털:'단계적 디지털 전환',입시:'정시 비중 확대'},
+       positions:{'자율형 사립고':'agree','무상급식 확대':'neutral','교사 증원':'neutral','디지털 교과서':'neutral','입시 개편':'oppose'}},
+    ]
+  },
+};
+
+// 현재 선거의 후보 (동적)
+let CANDIDATES = ELECTIONS.president.candidates;
 
 const BRAILLE_MAP={
   'a':0b000001,'b':0b000011,'c':0b001001,'d':0b011001,'e':0b010001,
@@ -264,12 +314,20 @@ const BRAILLE_MAP={
   'p':0b001111,'q':0b011111,'r':0b010111,'s':0b001110,'t':0b011110,
   'u':0b100101,'v':0b100111,'w':0b111010,'x':0b101101,'y':0b111101,'z':0b110101,
   '1':0b000001,'2':0b000011,'3':0b001001,'4':0b011001,'5':0b010001,
-  ' ':0b000000,'가':0b010001,'나':0b001001,'다':0b000001,'라':0b011001
+  '6':0b001010,'7':0b011010,'8':0b000101,'9':0b000111,'0':0b011010,
+  ' ':0b000000,
+  // 한글 초성 점자 (간략)
+  '가':0b000001,'나':0b000010,'다':0b000011,'라':0b000101,'마':0b000110,
+  '바':0b000111,'사':0b001000,'아':0b001001,'자':0b001010,'차':0b001011,
+  '카':0b001100,'타':0b001101,'파':0b001110,'하':0b001111,
+  '김':0b010001,'이':0b010010,'박':0b010011,'최':0b010100,'정':0b010101,
 };
 
 let S={
   selected:'c1',
   compareMode:false,
+  election:'president',
+  showVoting:false,
   isPlaying:false,
   bleConnected:false
 };
@@ -281,11 +339,17 @@ function renderCandidates(){
   const el=document.getElementById('candidateList');
   el.innerHTML=CANDIDATES.map(c=>`
     <div class="cand-btn${S.selected===c.id?' on':''}" data-cid="${c.id}" role="listitem" tabindex="0"
-      aria-selected="${S.selected===c.id}" aria-label="${c.num}번 ${c.name} ${c.party}">
-      <div class="cand-num" style="${S.selected===c.id?'':'background:'+c.color+'22;color:'+c.color}">${c.num}</div>
-      <div>
+      aria-selected="${S.selected===c.id}" aria-label="${c.num}번 ${c.name} ${c.party} 지지율 ${c.poll}%">
+      <div class="cand-num" style="background:${c.color}${S.selected===c.id?'':'22'};color:${S.selected===c.id?'#fff':c.color}">${c.num}</div>
+      <div style="flex:1;min-width:0">
         <div class="cand-name">${c.name}</div>
-        <div class="cand-party">${c.party}</div>
+        <div class="cand-party" style="display:flex;align-items:center;gap:5px">
+          ${c.party}
+          <span style="font-family:'DM Mono',monospace;font-size:9px;background:${c.color}15;color:${c.color};padding:1px 5px;border-radius:3px">${c.poll}%</span>
+        </div>
+      </div>
+      <div style="text-align:right;flex-shrink:0">
+        <div style="font-size:9px;font-family:'DM Mono',monospace;color:${c.trend?.startsWith('+')?'#16a34a':'#dc2626'}">${c.trend||''}</div>
       </div>
     </div>`).join('');
   el.querySelectorAll('.cand-btn').forEach(b=>{
@@ -297,18 +361,50 @@ function renderCandidates(){
 function selectCandidate(id){
   S.selected=id;
   stopTTS();
+  S.showVoting=false;
   renderCandidates();
   renderMain();
   renderDotPad();
+  // 후보 선택 시 자동 TTS
+  const c=CANDIDATES.find(x=>x.id===id);
+  if(c&&window.speechSynthesis){
+    const txt=`${c.num}번 ${c.name}. ${c.party}. 만 ${c.age}세. ${c.career}. ${c.intro}`;
+    const u=new SpeechSynthesisUtterance(txt);
+    u.lang='ko-KR';u.rate=0.95;u.pitch=1.0;
+    setTimeout(()=>window.speechSynthesis.speak(u),300);
+  }
 }
 
 function renderMain(){
+  if(S.showVoting){renderVotingGuide();return;}
   const el=document.getElementById('mainContent');
   const c=CANDIDATES.find(x=>x.id===S.selected);
   el.innerHTML=`
-    <div class="election-badge" aria-label="제21대 대통령 선거">🗳️ 제21대 대통령 선거 · 서울특별시</div>
-    <h1 class="page-title">${c.num}번 ${c.name}</h1>
-    <p class="page-sub">${c.party} · 만 ${c.age}세 · ${c.career}</p>
+    <!-- Poll overview -->
+    <div class="poll-section" role="region" aria-label="후보자 지지율 현황">
+      <div class="poll-title">📊 최신 여론조사 지지율 (한국리서치 · ${new Date().toLocaleDateString('ko-KR')})</div>
+      ${CANDIDATES.map(c=>`
+        <div class="poll-row">
+          <div class="poll-cand">
+            <div class="poll-avatar" style="background:${c.color}">${c.num}</div>
+            <span class="poll-name">${c.name} <span style="font-size:10px;color:var(--t3);font-weight:400">${c.party}</span></span>
+            <span class="poll-pct" style="color:${c.color}">${c.poll}%</span>
+          </div>
+          <div class="poll-bar-track"><div class="poll-bar-fill" style="width:${c.poll}%;background:${c.color}"></div></div>
+        </div>`).join('')}
+      <div style="font-size:9px;color:var(--t3);margin-top:8px;font-family:'DM Mono',monospace">오차범위 ±2.5% · 응답자 1,000명 · 무응답 7%</div>
+    </div>
+
+    <div class="election-badge" aria-label="${ELECTIONS[S.election].title}">🗳️ ${ELECTIONS[S.election].title} · ${ELECTIONS[S.election].regionLabel}</div>
+    <div class="cand-header">
+      <div class="cand-avatar-lg" style="background:${c.color}">${c.num}</div>
+      <div class="cand-header-info">
+        <div class="cand-header-name" style="color:${c.color}">${c.name}</div>
+        <div class="cand-header-sub">${c.party} · 만 ${c.age}세</div>
+        <div class="cand-header-sub" style="margin-top:2px">${c.career}</div>
+      </div>
+      <span class="cand-num-badge" style="background:${c.color}">${c.num}번</span>
+    </div>
 
     <div class="compare-header">
       <h2 class="compare-title">후보 비교</h2>
@@ -328,7 +424,7 @@ function renderMain(){
       <div class="detail-section">
         <div class="detail-label">주요 공약</div>
         <ul class="pledge-list" aria-label="주요 공약 목록">
-          ${c.pledges.map(p=>`<li class="pledge-item"><span class="pledge-dot" aria-hidden="true"></span>${p}</li>`).join('')}
+          ${c.pledges.map((p,i)=>`<li class="pledge-item"><span style="min-width:18px;height:18px;border-radius:50%;background:${c.color}22;color:${c.color};font-size:10px;font-weight:900;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px">${i+1}</span>${p}</li>`).join('')}
         </ul>
       </div>
     </div>
@@ -344,29 +440,116 @@ function renderMain(){
 
   document.getElementById('btnCompare')?.addEventListener('click',()=>{
     S.compareMode=!S.compareMode;renderMain();
+    if(S.compareMode&&window.speechSynthesis){
+      const issues=ISSUES_BY_ELECTION[S.election]||[];
+      let txt=`전체 후보 비교표입니다. 주요 쟁점은 ${issues.join(', ')}. `;
+      CANDIDATES.forEach(c=>{
+        const ag=issues.filter(i=>c.positions[i]==='agree');
+        txt+=`${c.name} 후보는 ${ag.length}개 쟁점에 찬성. `;
+      });
+      const u=new SpeechSynthesisUtterance(txt);u.lang='ko-KR';u.rate=1.05;
+      speechSynthesis.cancel();speechSynthesis.speak(u);
+    }
   });
 }
 
 function renderCompareTable(active){
-  const issues=['기본소득 도입','대학 무상교육','의료 국유화','법인세 인상','재생에너지 전환'];
+  const issues=ISSUES_BY_ELECTION[S.election]||[];
   const posLabel={agree:'<span class="tag-agree">✓ 찬성</span>',oppose:'<span class="tag-oppose">✗ 반대</span>',neutral:'<span class="tag-neutral">△ 중립</span>'};
+  // 정책 분야 키 (첫 후보 기준)
+  const policyKeys=Object.keys(CANDIDATES[0].policies||{});
   return `
-    <table class="compare-table" role="table" aria-label="후보자 정책 비교표">
-      <caption style="clip:rect(0,0,0,0);position:absolute">후보자 정책 비교 표</caption>
+    <table class="compare-table" role="table" aria-label="후보자 쟁점 입장 비교표">
+      <caption style="clip:rect(0,0,0,0);position:absolute">후보자 쟁점별 입장 비교 표</caption>
       <thead>
         <tr>
-          <th scope="col" style="width:28%">정책 이슈</th>
-          ${CANDIDATES.map(c=>`<th class="cand-col" scope="col" style="background:${c.color}">${c.num}번 ${c.name}</th>`).join('')}
+          <th scope="col" style="width:26%">주요 쟁점</th>
+          ${CANDIDATES.map(c=>`<th class="cand-col" scope="col" style="background:${c.color}">${c.num} ${c.name}</th>`).join('')}
         </tr>
       </thead>
       <tbody>
         ${issues.map(issue=>`
           <tr>
             <td>${issue}</td>
-            ${CANDIDATES.map(c=>`<td class="cand-col">${posLabel[c.positions[issue]]||'—'}</td>`).join('')}
+            ${CANDIDATES.map(c=>`<td class="cand-col" aria-label="${c.name} ${issue} ${c.positions[issue]==='agree'?'찬성':c.positions[issue]==='oppose'?'반대':'중립'}">${posLabel[c.positions[issue]]||'—'}</td>`).join('')}
+          </tr>`).join('')}
+      </tbody>
+    </table>
+    <table class="compare-table" role="table" aria-label="후보자 분야별 정책 비교표" style="margin-top:16px">
+      <caption style="clip:rect(0,0,0,0);position:absolute">후보자 분야별 정책 상세 비교</caption>
+      <thead>
+        <tr>
+          <th scope="col" style="width:26%">정책 분야</th>
+          ${CANDIDATES.map(c=>`<th class="cand-col" scope="col" style="background:${c.color}">${c.num} ${c.name}</th>`).join('')}
+        </tr>
+      </thead>
+      <tbody>
+        ${policyKeys.map(k=>`
+          <tr>
+            <td>${k}</td>
+            ${CANDIDATES.map(c=>`<td style="text-align:left;font-size:12px">${c.policies[k]||'—'}</td>`).join('')}
           </tr>`).join('')}
       </tbody>
     </table>`;
+}
+
+
+
+const VOTING_STEPS=[
+  {icon:'🪪',title:'1. 신분증 준비',desc:'주민등록증, 운전면허증, 여권 등 사진이 있는 신분증을 준비합니다.'},
+  {icon:'📍',title:'2. 투표소 방문',desc:'본인의 지정 투표소를 확인하고 방문합니다. 시각장애인은 활동지원사 동반이 가능합니다.'},
+  {icon:'✍️',title:'3. 신분 확인',desc:'선거인 명부와 신분증을 대조해 본인 확인을 합니다.'},
+  {icon:'🗳️',title:'4. 투표용지 수령',desc:'투표용지를 받습니다. 시각장애인용 점자 투표보조용구를 요청할 수 있습니다.'},
+  {icon:'⚫',title:'5. 기표',desc:'기표소에서 지지하는 후보 칸에 기표용구로 도장을 찍습니다. 점자 보조용구로 후보 위치를 확인할 수 있습니다.'},
+  {icon:'📥',title:'6. 투표함 투입',desc:'기표한 용지를 접어 투표함에 넣으면 투표가 완료됩니다.'},
+];
+
+function renderVotingGuide(){
+  const el=document.getElementById('mainContent');
+  el.innerHTML=`
+    <div class="election-badge">🗳️ ${ELECTIONS[S.election].title} · 투표 안내</div>
+    <h1 class="page-title">투표 절차 안내</h1>
+    <p class="page-sub">시각장애인을 위한 투표 보조 서비스를 포함한 6단계 안내입니다.</p>
+    <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:20px">
+      ${VOTING_STEPS.map((s,i)=>`
+        <div class="detail-card" style="display:flex;gap:14px;align-items:flex-start;padding:16px" tabindex="0" role="article" aria-label="${s.title}. ${s.desc}">
+          <div style="font-size:28px;flex-shrink:0">${s.icon}</div>
+          <div>
+            <div style="font-size:15px;font-weight:700;margin-bottom:4px">${s.title}</div>
+            <div style="font-size:13px;color:var(--t2);line-height:1.65">${s.desc}</div>
+          </div>
+        </div>`).join('')}
+    </div>
+    <div class="detail-card" style="background:var(--accent-s);border-color:var(--accent-b)">
+      <h3 style="color:var(--accent)">♿ 시각장애인 투표 지원</h3>
+      <div class="detail-section"><div class="detail-text">• 점자형 투표보조용구 제공 (투표소에 비치)<br>• 활동지원사 또는 가족 1인 동반 기표 가능<br>• 거동이 불편한 경우 거소투표 신청 가능<br>• 투표소 입구 점자블록 및 음성 안내 설치</div></div>
+    </div>`;
+  if(window.speechSynthesis){
+    const txt='투표 절차 안내입니다. '+VOTING_STEPS.map(s=>s.title+'. '+s.desc).join(' ')+' 시각장애인은 점자 투표보조용구와 활동지원사 동반 기표가 가능합니다.';
+    const u=new SpeechSynthesisUtterance(txt);u.lang='ko-KR';u.rate=1.05;
+    speechSynthesis.cancel();speechSynthesis.speak(u);
+  }
+}
+
+function switchElection(key){
+  S.election=key;
+  CANDIDATES=ELECTIONS[key].candidates;
+  S.selected=CANDIDATES[0].id;
+  S.compareMode=false;
+  S.showVoting=false;
+  // 지역 라벨 업데이트
+  const regionEl=document.getElementById('selRegion');
+  if(regionEl){
+    regionEl.innerHTML=`<option>${ELECTIONS[key].regionLabel}</option>`;
+  }
+  renderCandidates();
+  renderMain();
+  renderDotPad();
+  const el=ELECTIONS[key];
+  if(window.speechSynthesis){
+    const u=new SpeechSynthesisUtterance(`${el.title} 선택됐습니다. 후보 ${CANDIDATES.length}명이 있습니다.`);
+    u.lang='ko-KR';speechSynthesis.cancel();speechSynthesis.speak(u);
+  }
 }
 
 // ── DOT PAD ──
@@ -479,5 +662,25 @@ function init(){
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);
 else init();
 </script>
+
+<style id="mobileBannerStyle">
+#mobileBanner{position:fixed;inset:0;z-index:99999;display:none;flex-direction:column;align-items:center;justify-content:center;gap:18px;background:rgba(7,7,15,.97);backdrop-filter:blur(8px);padding:32px;text-align:center;font-family:'Noto Sans KR',sans-serif;color:#f0eeff}
+#mobileBanner.show{display:flex}
+#mobileBanner .mb-icon{font-size:48px}
+#mobileBanner .mb-title{font-size:18px;font-weight:800}
+#mobileBanner .mb-desc{font-size:13px;color:rgba(240,238,255,.6);line-height:1.7;max-width:300px}
+#mobileBanner .mb-btn{margin-top:8px;padding:11px 26px;background:#6b46f0;color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit}
+</style>
+<div id="mobileBanner" role="dialog" aria-label="화면 크기 안내">
+  <div class="mb-icon">🖥️</div>
+  <div class="mb-title">데스크톱에서 최적화된 데모입니다</div>
+  <div class="mb-desc">이 프로토타입은 넓은 화면에 맞춰 설계되었습니다. PC나 태블릿 가로 모드에서 열면 가장 좋습니다.</div>
+  <button class="mb-btn" onclick="document.getElementById('mobileBanner').classList.remove('show')">그래도 계속 보기</button>
+</div>
+<script>
+(function(){function c(){if(window.innerWidth<720)document.getElementById('mobileBanner')?.classList.add('show');}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',c);else c();})();
+</script>
+
 </body>
 </html>
