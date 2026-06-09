@@ -682,5 +682,43 @@ else init();
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',c);else c();})();
 </script>
 
+
+<script id="i18nLite">
+(function(){
+  const DICT = {"그래도 계속 보기": "Continue anyway", "데스크톱에서 최적화된 데모입니다": "Optimized for desktop", "이 프로토타입은 넓은 화면에 맞춰 설계되었습니다. PC나 태블릿 가로 모드에서 열면 가장 좋습니다.": "This prototype is designed for wide screens. Best viewed on PC or tablet landscape mode.", "대기 중": "Standby", "선거 선택": "Select Election", "지역 선택": "Select Region", "점자 내용": "Braille Output", "정책 분야": "Policy Area", "제21대 대통령 선거": "21st Presidential Election", "제9회 전국동시지방선거": "9th Local Elections", "제23대 국회의원 선거": "23rd National Assembly Election", "서울시 교육감 선거": "Seoul Education Superintendent", "서울특별시": "Seoul", "부산광역시": "Busan", "대구광역시": "Daegu", "본문으로 건너뛰기": "Skip to content", "투표 절차 안내": "Voting Guide", "주요 쟁점": "Key Issues", "주요 공약": "Key Pledges", "소개": "Introduction", "음성으로 듣기": "Listen", "전체 후보 비교": "Compare All", "비교 닫기": "Close Compare"};
+  const REV = {};
+  Object.keys(DICT).forEach(k=>REV[DICT[k]]=k);
+  let cur='ko';
+  const btn=document.createElement('button');
+  btn.id='langToggle';
+  btn.textContent='EN';
+  btn.setAttribute('aria-label','Switch to English');
+  btn.style.cssText='position:fixed;bottom:14px;right:14px;z-index:99998;padding:8px 14px;background:rgba(20,20,35,.92);color:#fff;border:1px solid rgba(255,255,255,.25);border-radius:99px;font-size:11px;font-weight:800;font-family:monospace;cursor:pointer;backdrop-filter:blur(8px);letter-spacing:.08em';
+  document.body.appendChild(btn);
+  function walk(node,dict){
+    if(node.nodeType===3){
+      const t=node.nodeValue.trim();
+      if(t&&dict[t])node.nodeValue=node.nodeValue.replace(t,dict[t]);
+      return;
+    }
+    if(node.nodeName==='SCRIPT'||node.nodeName==='STYLE')return;
+    if(node.setAttribute){
+      ['aria-label','placeholder','title'].forEach(a=>{
+        const v=node.getAttribute&&node.getAttribute(a);
+        if(v&&dict[v])node.setAttribute(a,dict[v]);
+      });
+    }
+    Array.from(node.childNodes).forEach(n=>walk(n,dict));
+  }
+  btn.addEventListener('click',()=>{
+    const dict=cur==='ko'?DICT:REV;
+    walk(document.body,dict);
+    cur=cur==='ko'?'en':'ko';
+    btn.textContent=cur==='ko'?'EN':'KO';
+    document.documentElement.lang=cur;
+  });
+})();
+</script>
+
 </body>
 </html>
