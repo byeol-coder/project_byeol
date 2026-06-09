@@ -2,1804 +2,1200 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DOT BEAT 닷비트 — Dot Inc.</title>
-<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Black+Han+Sans&display=swap" rel="stylesheet">
-<script>
-class DotPadSDK{static deviceMap=new Map;constructor(){this.DOTPAD_PREFIX="DotPad",this.DOTPAD_SERVICE="49535343-fe7d-4ae5-8fa9-9fafd205e455",this.DOTPAD_CHARACTERISTIC="49535343-1e4d-4bd9-ba61-23c647249616",this.ACK_PATTERN=/aa550006(..)0201(..)00.*/,this.NOTI_PATTERN=/aa550006(..)0202(..)00.*/}async request(){const t={filters:[{namePrefix:this.DOTPAD_PREFIX}],optionalServices:[this.DOTPAD_SERVICE]};return await navigator.bluetooth.requestDevice(t)}async connect(t){if(!t)throw new Error("No Bluetooth device selected");const e=await t.gatt.connect(),a=await t.gatt.getPrimaryService(this.DOTPAD_SERVICE),i=await a.getCharacteristic(this.DOTPAD_CHARACTERISTIC),s=e.device.name;return DotPadSDK.deviceMap.set(s,{service:a,characteristic:i}),e.connected}async disconnect(t){return DotPadSDK.deviceMap.has(t)&&DotPadSDK.deviceMap.delete(t),t.gatt.disconnect()}async displayGraphicData(t,e){this.displayFullData(t,e,"graphic")}async displayGraphicLineData(t,e,a,i){this.displayLineData(t,e,a,i,"graphic")}async resetGraphicData(t){const e=DotPadData.getResetData(300);this.displayGraphicData(t,e)}async displayTextData(t,e){const a=DotPadSDK.deviceMap.get(t.name);if(a&&a.characteristic){const t=new BrailleWordWrap(20,e).toWrappHex();DotPadSendModule.setBrailleWordWrapList(t),DotPadSendModule.sendBrailleWordWrap(a.characteristic,1)}else console.error("Device is not connected or characteristic not found")}async resetTextData(t){const e=DotPadSDK.deviceMap.get(t.name);if(e&&e.characteristic){const t=DotPadData.getResetData(20),a=DotPadData.getRequestLineData(0,0,t,!0);await e.characteristic.writeValue(a)}else console.error("Device is not connected or characteristic not found")}async displayFullData(t,e,a){const i=DotPadSDK.deviceMap.get(t.name);if(i&&i.characteristic){let t=[];"graphic"===a?t=DotPadData.getRequestData(e,!1):"text"===a&&(t=DotPadData.getRequestData(e,!0));let s=1;for(let e of t)DotPadSendModule.setSendData(s++,e,!1);await DotPadSendModule.sendNextLine(i.characteristic)}else console.error("Device is not connected or characteristic not found")}async displayLineData(t,e,a,i,s){const o=DotPadSDK.deviceMap.get(t.name);if(o&&o.characteristic){let t=null;"graphic"===s?t=DotPadData.getRequestLineData(e,a,i,!1):"text"===s&&(t=DotPadData.getRequestLineData(e,a,i,!0)),DotPadSendModule.setSendData(e,t,!1),await DotPadSendModule.sendNextLine(o.characteristic)}else console.error("Device is not connected or characteristic not found")}async addListenerKeyEvent(t,e){if(!t)throw new Error("No Bluetooth device connected");const a=DotPadSDK.deviceMap.get(t.name);a.characteristic.startNotifications().then((()=>{console.log("> Notifications started"),a.characteristic.addEventListener("characteristicvaluechanged",(async t=>{const i=new DotPadNotifyModule(t,a.characteristic);i.setAckProcess(),i.setPanningKeyEvent(e),i.setFunctionKeyEvent(e)}))}))}}class DotPadNotifyModule{constructor(t,e){this.ACK_PATTERN=/aa550006(..)0201(..)00.*/,this.NOTI_PATTERN=/aa550006(..)0202(..)00.*/,this.PANNING_KEY="aa55000900031200",this.FUNCTION_KEY="aa55000900033200",this.characteristic=e,this.receiveHexPacket=Array.from(new Uint8Array(t.target.value.buffer)).map((t=>t.toString(16).padStart(2,"0"))).join("")}async setAckProcess(){const t=this.receiveHexPacket.match(this.ACK_PATTERN);if(t){const e=parseInt(t[1],16);DotPadSendModule.setAckData(e,!0),await DotPadSendModule.sendNextLine(this.characteristic)}}setPanningKeyEvent(t){if(this.receiveHexPacket.startsWith(this.PANNING_KEY)){const e=parseInt(this.receiveHexPacket.slice(19,20),16);let a=DotPadSendModule.wordWrapPageNo,i=DotPadSendModule.sendWordWrapList.length;if(4===e){if(a>0&&i>0){let t=a>1?--a:a;DotPadSendModule.sendBrailleWordWrap(this.characteristic,t)}t("0")}else if(2===e){if(a>0&&i>0){let t=a<i?++a:a;DotPadSendModule.sendBrailleWordWrap(this.characteristic,t)}t("5")}}}setFunctionKeyEvent(t){if(this.receiveHexPacket.startsWith(this.FUNCTION_KEY)){const e=parseInt(this.receiveHexPacket.slice(16,17),16);8===e?t("1"):4===e?t("2"):2===e?t("3"):1===e&&t("4")}}}class DotPadSendModule{static sendMapData=new Map;static sendWordWrapList=[];static wordWrapPageNo=-1;static setBrailleWordWrapList(t){this.sendWordWrapList=[];for(let e=0;e<t.length;e++){const a=t[e],i=DotPadData.getRequestLineData(0,0,a,!0);this.sendWordWrapList.push(i)}this.wordWrapPageNo=-1}static async sendBrailleWordWrap(t,e){this.wordWrapPageNo=e;const a=this.sendWordWrapList[e-1];await t.writeValue(a)}static setSendData(t,e,a){this.sendMapData.set(t,{commandData:e,isAck:a})}static setAckData(t,e){let a=this.sendMapData.get(t);a&&(a.isAck=e)}static async sendNextLine(t){let e=this.getNextLineId();if(e>-1){let a=DotPadSendModule.sendMapData.get(e);a&&(await t.writeValue(a.commandData),console.log("nextLineId => "+e))}}static getNextLineId(){let t=-1;for(let e of this.sendMapData.keys()){if(!1===this.sendMapData.get(e).isAck){t=e;break}}return t}}class DotPadData{static getResetData(t){return Array(t).fill("00").join("")}static getRequestData(t,e){const a=DotDataUtil.hexToBytes(t),i=this._getRequestDataChunkList(a,30);return this._getCommandChunkList(i,e)}static getRequestLineData(t,e,a,i){const s=DotDataUtil.hexToBytes(a);return this._getCommandChunkLine(t,e,s,i)}static _getRequestDataChunkList(t,e){const a=[],i=t.length;for(let s=0;s<i;s+=e){const o=s+e,r=t.slice(s,o>i?i:o);a.push(r)}return a}static _getCommandChunkList(t,e){let a=[],i=1;for(const s of t){const t=this._getCommandChunkLine(i,0,s,e);a.push(t),i++}return a}static _getCommandChunkLine(t,e,a,i){const s=[...DotPadProtocol.getSync(),...DotPadProtocol.getLength(a),...DotPadProtocol.getDestId(t),...DotPadProtocol.getCommandType(),...DotPadProtocol.getDisplayMode(i),...DotPadProtocol.getStartCell(e),...DotPadProtocol.getDataBody(a),DotPadProtocol.getCheckSum(DotPadProtocol.getDestId(t),DotPadProtocol.getCommandType(),DotPadProtocol.getDisplayMode(i),DotPadProtocol.getStartCell(e),DotPadProtocol.getDataBody(a))];return DotDataUtil.hexToBytes(s.join(""))}}class DotPadProtocol{static getSync(){return["AA","55"]}static getLength(t){return["00",DotDataUtil.decimalToHex(t.length+6)]}static getDestId(t){return[DotDataUtil.decimalToHex(t)]}static getCommandType(){return["02","00"]}static getDisplayMode(t){return t?["80"]:["00"]}static getStartCell(t){return[DotDataUtil.decimalToHex(t)]}static getDataBody(t){return DotDataUtil.bytesToHexList(t)}static getCheckSum(t,e,a,i,s){const o=[...t,...e,...a,...i,...s];let r=165;for(const t of o)r^=parseInt(t,16);return DotDataUtil.decimalToHex(r)}}class DotDataUtil{static bytesToHex(t){return Array.from(t,(t=>t.toString(16).padStart(2,"0"))).join("")}static bytesToHexList(t){return Array.from(t,(t=>t.toString(16).padStart(2,"0")))}static decimalToHex(t){return Number(t).toString(16).padStart(2,"0")}static hexToBytes(t){if(t.length%2!=0)throw new Error("Odd number of hex digits");const e=t.length/2,a=new Uint8Array(e);for(let i=0;i<e;i++){const e=parseInt(t.substring(2*i,2*i+2),16);if(isNaN(e))throw new Error("Expected hex string");a[i]=e}return a}}class BrailleWordWrap{static DOUBLE_ZERO="00";constructor(t,e){this.cellSizeHex=2*t,this.brailleHexData=e}toWrappHex(){let t=this.processHexData();return this.generateWrappedHexList(t)}processHexData(){let t=this.brailleHexData.trim().endsWith(BrailleWordWrap.DOUBLE_ZERO),e=this.brailleHexData.split(BrailleWordWrap.DOUBLE_ZERO),a=[];for(let t=0;t<e.length;t++)a[t]=e[t].replace(/\s+/g,"")+BrailleWordWrap.DOUBLE_ZERO;if(!t&&a.length>0){let t=a.length-1;a[t]=this.removeTrailingDoubleZero(a[t])}return a}generateWrappedHexList(t){let e=[],a=[];for(let i of t)this.appendDataToSegment(i,a,e);return a.length>0&&e.push(this.padSegment(a.join(""))),e}appendDataToSegment(t,e,a){e.join("").length+t.length<=this.cellSizeHex||(e.length>0&&a.push(this.padSegment(e.join(""))),e.length=0),e.push(t)}padSegment(t){for(;t.length<this.cellSizeHex;)t+="0";return t}removeTrailingDoubleZero(t){return t.substring(0,t.length-2)}addSpacesBetweenEveryTwoCharacters(t){let e=t.join(""),a=[];for(let t=0;t<e.length;t+=2)t>0&&a.push(" "),a.push(e.substring(t,Math.min(t+2,e.length)));return a.join("")}}export{DotPadSDK};
-</script>
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Touch the K-POP — 라이브 촉각 큐시트</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=Space+Grotesk:wght@400;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-/* ─── Design Tokens ─── */
+/* ═══════════════════════════════════
+   DESIGN TOKENS
+═══════════════════════════════════ */
 :root{
-  --bg:#0b0920; --panel:#14113a; --card:#1c1846; --border:#2a2768;
-  --blue:#00d4ff; --pink:#ff3fa4; --yellow:#ffe033; --green:#00e58a;
-  --purple:#b45aff; --orange:#ff7a00; --white:#f0eeff; --dim:#6a639a;
-  --guardian-bg:#f7f5ff; --guardian-panel:#fff; --guardian-text:#2d2a5e;
-  --guardian-accent:#5a3fc8; --guardian-dim:#8b87b8;
-  --rad:18px; --rad-sm:12px; --rad-lg:24px;
-  --shadow:0 8px 32px rgba(0,0,0,.5);
+  --bg:#050508;--surface:#0d0d14;--panel:#11111c;--card:#171724;
+  --border:rgba(255,255,255,.07);--border2:rgba(255,255,255,.12);
+  --pink:#ff2060;--pink-dim:rgba(255,32,96,.18);
+  --cyan:#00e5ff;--cyan-dim:rgba(0,229,255,.15);
+  --amber:#ffc540;--green:#00e58a;--purple:#b45aff;
+  --text:#f0eeff;--text2:rgba(240,238,255,.65);--text3:rgba(240,238,255,.35);
+  --r:12px;--r-sm:8px;
 }
-*{box-sizing:border-box;margin:0;padding:0}
-body{background:var(--bg);font-family:'Nunito',sans-serif;color:var(--white);
-  height:100vh;width:100vw;overflow:hidden;display:flex;align-items:center;justify-content:center;user-select:none}
-/* Focus ring for keyboard navigation */
-:focus-visible{outline:3px solid var(--yellow);outline-offset:3px;border-radius:6px}
-#stars-bg{position:fixed;inset:0;pointer-events:none;z-index:0;
-  background:radial-gradient(circle at 20% 30%,rgba(0,212,255,.06) 0%,transparent 40%),
-             radial-gradient(circle at 80% 70%,rgba(255,63,164,.06) 0%,transparent 40%)}
-.star{position:absolute;border-radius:50%;background:#fff;
-  animation:twinkle var(--d,3s) ease-in-out infinite;opacity:var(--o,.4)}
-@keyframes twinkle{0%,100%{opacity:var(--o)}50%{opacity:.08}}
-.scene{display:none;width:100%;height:100%;position:absolute;inset:0;z-index:1}
-.scene.active{display:flex}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden;-webkit-font-smoothing:antialiased}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif}
+button{font-family:inherit;cursor:pointer;border:none;outline:none}
+:focus-visible{outline:2px solid var(--cyan);outline-offset:3px;border-radius:4px}
 
-/* ─── Shared components ─── */
-.dotpad-frame{background:#0e0c22;border:3px solid var(--border);border-radius:20px;padding:10px;
-  box-shadow:0 0 0 1px rgba(255,255,255,.04),0 8px 36px rgba(0,0,0,.6),inset 0 1px 0 rgba(255,255,255,.05)}
-.dotpad-label{text-align:center;font-size:8px;letter-spacing:6px;color:var(--dim);margin-bottom:5px;text-transform:uppercase}
-.dotpad-canvas{display:block;border-radius:8px}
-.dotpad-brand{text-align:center;font-size:8px;letter-spacing:3px;color:var(--dim);margin-top:4px}
-.chip{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:20px;
-  font-size:10px;font-weight:800;letter-spacing:.5px}
-.chip.skill{background:rgba(0,229,138,.12);color:var(--green);border:1px solid rgba(0,229,138,.3)}
-.chip.level-easy{background:rgba(0,229,138,.15);color:var(--green);border:1px solid rgba(0,229,138,.35)}
-.chip.level-mid{background:rgba(255,224,51,.12);color:var(--yellow);border:1px solid rgba(255,224,51,.3)}
-.chip.level-hard{background:rgba(255,63,164,.12);color:var(--pink);border:1px solid rgba(255,63,164,.3)}
-.chip.practice{background:rgba(0,229,138,.1);color:var(--green);border:1px solid rgba(0,229,138,.3)}
+.scene{display:none;width:100%;height:100vh;position:absolute;inset:0;overflow:hidden}
+.scene.on{display:flex}
 
-/* ─── SETUP screen ─── */
-#scene-setup{flex-direction:column;align-items:center;justify-content:center;gap:24px;padding:28px;
-  background:linear-gradient(160deg,#0f0c28 0%,#1a1248 50%,#0f0c28 100%)}
-.setup-logo{display:flex;flex-direction:column;align-items:center;gap:6px}
-.setup-logo-icon{font-size:52px;animation:bounce .8s ease-in-out infinite alternate}
-@keyframes bounce{from{transform:translateY(0)}to{transform:translateY(-10px)}}
-.setup-logo-title{font-family:'Black Han Sans',sans-serif;font-size:32px;
-  background:linear-gradient(90deg,var(--blue),var(--purple));
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:3px}
-.setup-card{background:var(--card);border:2px solid var(--border);border-radius:var(--rad-lg);
-  padding:28px 32px;width:100%;max-width:400px;box-shadow:var(--shadow)}
-.setup-label{font-size:13px;font-weight:800;color:var(--dim);letter-spacing:2px;margin-bottom:8px;display:block}
-.setup-input{width:100%;background:var(--panel);border:2px solid var(--border);border-radius:var(--rad-sm);
-  color:var(--white);font-family:'Nunito',sans-serif;font-size:18px;font-weight:800;
-  padding:12px 16px;outline:none;transition:border-color .2s}
-.setup-input:focus{border-color:var(--blue)}
-.setup-input::placeholder{color:var(--dim);font-weight:600}
-.setup-role-row{display:flex;gap:8px;margin-top:8px}
-.role-btn{flex:1;padding:10px 8px;border-radius:var(--rad-sm);border:2px solid var(--border);
-  background:var(--panel);color:var(--dim);font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;
-  cursor:pointer;transition:all .2s;text-align:center}
-.role-btn.active{border-color:var(--blue);color:var(--blue);background:rgba(0,212,255,.08)}
-.role-btn:hover{transform:translateY(-2px)}
-.setup-start-btn{width:100%;padding:16px;background:linear-gradient(135deg,var(--blue),var(--purple));
-  border:none;border-radius:var(--rad-sm);color:#fff;font-family:'Black Han Sans',sans-serif;
-  font-size:18px;letter-spacing:2px;cursor:pointer;box-shadow:0 4px 24px rgba(0,212,255,.4);
-  transition:transform .1s,box-shadow .2s;margin-top:6px}
-.setup-start-btn:hover{transform:scale(1.03);box-shadow:0 6px 32px rgba(0,212,255,.6)}
-.setup-start-btn:active{transform:scale(.97)}
-.setup-note{font-size:11px;color:var(--dim);text-align:center;line-height:1.7}
+/* ═══════════════
+   SCENE: INTRO
+═══════════════ */
+#s-intro{
+  flex-direction:column;align-items:center;justify-content:center;
+  background:radial-gradient(ellipse 80% 60% at 50% 40%,rgba(255,32,96,.12) 0%,transparent 70%),
+             radial-gradient(ellipse 50% 40% at 80% 70%,rgba(0,229,255,.07) 0%,transparent 60%),
+             var(--bg);
+}
+.intro-logo{display:flex;align-items:center;gap:12px;margin-bottom:36px}
+.intro-dot-mark{
+  width:40px;height:40px;border-radius:10px;
+  background:var(--pink);
+  display:grid;grid-template-columns:repeat(3,1fr);gap:3.5px;padding:7px;
+}
+.intro-dot-mark span{background:rgba(255,255,255,.9);border-radius:50%}
+.intro-by{font-family:'DM Mono',monospace;font-size:13px;color:var(--text3);letter-spacing:.1em}
+.intro-by em{font-style:normal;color:var(--text2)}
+.intro-title{
+  font-family:'Space Grotesk',sans-serif;
+  font-size:clamp(44px,7vw,88px);font-weight:800;letter-spacing:-.04em;
+  text-align:center;line-height:1;margin-bottom:10px;
+}
+.intro-title .k{color:var(--pink)}
+.intro-title .t{color:var(--cyan)}
+.intro-sub{font-size:16px;color:var(--text3);letter-spacing:.06em;text-align:center;margin-bottom:48px;font-family:'DM Mono',monospace}
+.intro-actions{display:flex;flex-direction:column;align-items:center;gap:12px;width:320px}
+.btn-connect{
+  width:100%;padding:15px;border-radius:var(--r);
+  background:rgba(255,255,255,.06);color:var(--text2);
+  font-size:14px;font-weight:700;letter-spacing:.04em;
+  border:1.5px solid var(--border2);transition:all .2s;
+  display:flex;align-items:center;justify-content:center;gap:10px;
+}
+.btn-connect:hover{background:rgba(255,255,255,.1)}
+.btn-connect.connected{border-color:var(--green);color:var(--green);background:rgba(0,229,138,.08)}
+.btn-start{
+  width:100%;padding:18px;border-radius:var(--r);
+  background:var(--pink);color:#fff;
+  font-family:'Space Grotesk',sans-serif;font-size:18px;font-weight:800;letter-spacing:.02em;
+  box-shadow:0 8px 40px rgba(255,32,96,.4);transition:all .2s;
+}
+.btn-start:hover{transform:translateY(-2px);box-shadow:0 12px 48px rgba(255,32,96,.6)}
+.btn-start:active{transform:translateY(0)}
+.intro-note{font-size:11px;color:var(--text3);text-align:center;line-height:1.8;font-family:'DM Mono',monospace}
 
-/* ─── MENU ─── */
-#scene-menu{flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:16px}
-.menu-top{display:flex;align-items:center;justify-content:space-between;width:100%;max-width:740px}
-.student-greeting{display:flex;align-items:center;gap:8px}
-.student-avatar{font-size:28px;animation:bounce .8s ease-in-out infinite alternate}
-.student-name-txt{font-size:14px;font-weight:800;color:var(--white)}
-.student-level{font-size:10px;color:var(--dim)}
-.guardian-btn{background:rgba(90,63,200,.2);border:2px solid rgba(90,63,200,.4);color:#c8b8ff;
-  font-family:'Nunito',sans-serif;font-size:12px;font-weight:800;padding:7px 14px;
-  border-radius:var(--rad-sm);cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:6px}
-.guardian-btn:hover{background:rgba(90,63,200,.35);transform:scale(1.04)}
-.song-area{display:flex;gap:14px;width:100%;max-width:740px;align-items:stretch}
-.song-card{flex:1;background:var(--card);border:2px solid var(--blue);border-radius:var(--rad);
-  overflow:hidden;box-shadow:0 0 20px rgba(0,212,255,.18);position:relative}
-.song-art{height:110px;display:flex;align-items:center;justify-content:center;font-size:44px;position:relative;overflow:hidden}
-.song-art::before{content:'';position:absolute;inset:0;background:var(--art-grad)}
-.song-art-emoji{position:relative;z-index:1;animation:float 2s ease-in-out infinite alternate}
-@keyframes float{from{transform:scale(1)}to{transform:scale(1.1) rotate(5deg)}}
-.song-best-badge{position:absolute;top:8px;right:8px;background:rgba(0,0,0,.65);border-radius:8px;
-  padding:3px 8px;font-size:10px;font-weight:800;color:var(--yellow);z-index:2;display:none}
-.song-best-badge.show{display:block}
-.song-info{padding:10px 12px 4px}
-.song-name{font-size:14px;font-weight:900;margin-bottom:3px}
-.song-meta{font-size:10px;color:var(--dim);margin-bottom:6px}
-.song-chips{display:flex;gap:4px;flex-wrap:wrap;padding:0 12px 8px}
-.song-stars-row{display:flex;align-items:center;gap:4px;padding:0 12px 4px}
-.song-star{font-size:14px;opacity:.25;transition:opacity .3s}
-.song-star.on{opacity:1}
-.best-score-txt{font-size:10px;color:var(--dim);margin-left:2px}
-.song-nav{display:flex;align-items:center;justify-content:space-between;padding:0 10px 10px}
-.nav-arrow{background:var(--border);border:none;color:var(--white);width:34px;height:34px;
-  border-radius:50%;font-size:16px;cursor:pointer;transition:background .2s,transform .1s;
-  display:flex;align-items:center;justify-content:center;min-height:44px;min-width:44px}
-.nav-arrow:hover{background:var(--blue);transform:scale(1.1)}
-.nav-arrow:active{transform:scale(.93)}
-.right-panel{width:188px;display:flex;flex-direction:column;gap:8px;justify-content:center}
-.level-label-txt{font-size:10px;color:var(--dim);letter-spacing:4px;text-align:center}
-.level-btn{background:var(--card);border:2px solid var(--border);border-radius:var(--rad-sm);
-  padding:9px 11px;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:8px;
-  font-family:'Nunito',sans-serif;min-height:44px}
-.level-btn:hover{transform:translateX(3px)}
-.level-btn.active{border-color:var(--lc,var(--blue));
-  background:color-mix(in srgb,var(--lc,var(--blue)) 12%,var(--card));
-  box-shadow:0 0 12px color-mix(in srgb,var(--lc,var(--blue)) 50%,transparent)}
-.level-icon{font-size:18px}
-.level-name{font-size:12px;font-weight:800;color:var(--lc,var(--white))}
-.level-bpm-txt{font-size:10px;color:var(--dim)}
-.menu-actions{display:flex;gap:10px;align-items:center}
-.start-btn{background:linear-gradient(135deg,var(--yellow),var(--orange));border:none;color:#1a0a00;
-  font-family:'Black Han Sans',sans-serif;font-size:18px;letter-spacing:2px;
-  padding:14px 52px;border-radius:50px;cursor:pointer;position:relative;overflow:hidden;
-  box-shadow:0 4px 24px rgba(255,224,51,.45);transition:transform .1s;min-height:52px}
-.start-btn:hover{transform:scale(1.04)}
-.start-btn:active{transform:scale(.97)}
-.start-btn::before{content:'';position:absolute;inset:-50%;
-  background:conic-gradient(transparent 0deg,rgba(255,255,255,.2) 180deg,transparent 360deg);
-  animation:shimmer 2.5s linear infinite}
-@keyframes shimmer{from{transform:rotate(0)}to{transform:rotate(360deg)}}
-.practice-toggle{background:var(--panel);border:2px solid var(--border);color:var(--dim);
-  font-family:'Nunito',sans-serif;font-size:12px;font-weight:800;
-  padding:10px 14px;border-radius:var(--rad-sm);cursor:pointer;transition:all .2s;min-height:44px}
-.practice-toggle.on{border-color:var(--green);color:var(--green);background:rgba(0,229,138,.07);
-  box-shadow:0 0 10px rgba(0,229,138,.25)}
-.hint-bar{background:var(--panel);border:1px solid var(--border);border-radius:var(--rad-sm);
-  padding:7px 14px;font-size:11px;color:var(--dim);display:flex;gap:10px;align-items:center;flex-wrap:wrap}
-.hint-key{background:var(--border);border-radius:5px;padding:2px 7px;
-  color:var(--yellow);font-weight:800;font-size:10px}
+/* ═══════════════
+   SCENE: PRESHOW
+═══════════════ */
+#s-preshow{flex-direction:column;background:var(--bg)}
+.preshow-header{
+  background:var(--surface);border-bottom:1px solid var(--border);
+  padding:18px 32px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;
+}
+.preshow-title-block{}
+.preshow-kicker{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--pink);margin-bottom:4px}
+.preshow-title{font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:800;letter-spacing:-.02em}
+.preshow-timer{text-align:right}
+.timer-label{font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;letter-spacing:.1em;margin-bottom:3px}
+.timer-val{font-family:'DM Mono',monospace;font-size:28px;font-weight:500;color:var(--cyan)}
+.preshow-body{flex:1;display:grid;grid-template-columns:1fr 1.6fr;overflow:hidden}
 
-/* ─── TUTORIAL ─── */
-#scene-tutorial{flex-direction:column;align-items:center;justify-content:center;gap:18px;padding:28px}
-.tut-card{background:var(--card);border:2px solid var(--border);border-radius:var(--rad-lg);
-  padding:28px 32px;width:100%;max-width:440px;text-align:center;box-shadow:var(--shadow)}
-.tut-step{display:none;flex-direction:column;align-items:center;gap:12px}
-.tut-step.active{display:flex}
-.tut-icon{font-size:60px;animation:bounce .9s ease-in-out infinite alternate}
-.tut-title{font-family:'Black Han Sans',sans-serif;font-size:clamp(20px,3.5vw,30px);color:var(--yellow)}
-.tut-desc{font-size:13px;color:var(--dim);line-height:1.9;max-width:320px}
-.tut-demo{background:var(--panel);border:2px solid var(--border);border-radius:var(--rad-sm);
-  padding:12px 20px;font-size:13px;font-weight:800;color:var(--blue);line-height:1.6;margin-top:4px}
-.tut-nav{display:flex;gap:10px}
-.tut-btn{padding:12px 28px;border-radius:var(--rad-sm);border:none;cursor:pointer;
-  font-family:'Nunito',sans-serif;font-size:14px;font-weight:800;min-height:48px;transition:transform .1s}
-.tut-btn:active{transform:scale(.96)}
-.tut-btn.next{background:linear-gradient(135deg,var(--blue),var(--purple));color:#fff}
-.tut-btn.skip{background:var(--panel);border:2px solid var(--border);color:var(--dim)}
-.tut-dots{display:flex;gap:7px}
-.tut-dot{width:8px;height:8px;border-radius:50%;background:var(--border);transition:all .3s}
-.tut-dot.on{background:var(--blue);transform:scale(1.2)}
-
-/* ─── INTRO ─── */
-#scene-intro{flex-direction:column;align-items:center;justify-content:center;gap:11px;padding:14px}
-.intro-header{text-align:center}
-.intro-char-name{font-family:'Black Han Sans',sans-serif;font-size:clamp(18px,3vw,28px);
-  background:linear-gradient(90deg,var(--blue),var(--purple));
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.intro-hint{font-size:12px;color:var(--dim);margin-top:3px}
-.intro-controls{display:flex;gap:10px;width:100%;max-width:480px}
-.intro-btn{flex:1;padding:12px 8px;border-radius:var(--rad-sm);border:2px solid var(--border);
-  background:var(--card);cursor:pointer;font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;
-  color:var(--white);line-height:1.4;text-align:center;transition:all .2s;min-height:56px;
-  -webkit-tap-highlight-color:transparent}
-.intro-btn:active{transform:scale(.95)}
-.intro-btn.l{border-color:rgba(0,212,255,.6);color:var(--blue)}
-.intro-btn.l.flash{background:rgba(0,212,255,.18);box-shadow:0 0 18px rgba(0,212,255,.5)}
-.intro-btn.r{border-color:rgba(255,63,164,.6);color:var(--pink)}
-.intro-btn.r.flash{background:rgba(255,63,164,.18);box-shadow:0 0 18px rgba(255,63,164,.5)}
-.intro-btn.c{border-color:rgba(255,224,51,.6);color:var(--yellow)}
-.intro-timer{width:100%;max-width:480px;height:3px;background:var(--border);border-radius:2px;overflow:hidden}
-.intro-timer-bar{height:100%;background:linear-gradient(90deg,var(--blue),var(--yellow));border-radius:2px;width:100%}
-
-/* ─── READY ─── */
-#scene-ready{flex-direction:column;align-items:center;justify-content:center;gap:18px}
-.ready-msg{font-family:'Black Han Sans',sans-serif;font-size:clamp(24px,4vw,42px);text-align:center;line-height:1.3}
-.ready-msg span{color:var(--yellow)}
-.countdown-ring{width:100px;height:100px;position:relative}
-.countdown-ring svg{width:100%;height:100%;transform:rotate(-90deg)}
-.countdown-ring circle.bg{fill:none;stroke:var(--border);stroke-width:8}
-.countdown-ring circle.prog{fill:none;stroke:var(--yellow);stroke-width:8;stroke-linecap:round;
-  stroke-dasharray:314;stroke-dashoffset:314;transition:stroke-dashoffset .85s linear}
-.countdown-num{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
-  font-family:'Black Han Sans',sans-serif;font-size:44px;color:var(--yellow)}
-.hand-guide{font-size:40px;animation:wiggle 1.1s ease-in-out infinite}
-@keyframes wiggle{0%,100%{transform:rotate(-10deg)}50%{transform:rotate(10deg)}}
-.ready-sub{font-size:12px;color:var(--dim);text-align:center;line-height:2}
-
-/* ─── PLAYING ─── */
-#scene-playing{flex-direction:column;align-items:center;justify-content:space-between;padding:11px 16px 14px}
-.hud{width:100%;max-width:620px;display:flex;align-items:center;justify-content:space-between}
-.hud-left{display:flex;flex-direction:column;gap:0}
-.hud-score-label{font-size:9px;letter-spacing:4px;color:var(--dim)}
-.hud-score-val{font-family:'Black Han Sans',sans-serif;font-size:26px;transition:color .1s}
-.hud-score-val.pop{color:var(--yellow)}
-.hud-center{display:flex;flex-direction:column;align-items:center}
-.hud-combo-val{font-family:'Black Han Sans',sans-serif;font-size:40px;line-height:1;
-  background:linear-gradient(90deg,var(--blue),var(--purple));
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;transition:transform .1s}
-.hud-combo-val.pop{transform:scale(1.3)}
-.hud-combo-val.fire{background:linear-gradient(90deg,var(--yellow),var(--orange),var(--pink));
-  -webkit-background-clip:text;background-clip:text}
-.hud-combo-label{font-size:9px;letter-spacing:3px;color:var(--dim)}
-.hud-acc{font-size:11px;color:var(--green);font-weight:800}
-.hud-right{display:flex;flex-direction:column;align-items:flex-end;gap:2px}
-.hud-song-name{font-size:12px;font-weight:800}
-.hud-session-time{font-size:11px;color:var(--dim);font-weight:800}
-.hud-practice-badge{font-size:10px;color:var(--green);font-weight:800;display:none}
-.mascot-corner{position:absolute;bottom:14px;left:50%;transform:translateX(-50%);
-  pointer-events:none;font-size:24px;transition:opacity .3s;z-index:2}
-.progress-wrap{width:100%;max-width:620px;height:3px;background:var(--border);border-radius:2px;overflow:hidden}
-.progress-bar{height:100%;background:linear-gradient(90deg,var(--blue),var(--pink));border-radius:2px;width:0%}
-.judge-display{height:30px;display:flex;align-items:center;justify-content:center;gap:10px}
-.judge-text{font-family:'Black Han Sans',sans-serif;font-size:23px;opacity:0;
-  transform:scale(.5) translateY(8px);transition:opacity .07s,transform .07s;pointer-events:none}
-.judge-text.show{opacity:1;transform:scale(1) translateY(0)}
-.judge-text.perfect{color:var(--yellow);filter:drop-shadow(0 0 7px var(--yellow))}
-.judge-text.good{color:var(--blue);filter:drop-shadow(0 0 7px var(--blue))}
-.judge-text.miss{color:#ff4060;filter:drop-shadow(0 0 7px #ff4060)}
-.panning-keys{width:100%;max-width:480px;display:flex;gap:14px}
-.pan-key{flex:1;border:none;border-radius:var(--rad);padding:14px 0;font-size:18px;cursor:pointer;
-  font-family:'Black Han Sans',sans-serif;letter-spacing:1px;position:relative;overflow:hidden;
-  transition:transform .06s,box-shadow .1s;-webkit-tap-highlight-color:transparent;
-  touch-action:manipulation;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-height:80px}
-.pan-key.left{background:linear-gradient(160deg,#004f82,#002f55);color:var(--blue);
-  box-shadow:0 4px 16px rgba(0,212,255,.28),inset 0 1px 0 rgba(255,255,255,.08);border:2px solid rgba(0,212,255,.3)}
-.pan-key.right{background:linear-gradient(160deg,#60002e,#400020);color:var(--pink);
-  box-shadow:0 4px 16px rgba(255,63,164,.28),inset 0 1px 0 rgba(255,255,255,.08);border:2px solid rgba(255,63,164,.3)}
-.pan-key.pressed{transform:scale(.94) translateY(3px)}
-.pan-key.left.pressed{box-shadow:0 2px 30px rgba(0,212,255,.9),inset 0 0 22px rgba(0,212,255,.2)}
-.pan-key.right.pressed{box-shadow:0 2px 30px rgba(255,63,164,.9),inset 0 0 22px rgba(255,63,164,.2)}
-.pan-key-icon{font-size:22px}
-.pan-key-label{font-size:12px;font-weight:800}
-.pan-key-hint{font-size:9px;opacity:.5}
-
-/* ─── RESULT ─── */
-#scene-result{flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:22px}
-.result-title{font-family:'Black Han Sans',sans-serif;font-size:clamp(26px,5vw,48px);
-  background:linear-gradient(90deg,var(--yellow),var(--pink));
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
-  filter:drop-shadow(0 0 14px rgba(255,224,51,.4));text-align:center}
-.result-student-name{font-size:15px;color:var(--dim);font-weight:700;text-align:center}
-.result-stars{display:flex;gap:8px;justify-content:center;margin:4px 0}
-.result-star{font-size:34px;opacity:.18;transition:all .3s;transform:scale(.6)}
-.result-star.on{opacity:1;transform:scale(1);animation:star-pop .4s cubic-bezier(.2,1.8,.5,1) both}
-@keyframes star-pop{from{opacity:0;transform:scale(0) rotate(-20deg)}to{opacity:1;transform:scale(1)}}
-.result-card{background:var(--card);border:2px solid var(--border);border-radius:var(--rad-lg);
-  padding:16px 28px;text-align:center;min-width:270px;box-shadow:var(--shadow)}
-.result-score-lbl{font-size:9px;letter-spacing:4px;color:var(--dim);margin-bottom:3px}
-.result-score-val{font-family:'Black Han Sans',sans-serif;font-size:46px;color:var(--yellow);
-  filter:drop-shadow(0 0 12px rgba(255,224,51,.45))}
-.result-acc{font-size:13px;color:var(--green);font-weight:800;margin-top:2px}
-.result-stats{display:flex;gap:14px;justify-content:center;margin-top:10px}
-.result-stat-val{font-size:20px;font-weight:900}
-.result-stat-lbl{font-size:9px;color:var(--dim);letter-spacing:2px}
-.result-new-best{font-size:11px;color:var(--yellow);font-weight:800;margin-top:6px;
-  animation:pulse-txt .9s ease-in-out infinite alternate;display:none}
-.result-new-best.show{display:block}
-@keyframes pulse-txt{from{opacity:.7}to{opacity:1;text-shadow:0 0 10px var(--yellow)}}
-.all-combo-banner{background:linear-gradient(135deg,var(--yellow),var(--orange));color:#1a0a00;
-  font-family:'Black Han Sans',sans-serif;font-size:15px;padding:8px 22px;border-radius:50px;
-  letter-spacing:2px;animation:pulse-txt .9s ease-in-out infinite alternate;display:none}
-.all-combo-banner.show{display:block}
-.result-btns{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
-.result-btn{padding:12px 22px;border-radius:var(--rad-sm);border:none;cursor:pointer;
-  font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;transition:transform .1s;min-height:48px}
-.result-btn:active{transform:scale(.96)}
-.result-btn.retry{background:linear-gradient(135deg,var(--blue),var(--purple));color:#fff;
-  box-shadow:0 4px 16px rgba(0,212,255,.35)}
-.result-btn.menu{background:var(--panel);border:2px solid var(--border);color:var(--dim)}
-.result-btn.guardian{background:rgba(90,63,200,.25);border:2px solid rgba(180,90,255,.5);
-  color:#c8b8ff;display:flex;align-items:center;gap:6px}
-.result-btn:hover{transform:scale(1.03)}
-
-/* ─── GUARDIAN OVERLAY ─── */
-#guardian-overlay{position:fixed;inset:0;z-index:300;display:none;align-items:center;justify-content:center;
-  background:rgba(8,6,20,.75);backdrop-filter:blur(10px)}
-#guardian-overlay.open{display:flex}
-.guardian-panel{background:var(--guardian-bg);border-radius:var(--rad-lg);padding:28px;
-  width:min(560px,92vw);max-height:90vh;overflow-y:auto;color:var(--guardian-text);
-  box-shadow:0 20px 60px rgba(0,0,0,.6);position:relative}
-.guardian-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
-.guardian-title{font-family:'Black Han Sans',sans-serif;font-size:22px;color:var(--guardian-accent)}
-.guardian-close{background:none;border:none;font-size:22px;cursor:pointer;color:var(--guardian-dim);
-  padding:4px;border-radius:8px;transition:background .2s}
-.guardian-close:hover{background:rgba(90,63,200,.1)}
-.guardian-student-row{display:flex;align-items:center;gap:12px;padding:14px 16px;
-  background:linear-gradient(135deg,#f0ecff,#e8e2ff);border-radius:var(--rad-sm);margin-bottom:18px}
-.guardian-student-avatar{font-size:32px}
-.guardian-student-info{}
-.guardian-student-name{font-family:'Black Han Sans',sans-serif;font-size:18px;color:var(--guardian-accent)}
-.guardian-student-meta{font-size:12px;color:var(--guardian-dim)}
-.guardian-section{margin-bottom:18px}
-.guardian-section-title{font-size:11px;font-weight:800;letter-spacing:3px;color:var(--guardian-dim);
-  text-transform:uppercase;margin-bottom:10px}
-.guardian-stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
-.guardian-stat-card{background:#fff;border-radius:var(--rad-sm);padding:12px 10px;text-align:center;
-  box-shadow:0 2px 8px rgba(90,63,200,.08);border:1px solid #e8e2ff}
-.guardian-stat-val{font-family:'Black Han Sans',sans-serif;font-size:24px;color:var(--guardian-accent)}
-.guardian-stat-lbl{font-size:10px;color:var(--guardian-dim);margin-top:2px}
-.song-progress-row{background:#fff;border-radius:var(--rad-sm);padding:12px 14px;margin-bottom:8px;
-  border:1px solid #e8e2ff;box-shadow:0 1px 4px rgba(90,63,200,.06)}
-.spr-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
-.spr-name{font-weight:800;font-size:13px;color:var(--guardian-text);display:flex;align-items:center;gap:6px}
-.spr-stars{font-size:14px}
-.spr-score{font-size:12px;color:var(--guardian-dim);font-weight:700}
-.spr-bar-wrap{background:#ede8ff;border-radius:4px;height:6px;overflow:hidden}
-.spr-bar{height:100%;background:linear-gradient(90deg,var(--guardian-accent),#9b7fe8);border-radius:4px;transition:width .6s ease}
-.spr-chips{display:flex;gap:4px;margin-top:6px;flex-wrap:wrap}
-.spr-chip{font-size:9px;font-weight:800;padding:2px 7px;border-radius:10px;
-  background:#f0ecff;color:var(--guardian-accent);border:1px solid #d8d0ff}
-.guardian-achievements{display:flex;flex-wrap:wrap;gap:8px}
-.ach-item{background:#fff;border:1px solid #e8e2ff;border-radius:var(--rad-sm);
-  padding:8px 12px;display:flex;align-items:center;gap:6px;
-  box-shadow:0 1px 4px rgba(90,63,200,.06)}
-.ach-icon{font-size:18px}
-.ach-name{font-size:11px;font-weight:800;color:var(--guardian-accent)}
-.ach-locked{opacity:.35;filter:grayscale(1)}
-.guardian-tips{background:#f5f2ff;border-radius:var(--rad-sm);padding:14px 16px;
-  border-left:4px solid var(--guardian-accent)}
-.guardian-tips p{font-size:12px;color:var(--guardian-text);line-height:1.7}
-.guardian-tips strong{color:var(--guardian-accent)}
-.guardian-actions{display:flex;gap:10px;margin-top:6px}
-.guardian-action-btn{flex:1;padding:11px;border-radius:var(--rad-sm);border:none;cursor:pointer;
-  font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;transition:transform .1s;min-height:44px}
-.guardian-action-btn:active{transform:scale(.97)}
-.guardian-action-btn.print{background:var(--guardian-accent);color:#fff}
-.guardian-action-btn.close{background:#ede8ff;color:var(--guardian-accent)}
-
-/* ─── Achievement Toast ─── */
-#ach-toast{position:fixed;top:16px;left:50%;transform:translateX(-50%) translateY(-70px);
-  background:linear-gradient(135deg,var(--yellow),var(--orange));color:#1a0a00;
-  font-family:'Black Han Sans',sans-serif;font-size:14px;letter-spacing:1px;
-  padding:10px 22px;border-radius:50px;z-index:400;transition:transform .4s cubic-bezier(.2,1.4,.5,1);
-  box-shadow:0 4px 20px rgba(255,224,51,.5);white-space:nowrap}
-#ach-toast.show{transform:translateX(-50%) translateY(0)}
-
-/* ─── SDK indicator ─── */
-#sdk-dot{position:fixed;bottom:44px;right:10px;font-size:9px;padding:3px 9px;
-  border-radius:8px;z-index:50;font-weight:800;letter-spacing:.5px}
-#sdk-dot.mock{background:rgba(80,75,140,.3);color:var(--dim);border:1px solid var(--border)}
-#sdk-dot.connected{background:rgba(0,229,138,.1);color:var(--green);border:1px solid var(--green)}
-
-#confetti-canvas{position:fixed;inset:0;pointer-events:none;z-index:200;display:none}
-#confetti-canvas.active{display:block}
-#tts-bar{position:fixed;bottom:0;left:50%;transform:translateX(-50%);
-  background:rgba(11,9,32,.94);backdrop-filter:blur(8px);border:1px solid var(--border);
-  border-radius:12px 12px 0 0;padding:6px 16px;font-size:12px;color:var(--blue);z-index:50;
-  max-width:520px;width:92%;transition:opacity .3s;opacity:0;pointer-events:none;text-align:center}
-#tts-bar.visible{opacity:1}
-
-/* ─── Observer bar (관찰자용 — 학부모/교사가 현재 상태 파악) ─── */
-#observer-bar{position:fixed;top:0;left:0;right:0;z-index:90;
-  background:rgba(11,9,32,.96);backdrop-filter:blur(10px);
-  border-bottom:1px solid var(--border);
-  padding:5px 14px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;
-  font-size:11px;transition:opacity .3s;min-height:32px}
-#observer-bar.hide{opacity:0;pointer-events:none}
-.obs-scene{font-weight:800;color:var(--blue);font-size:12px;min-width:80px}
-.obs-student{color:var(--yellow);font-weight:800}
-.obs-sep{color:var(--border)}
-.obs-stat{color:var(--green);font-weight:800}
-.obs-tip{font-size:10px;color:var(--dim);margin-left:auto;text-align:right;max-width:200px;line-height:1.3}
-.obs-demo-btn{background:none;border:1px solid rgba(180,90,255,.4);color:var(--purple);
-  font-size:9px;font-weight:800;padding:2px 8px;border-radius:6px;cursor:pointer;letter-spacing:.5px;
-  font-family:'Nunito',sans-serif;white-space:nowrap}
-.obs-demo-btn:hover{background:rgba(180,90,255,.15)}
-/* 관찰자 바 높이만큼 씬 상단 여백 */
-body{padding-top:32px}
-
-/* ─── Audio/TTS unlock gate (첫 터치 필요 — iOS Safari 정책) ─── */
-#audio-gate{position:fixed;inset:0;z-index:600;
-  background:rgba(11,9,32,.97);
-  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;
-  cursor:pointer;user-select:none;padding:24px;text-align:center}
-#audio-gate.hidden{display:none}
-.gate-icon{font-size:64px;animation:bounce .7s ease-in-out infinite alternate}
-.gate-title{font-family:'Black Han Sans',sans-serif;font-size:clamp(20px,4vw,32px);
-  background:linear-gradient(90deg,var(--blue),var(--yellow));
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.gate-sub{font-size:13px;color:var(--dim);line-height:1.8;max-width:320px}
-.gate-btn{background:linear-gradient(135deg,var(--blue),var(--purple));
-  border:none;color:#fff;font-family:'Black Han Sans',sans-serif;
-  font-size:18px;padding:16px 48px;border-radius:50px;cursor:pointer;
-  box-shadow:0 4px 24px rgba(0,212,255,.5);letter-spacing:2px;
-  animation:pulse-glow .9s ease-in-out infinite alternate}
-.gate-tts-warn{font-size:11px;color:var(--yellow);display:none;margin-top:4px}
-.gate-tts-warn.show{display:block}
-
-/* ─── Error overlay ─── */
-#error-overlay{position:fixed;inset:0;z-index:700;
-  background:rgba(11,9,32,.97);
-  display:none;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:32px;
-  text-align:center}
-#error-overlay.show{display:flex}
-.err-icon{font-size:52px}
-.err-title{font-family:'Black Han Sans',sans-serif;font-size:22px;color:var(--pink)}
-.err-msg{font-size:13px;color:var(--dim);line-height:1.8;max-width:360px}
-.err-btn{background:var(--panel);border:2px solid var(--border);color:var(--white);
-  font-family:'Nunito',sans-serif;font-size:14px;font-weight:800;
-  padding:12px 28px;border-radius:var(--rad-sm);cursor:pointer;min-height:48px}
-
-/* ─── Demo guide modal (시연 설명 — 학부모용) ─── */
-#demo-guide{position:fixed;inset:0;z-index:300;display:none;align-items:center;justify-content:center;
-  background:rgba(0,0,0,.7);backdrop-filter:blur(8px)}
-#demo-guide.open{display:flex}
-.dg-panel{background:var(--guardian-bg);border-radius:var(--rad-lg);padding:26px;
-  width:min(540px,92vw);max-height:88vh;overflow-y:auto;color:var(--guardian-text)}
-.dg-title{font-family:'Black Han Sans',sans-serif;font-size:19px;color:var(--guardian-accent);margin-bottom:14px}
-.dg-section{margin-bottom:12px}
-.dg-h{font-size:10px;font-weight:800;letter-spacing:3px;color:var(--guardian-dim);text-transform:uppercase;margin-bottom:7px}
-.dg-row{display:flex;gap:10px;margin-bottom:5px}
-.dg-emoji{font-size:18px;flex-shrink:0}
-.dg-text{font-size:12px;line-height:1.7;color:var(--guardian-text)}
-.dg-close-btn{background:var(--guardian-accent);border:none;color:#fff;
-  font-family:'Nunito',sans-serif;font-size:14px;font-weight:800;
-  padding:11px 28px;border-radius:var(--rad-sm);cursor:pointer;width:100%;margin-top:6px}
-
-/* ─── Next student button ─── */
-.result-btn.next-student{
-  background:linear-gradient(135deg,var(--green),#00b86a);color:#003020;
-  box-shadow:0 4px 16px rgba(0,229,138,.35);font-weight:900;
+/* setlist panel */
+.setlist-panel{border-right:1px solid var(--border);overflow-y:auto;padding:20px}
+.setlist-label{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--text3);margin-bottom:14px}
+.song-item{
+  background:var(--panel);border-radius:var(--r-sm);
+  padding:14px 16px;margin-bottom:8px;cursor:pointer;
+  border:1.5px solid transparent;transition:all .18s;
+  display:flex;align-items:center;gap:14px;
+}
+.song-item:hover{background:var(--card);border-color:var(--border2)}
+.song-item.active{border-color:var(--pink);background:rgba(255,32,96,.06)}
+.song-item:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}
+.song-num{
+  font-family:'DM Mono',monospace;font-size:11px;color:var(--text3);
+  min-width:20px;text-align:center;
+}
+.song-info{flex:1}
+.song-name{font-size:14px;font-weight:700;margin-bottom:2px}
+.song-artist-bpm{font-size:11px;color:var(--text3);font-family:'DM Mono',monospace}
+.song-mood{
+  font-size:9px;padding:3px 8px;border-radius:99px;font-family:'DM Mono',monospace;font-weight:600;
 }
 
-/* ─── Print styles ─── */
-@media print{
-  body{background:#fff!important;color:#000!important;padding-top:0!important}
-  #observer-bar,#tts-bar,#sdk-dot,#ach-toast,#stars-bg,
-  #audio-gate,#error-overlay,#demo-guide,#confetti-canvas,
-  .scene:not(#scene-result){display:none!important}
-  #scene-result.active{display:flex!important;padding:0!important;color:#000!important}
-  .result-title,.result-score-val{-webkit-text-fill-color:currentColor!important;color:#5a3fc8!important;filter:none!important}
+/* detail panel */
+.detail-panel{overflow-y:auto;padding:24px 28px}
+.detail-kicker{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--text3);margin-bottom:12px}
+.detail-song-header{display:flex;align-items:center;gap:16px;margin-bottom:20px}
+.detail-color-dot{width:12px;height:12px;border-radius:50%;flex-shrink:0}
+.detail-song-title{font-family:'Space Grotesk',sans-serif;font-size:26px;font-weight:800;letter-spacing:-.03em}
+.detail-song-artist{font-size:13px;color:var(--text3)}
+.detail-context{
+  background:var(--panel);border-radius:var(--r-sm);border-left:3px solid var(--pink);
+  padding:14px 16px;font-size:13px;color:var(--text2);line-height:1.75;margin-bottom:20px;
 }
+.detail-members{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px}
+.member-badge{
+  padding:5px 12px;border-radius:99px;font-size:11px;font-weight:700;font-family:'DM Mono',monospace;
+  background:var(--panel);border:1px solid var(--border2);color:var(--text2);
+}
+.detail-label{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);margin-bottom:10px}
+.lyric-preview{display:flex;flex-direction:column;gap:6px;margin-bottom:24px}
+.lp-row{display:flex;align-items:baseline;gap:10px;padding:8px 12px;border-radius:var(--r-sm);background:var(--panel)}
+.lp-member{font-family:'DM Mono',monospace;font-size:9px;font-weight:600;min-width:64px;flex-shrink:0}
+.lp-text{font-size:13px;color:var(--text2);line-height:1.5}
+.preshow-footer{
+  background:var(--surface);border-top:1px solid var(--border);
+  padding:16px 32px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;
+}
+.btn-live{
+  padding:12px 32px;background:var(--pink);color:#fff;
+  border-radius:var(--r-sm);font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:800;
+  box-shadow:0 4px 24px rgba(255,32,96,.4);transition:all .2s;
+}
+.btn-live:hover{transform:translateY(-1px);box-shadow:0 6px 32px rgba(255,32,96,.6)}
+
+/* ═══════════════
+   SCENE: LIVE
+═══════════════ */
+#s-live{flex-direction:column;background:var(--bg)}
+
+/* top bar */
+.live-topbar{
+  height:52px;flex-shrink:0;
+  background:rgba(5,5,8,.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);
+  display:flex;align-items:center;padding:0 20px;gap:16px;
+  position:relative;z-index:10;
+}
+.live-dot{width:8px;height:8px;border-radius:50%;background:var(--pink);animation:pulse-dot .8s ease-in-out infinite;flex-shrink:0}
+@keyframes pulse-dot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.85)}}
+.live-song-title{font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:700;flex:1}
+.live-song-meta{font-family:'DM Mono',monospace;font-size:11px;color:var(--text3);display:flex;gap:16px}
+.live-timer{font-family:'DM Mono',monospace;font-size:13px;color:var(--cyan)}
+.live-bpm-pill{
+  padding:3px 10px;border-radius:99px;font-family:'DM Mono',monospace;font-size:10px;font-weight:600;
+  background:rgba(255,32,96,.15);border:1px solid rgba(255,32,96,.3);color:var(--pink);
+}
+.live-pad-status{font-size:11px;color:var(--text3);font-family:'DM Mono',monospace;display:flex;align-items:center;gap:6px}
+.live-pad-dot{width:6px;height:6px;border-radius:50%}
+
+/* progress */
+.live-progress{height:3px;flex-shrink:0;background:rgba(255,255,255,.07)}
+.live-progress-fill{height:100%;background:var(--pink);width:0%;transition:width .3s linear}
+
+/* 3-column layout */
+.live-body{flex:1;display:grid;grid-template-columns:220px 1fr 280px;overflow:hidden}
+
+/* Module 2 — Performance */
+.live-perf{
+  border-right:1px solid var(--border);overflow-y:auto;
+  padding:14px;display:flex;flex-direction:column;gap:0;
+}
+.mod-label{
+  font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.12em;text-transform:uppercase;
+  margin-bottom:12px;display:flex;align-items:center;gap:6px;
+}
+.mod-label .dot{width:5px;height:5px;border-radius:50%;flex-shrink:0}
+.perf-events{display:flex;flex-direction:column;gap:6px;flex:1}
+.perf-event{
+  padding:9px 11px;border-radius:var(--r-sm);border-left:2.5px solid;
+  font-size:12px;line-height:1.5;
+  animation:slideIn .35s cubic-bezier(.4,0,.2,1);
+}
+@keyframes slideIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.perf-event.formation{border-color:var(--cyan);background:var(--cyan-dim);color:var(--cyan)}
+.perf-event.gesture{border-color:var(--amber);background:rgba(255,197,64,.1);color:var(--amber)}
+.perf-event.dance{border-color:var(--pink);background:var(--pink-dim);color:var(--pink)}
+.perf-event.highlight{border-color:var(--purple);background:rgba(180,90,255,.12);color:var(--purple)}
+.perf-event.fx{border-color:var(--green);background:rgba(0,229,138,.1);color:var(--green)}
+.perf-time{font-family:'DM Mono',monospace;font-size:9px;opacity:.6;margin-bottom:2px}
+.perf-text{font-size:11px;line-height:1.5;word-break:keep-all}
+
+/* Module 3 — Dot Pad Canvas */
+.live-pad{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:12px;gap:10px;background:var(--bg);
+  position:relative;
+}
+.dotpad-wrap{
+  background:#08080f;border-radius:14px;border:2px solid rgba(255,255,255,.06);
+  padding:8px;
+  box-shadow:0 0 0 1px rgba(0,0,0,.5),0 24px 64px rgba(0,0,0,.8),inset 0 1px 0 rgba(255,255,255,.04);
+  flex-shrink:0;
+}
+.dotpad-label{font-family:'DM Mono',monospace;font-size:7.5px;letter-spacing:.2em;color:rgba(255,255,255,.2);text-align:center;margin-bottom:4px;text-transform:uppercase}
+#pad-canvas{display:block;border-radius:8px}
+.dotpad-brand{font-family:'DM Mono',monospace;font-size:7px;letter-spacing:.15em;color:rgba(255,255,255,.15);text-align:center;margin-top:4px}
+/* FX countdown overlay */
+.fx-overlay{
+  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  pointer-events:none;z-index:5;
+  display:none;flex-direction:column;align-items:center;gap:6px;
+}
+.fx-overlay.show{display:flex}
+.fx-countdown{
+  font-family:'Space Grotesk',sans-serif;font-size:72px;font-weight:800;
+  color:var(--pink);text-shadow:0 0 40px rgba(255,32,96,.8);
+  animation:countPulse .4s ease-in-out;
+}
+@keyframes countPulse{from{transform:scale(1.4);opacity:.6}to{transform:scale(1);opacity:1}}
+.fx-label{font-family:'DM Mono',monospace;font-size:12px;color:var(--text2);letter-spacing:.08em}
+
+/* Haptic status bar */
+.haptic-bar{
+  width:100%;max-width:480px;display:flex;align-items:center;gap:12px;
+  padding:8px 12px;background:var(--panel);border-radius:var(--r-sm);
+  border:1px solid var(--border);
+}
+.haptic-bpm-label{font-family:'DM Mono',monospace;font-size:9px;color:var(--text3)}
+.haptic-beats{display:flex;gap:3px;flex:1}
+.hb{width:8px;height:20px;border-radius:2px;background:rgba(255,255,255,.08);transition:background .05s,transform .05s}
+.hb.on{background:var(--pink);transform:scaleY(1.3)}
+.haptic-next-fx{font-family:'DM Mono',monospace;font-size:9px;text-align:right}
+.haptic-next-label{color:var(--text3);margin-bottom:1px}
+.haptic-next-val{color:var(--amber);font-weight:600}
+
+/* Module 1 — Lyric */
+.live-lyric{
+  border-left:1px solid var(--border);overflow:hidden;
+  display:flex;flex-direction:column;padding:14px;gap:0;
+}
+.lyric-stream{flex:1;overflow:hidden;display:flex;flex-direction:column;justify-content:center;gap:0}
+.lyric-prev{
+  font-size:12px;color:var(--text3);line-height:1.6;padding:8px 10px;
+  border-radius:var(--r-sm);margin-bottom:4px;
+  font-style:italic;word-break:keep-all;
+}
+.lyric-current{
+  background:var(--panel);border-left:3px solid var(--pink);
+  padding:14px 16px;border-radius:0 var(--r-sm) var(--r-sm) 0;margin-bottom:6px;
+  animation:lyricIn .3s cubic-bezier(.4,0,.2,1);
+}
+@keyframes lyricIn{from{opacity:0;transform:translateX(8px)}to{opacity:1;transform:translateX(0)}}
+.lyric-member-badge{
+  display:inline-block;font-family:'DM Mono',monospace;font-size:9px;font-weight:700;
+  padding:2px 8px;border-radius:99px;margin-bottom:8px;
+}
+.lyric-text{font-size:clamp(14px,1.6vw,18px);font-weight:700;line-height:1.5;word-break:keep-all;color:var(--text)}
+.lyric-ko{font-size:11px;color:var(--text3);margin-top:6px;line-height:1.5;word-break:keep-all}
+.lyric-next{
+  font-size:12px;color:rgba(240,238,255,.3);padding:8px 10px;
+  border-radius:var(--r-sm);word-break:keep-all;line-height:1.6;
+}
+
+/* Braille output panel */
+.braille-panel{
+  background:var(--panel);border-radius:var(--r-sm);border:1px solid var(--border);
+  padding:10px 12px;margin-top:auto;
+}
+.braille-title{font-family:'DM Mono',monospace;font-size:8px;letter-spacing:.12em;text-transform:uppercase;color:var(--text3);margin-bottom:8px}
+.braille-cells{display:flex;gap:3px;overflow-x:auto}
+.bc{
+  width:14px;height:20px;flex-shrink:0;background:#0a0a12;border-radius:2px;
+  display:grid;grid-template-columns:repeat(2,1fr);grid-template-rows:repeat(3,1fr);gap:1.5px;padding:2px;
+}
+.bp{border-radius:50%;background:#1a1a28}
+.bp.on{background:var(--cyan);box-shadow:0 0 4px rgba(0,229,255,.6)}
+
+/* bottom bar */
+.live-bottom{
+  height:42px;flex-shrink:0;
+  background:rgba(5,5,8,.95);border-top:1px solid var(--border);
+  display:flex;align-items:center;padding:0 20px;gap:20px;
+}
+.lb-btn{
+  padding:5px 14px;border-radius:99px;font-size:11px;font-weight:700;
+  font-family:'DM Mono',monospace;transition:all .18s;
+  background:rgba(255,255,255,.06);color:var(--text3);border:1px solid var(--border);
+}
+.lb-btn:hover{background:rgba(255,255,255,.1);color:var(--text2)}
+.lb-btn.on{background:var(--pink-dim);color:var(--pink);border-color:rgba(255,32,96,.35)}
+.lb-spacer{flex:1}
+.lb-info{font-family:'DM Mono',monospace;font-size:10px;color:var(--text3)}
+
+/* ═══════════════
+   SCENE: POSTSHOW
+═══════════════ */
+#s-postshow{
+  flex-direction:column;align-items:center;justify-content:center;
+  background:radial-gradient(ellipse 60% 50% at 50% 40%,rgba(0,229,255,.06) 0%,transparent 60%),var(--bg);
+  padding:40px;gap:28px;overflow-y:auto;
+}
+.postshow-badge{
+  font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--cyan);display:flex;align-items:center;gap:8px;
+}
+.postshow-badge::before{content:'';width:24px;height:1px;background:var(--cyan)}
+.postshow-title{font-family:'Space Grotesk',sans-serif;font-size:clamp(32px,5vw,52px);font-weight:800;letter-spacing:-.04em;text-align:center}
+.postshow-sub{font-size:14px;color:var(--text3);text-align:center}
+.cuesheet{
+  width:100%;max-width:680px;background:var(--panel);border-radius:var(--r);
+  border:1px solid var(--border);overflow:hidden;
+}
+.cuesheet-header{
+  background:var(--surface);border-bottom:1px solid var(--border);
+  padding:14px 20px;display:flex;align-items:center;justify-content:space-between;
+}
+.cuesheet-title{font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:700}
+.cuesheet-count{font-family:'DM Mono',monospace;font-size:11px;color:var(--text3)}
+.cuesheet-body{padding:12px}
+.cue-row{
+  display:flex;align-items:center;gap:14px;
+  padding:10px 12px;border-radius:var(--r-sm);margin-bottom:4px;
+  background:var(--card);
+}
+.cue-time{font-family:'DM Mono',monospace;font-size:10px;color:var(--text3);min-width:36px;flex-shrink:0}
+.cue-type-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.cue-text{font-size:12px;color:var(--text2);line-height:1.45;flex:1;word-break:keep-all}
+.postshow-actions{display:flex;gap:12px}
+.btn-replay{
+  padding:12px 28px;background:rgba(255,255,255,.08);color:var(--text);
+  border-radius:var(--r-sm);font-size:14px;font-weight:700;border:1.5px solid var(--border2);
+}
+.btn-exit{
+  padding:12px 28px;background:var(--pink);color:#fff;
+  border-radius:var(--r-sm);font-size:14px;font-weight:800;
+  box-shadow:0 4px 20px rgba(255,32,96,.4);
+}
+
+/* ═══════════════
+   UTIL
+═══════════════ */
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:2px}
 </style>
 </head>
 <body>
-<div id="stars-bg"></div>
-<canvas id="confetti-canvas"></canvas>
-<div id="tts-bar" aria-live="polite" aria-atomic="true"></div>
-<div id="ach-toast" role="alert">🏆 업적!</div>
-<div id="sdk-dot" class="mock" style="cursor:pointer" title="클릭하여 DotPad 연결" onclick="dotPad.connect()">⚪ DotPad 연결</div>
+<div id="sr-announcer" aria-live="assertive" aria-atomic="true" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)"></div>
 
-<!-- ════ OBSERVER BAR (학부모/교사 관찰자용 — 항상 최상단) ════ -->
-<div id="observer-bar" role="status" aria-live="polite">
-  <span class="obs-scene" id="obs-scene">준비 중</span>
-  <span class="obs-sep">|</span>
-  <span class="obs-student" id="obs-student">학생</span>
-  <span class="obs-sep">|</span>
-  <span class="obs-stat" id="obs-stat">-</span>
-  <span class="obs-tip" id="obs-tip">화면을 탭하면 시작돼요</span>
-  <button class="obs-demo-btn" id="obs-guide-btn" aria-label="시연 설명 열기">📋 시연 안내</button>
-</div>
-
-<!-- ════ AUDIO/TTS UNLOCK GATE (첫 터치 — iOS Safari 필수) ════ -->
-<div id="audio-gate" role="button" aria-label="화면을 탭하여 소리와 음성을 활성화하세요">
-  <div class="gate-icon">🎧</div>
-  <div class="gate-title">DOT BEAT 닷비트</div>
-  <div class="gate-sub">
-    소리와 음성 안내를 켜려면<br>
-    아래 버튼을 한 번 눌러주세요.<br>
-    <span style="font-size:11px;opacity:.7">(브라우저 소리 정책 필요)</span>
+<!-- ══════════════════════════════════════
+     SCENE: INTRO
+══════════════════════════════════════ -->
+<div id="s-intro" class="scene on" role="main" aria-label="Touch the K-POP 인트로">
+  <div class="intro-logo">
+    <div class="intro-dot-mark" aria-hidden="true">
+      <span></span><span></span><span></span>
+      <span></span><span></span><span></span>
+      <span></span><span></span><span></span>
+    </div>
+    <span class="intro-by"><em>dot ::</em> × <em>SM Entertainment</em></span>
   </div>
-  <button class="gate-btn" id="gate-btn">▶ 소리 켜고 시작!</button>
-  <div class="gate-tts-warn" id="gate-tts-warn">
-    ⚠️ 이 기기에 한국어 음성이 없어요.<br>
-    소리 효과는 정상 작동합니다.
-  </div>
-</div>
-
-<!-- ════ ERROR OVERLAY ════ -->
-<div id="error-overlay" role="alertdialog" aria-label="오류 발생">
-  <div class="err-icon">😅</div>
-  <div class="err-title">잠깐, 뭔가 문제가 생겼어요</div>
-  <div class="err-msg" id="err-msg">게임을 다시 시작하면 해결될 거예요!</div>
-  <button class="err-btn" onclick="location.reload()">🔄 새로고침</button>
-</div>
-
-<!-- ════ DEMO GUIDE MODAL (시연 설명 — 학부모/교사용) ════ -->
-<div id="demo-guide" role="dialog" aria-modal="true" aria-label="시연 안내">
-  <div class="dg-panel">
-    <div class="dg-title">📋 닷 비트 시연 안내</div>
-    <div class="dg-section">
-      <div class="dg-h">🎮 이 게임이란?</div>
-      <div class="dg-row"><span class="dg-emoji">🔊</span><span class="dg-text">음악 박자에 맞춰 닷패드의 <strong>이전/다음 패닝 키</strong>(삼각형 버튼)를 누르는 리듬 게임입니다.</span></div>
-      <div class="dg-row"><span class="dg-emoji">🤲</span><span class="dg-text">닷패드 핀이 올라오는 <strong>촉각 신호</strong>와 <strong>방향성 소리 큐</strong>로 완전히 독립적으로 플레이합니다.</span></div>
-    </div>
-    <div class="dg-section">
-      <div class="dg-h">👐 학생 조작 방법</div>
-      <div class="dg-row"><span class="dg-emoji">☝️</span><span class="dg-text"><strong>검지손가락</strong> → 닷패드 아래쪽 판정선 핀 위에 올려요</span></div>
-      <div class="dg-row"><span class="dg-emoji">👍</span><span class="dg-text"><strong>엄지손가락</strong> → 이전 패닝 키(왼쪽 ▲) 또는 다음 패닝 키(오른쪽 ▲)</span></div>
-      <div class="dg-row"><span class="dg-emoji">🔔</span><span class="dg-text">두구두구 소리 → 준비! &nbsp; 쾅 소리 + 핀 진동 → 그 방향 패닝 키를 눌러요!</span></div>
-    </div>
-    <div class="dg-section">
-      <div class="dg-h">🧠 기르는 능력</div>
-      <div class="dg-row"><span class="dg-emoji">🎵</span><span class="dg-text">박자감, 청각-촉각 연계, 좌우 협응, 반응 속도, 집중력</span></div>
-    </div>
-    <div class="dg-section">
-      <div class="dg-h">📱 화면 안내 (관찰자용)</div>
-      <div class="dg-row"><span class="dg-emoji">🔵</span><span class="dg-text">위쪽 파란 핀 → 왼쪽 트랙 | 오른쪽 핀 → 오른쪽 트랙</span></div>
-      <div class="dg-row"><span class="dg-emoji">⚪</span><span class="dg-text">핀이 올라오면 밝아져요 | 색상은 웹 전용(실제 기기는 흑백)</span></div>
-      <div class="dg-row"><span class="dg-emoji">📊</span><span class="dg-text">이 화면 상단 바에서 현재 점수/상태를 실시간 확인하세요</span></div>
-    </div>
-    <button class="dg-close-btn" id="dg-close">✕ 닫기</button>
-  </div>
-</div>
-
-<!-- ════ GUARDIAN OVERLAY ════ -->
-<div id="guardian-overlay" role="dialog" aria-label="보호자 학습 리포트" aria-modal="true">
-  <div class="guardian-panel">
-    <div class="guardian-header">
-      <div class="guardian-title">📊 학습 리포트</div>
-      <button class="guardian-close" id="guardian-close" aria-label="닫기">✕</button>
-    </div>
-    <div class="guardian-student-row">
-      <div class="guardian-student-avatar" id="gp-avatar">🐣</div>
-      <div class="guardian-student-info">
-        <div class="guardian-student-name" id="gp-name">학생</div>
-        <div class="guardian-student-meta" id="gp-meta">이번 세션</div>
-      </div>
-    </div>
-    <!-- Stats -->
-    <div class="guardian-section">
-      <div class="guardian-section-title">이번 세션 성과</div>
-      <div class="guardian-stat-grid">
-        <div class="guardian-stat-card"><div class="guardian-stat-val" id="gp-score">0</div><div class="guardian-stat-lbl">최고 점수</div></div>
-        <div class="guardian-stat-card"><div class="guardian-stat-val" id="gp-acc">--%</div><div class="guardian-stat-lbl">정확도</div></div>
-        <div class="guardian-stat-card"><div class="guardian-stat-val" id="gp-time">0분</div><div class="guardian-stat-lbl">세션 시간</div></div>
-      </div>
-    </div>
-    <!-- Song progress -->
-    <div class="guardian-section">
-      <div class="guardian-section-title">곡별 진도</div>
-      <div id="gp-songs"></div>
-    </div>
-    <!-- Achievements -->
-    <div class="guardian-section">
-      <div class="guardian-section-title">획득한 업적</div>
-      <div class="guardian-achievements" id="gp-achievements"></div>
-    </div>
-    <!-- Teacher tip -->
-    <div class="guardian-section">
-      <div class="guardian-tips" id="gp-tips">
-        <p>💡 <strong>선생님·부모님 팁:</strong><br>이 게임은 BPM 72의 천천히 진행되는 리듬으로 시작합니다. 아이가 소리를 듣고 반응하는 <strong>청각-촉각 연계 능력</strong>을 자연스럽게 훈련합니다.</p>
-      </div>
-    </div>
-    <div class="guardian-actions">
-      <button class="guardian-action-btn print" id="gp-print" onclick="window.print()">🖨 인쇄/저장</button>
-      <button class="guardian-action-btn close" id="gp-close2">✕ 닫기</button>
-    </div>
-  </div>
-</div>
-
-<!-- ════ SETUP ════ -->
-<div id="scene-setup" class="scene" style="flex-direction:column;align-items:center;justify-content:center;gap:20px;padding:28px;background:linear-gradient(160deg,#0e0b28,#1a1450,#0e0b28)">
-  <div class="setup-logo">
-    <div class="setup-logo-icon">🎧</div>
-    <div class="setup-logo-title">DOT BEAT</div>
-    <div style="font-size:12px;color:var(--dim);letter-spacing:4px">닷 비트 — Dot Inc.</div>
-  </div>
-  <div class="setup-card">
-    <label class="setup-label" for="name-input">👶 학생 이름</label>
-    <input class="setup-input" id="name-input" type="text" placeholder="이름을 입력하세요" maxlength="10" autocomplete="off" aria-label="학생 이름 입력">
-    <div style="height:16px"></div>
-    <label class="setup-label">🏷 역할 선택</label>
-    <div class="setup-role-row">
-      <button class="role-btn active" data-role="student" aria-pressed="true">👧 학생</button>
-      <button class="role-btn" data-role="guardian" aria-pressed="false">👨‍👩‍👧 학부모</button>
-      <button class="role-btn" data-role="teacher" aria-pressed="false">👩‍🏫 교사</button>
-    </div>
-    <div style="height:18px"></div>
-    <button class="setup-start-btn" id="setup-go" aria-label="게임 시작">▶ 시작하기!</button>
-  </div>
-  <div class="setup-note">학생 이름은 게임 진행 중 음성으로 불러드려요 🔊<br>설정은 언제든 메인 메뉴에서 변경할 수 있어요</div>
-</div>
-
-<!-- ════ MENU ════ -->
-<div id="scene-menu" class="scene" style="flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:14px">
-  <div class="menu-top">
-    <div class="student-greeting">
-      <div class="student-avatar" id="menu-avatar">🐣</div>
-      <div>
-        <div class="student-name-txt" id="menu-student-name">반가워요!</div>
-        <div class="student-level" id="menu-student-level">총 0판 플레이</div>
-      </div>
-    </div>
-    <button class="guardian-btn" id="menu-guardian-btn" aria-label="보호자 리포트 열기">
-      📊 보호자 리포트
+  <h1 class="intro-title" aria-label="Touch the K-POP">
+    <span class="t">Touch </span><span>the </span><span class="k">K-POP</span>
+  </h1>
+  <p class="intro-sub">라이브 촉각 큐시트 · Live Tactile Cue-sheet</p>
+  <div class="intro-actions">
+    <button class="btn-connect" id="btnConnect" aria-label="Dot Pad 연결">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <circle cx="12" cy="12" r="3"/><path d="M5.64 5.64a9 9 0 0 0 0 12.72M18.36 5.64a9 9 0 0 1 0 12.72M3 12a9 9 0 0 0 9 9M3 12a9 9 0 0 1 9-9"/>
+      </svg>
+      <span id="btnConnectTxt">Dot Pad 연결</span>
+    </button>
+    <button class="btn-start" id="btnStart" aria-label="공연 시작 — 셋리스트 미리보기로 이동">
+      공연 시작 ▶
     </button>
   </div>
-  <div class="song-area">
-    <div class="song-card">
-      <div class="song-art" id="song-art">
-        <div class="song-best-badge" id="song-best-badge">★★★ 달성!</div>
-        <div class="song-art-emoji" id="song-emoji">🦈</div>
-      </div>
-      <div class="song-info">
-        <div class="song-name" id="song-name">아기상어 리믹스</div>
-        <div class="song-meta" id="song-meta">BPM 72 · 동요</div>
-      </div>
-      <div class="song-chips" id="song-chips">
-        <span class="chip level-easy">⭐ 입문</span>
-        <span class="chip skill">🎵 박자감</span>
-        <span class="chip skill">🤲 촉각인식</span>
-      </div>
-      <div class="song-stars-row">
-        <span class="song-star" id="ss0">★</span>
-        <span class="song-star" id="ss1">★</span>
-        <span class="song-star" id="ss2">★</span>
-        <span class="best-score-txt" id="best-score-txt"></span>
-      </div>
-      <div class="song-nav">
-        <button class="nav-arrow" id="btn-prev" aria-label="이전 곡">◀</button>
-        <span style="font-size:10px;color:var(--dim)" id="song-idx">1 / 4</span>
-        <button class="nav-arrow" id="btn-next" aria-label="다음 곡">▶</button>
-      </div>
+  <p class="intro-note">
+    시각장애인을 위한 Dot Pad 기반 라이브 촉각 큐시트 프로토타입<br>
+    키보드: Space = 시작 / 화살표 = 탐색 / Tab = 포커스 이동
+  </p>
+</div>
+
+<!-- ══════════════════════════════════════
+     SCENE: PRESHOW
+══════════════════════════════════════ -->
+<div id="s-preshow" class="scene" role="main" aria-label="공연 전 — 셋리스트 미리보기">
+  <div class="preshow-header">
+    <div class="preshow-title-block">
+      <div class="preshow-kicker">PRE-SHOW · 공연 전</div>
+      <div class="preshow-title">오늘의 셋리스트</div>
     </div>
-    <div class="right-panel">
-      <div class="level-label-txt">LEVEL</div>
-      <button class="level-btn active" data-lv="0" style="--lc:#00e58a" aria-pressed="true"><span class="level-icon">⭐</span><div><div class="level-name">입문</div><div class="level-bpm-txt">BPM 72</div></div></button>
-      <button class="level-btn" data-lv="1" style="--lc:#ffe033" aria-pressed="false"><span class="level-icon">🦀</span><div><div class="level-name">초급</div><div class="level-bpm-txt">BPM 90</div></div></button>
-      <button class="level-btn" data-lv="2" style="--lc:#ff7a00" aria-pressed="false"><span class="level-icon">🐙</span><div><div class="level-name">중급</div><div class="level-bpm-txt">BPM 110</div></div></button>
-      <button class="level-btn" data-lv="3" style="--lc:#ff3fa4" aria-pressed="false"><span class="level-icon">🦑</span><div><div class="level-name">마스터</div><div class="level-bpm-txt">BPM 130+</div></div></button>
+    <div class="preshow-timer">
+      <div class="timer-label">STARTS IN</div>
+      <div class="timer-val" id="timerVal" aria-live="off">00:30</div>
     </div>
   </div>
-  <div class="menu-actions">
-    <button class="practice-toggle" id="practice-btn" aria-pressed="false">🐢 연습 모드</button>
-    <button class="start-btn" id="btn-start" aria-label="게임 시작">▶ START!</button>
+  <div class="preshow-body">
+    <div class="setlist-panel" role="list" aria-label="셋리스트">
+      <div class="setlist-label">SETLIST</div>
+      <div id="setlistItems"></div>
+    </div>
+    <div class="detail-panel" id="songDetailPanel" aria-live="polite" aria-label="선택된 곡 상세 정보"></div>
   </div>
-  <div class="hint-bar" role="note">
-    <span class="hint-key">◀ 이전 패닝</span><span>이전 곡</span>
-    <span class="hint-key">다음 패닝 ▶</span><span>다음 곡</span>
-    <span class="hint-key">양쪽 동시</span><span>시작</span>
-    <span style="color:var(--dim);font-size:10px">버튼 배치: ◀이전패닝 F1 F2 F3 F4 다음패닝▶</span>
+  <div class="preshow-footer">
+    <span style="font-family:'DM Mono',monospace;font-size:11px;color:var(--text3)">
+      곡을 선택해 가사와 맥락을 미리 확인하세요
+    </span>
+    <button class="btn-live" id="btnGoLive" aria-label="공연 시작 — 라이브 화면으로 이동">
+      공연 시작 →
+    </button>
   </div>
 </div>
 
-<!-- ════ TUTORIAL ════ -->
-<div id="scene-tutorial" class="scene" style="flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:24px">
-  <div class="tut-card">
-    <!-- Step 0: 기기 소개 -->
-    <div class="tut-step active" id="tut-0">
-      <div class="tut-icon">🎧</div>
-      <div class="tut-title">닷 비트 시작하기!</div>
-      <div class="tut-desc">닷패드의 <strong style="color:var(--yellow)">패닝 키</strong> 2개로만 게임해요.<br>먼저 버튼 위치를 알아봐요!</div>
-      <div class="tut-demo">다음 버튼을 눌러 계속해요 →</div>
+<!-- ══════════════════════════════════════
+     SCENE: LIVE
+══════════════════════════════════════ -->
+<div id="s-live" class="scene" role="main" aria-label="라이브 공연 촉각 큐시트">
+  <!-- top bar -->
+  <div class="live-topbar">
+    <div class="live-dot" aria-hidden="true"></div>
+    <div class="live-song-title" id="liveSongTitle" aria-live="polite"></div>
+    <div class="live-song-meta">
+      <span id="liveSongArtist"></span>
     </div>
-    <!-- Step 1: 버튼 배치 안내 (매뉴얼 기반) -->
-    <div class="tut-step" id="tut-1">
-      <div class="tut-icon">🕹️</div>
-      <div class="tut-title">닷패드 버튼 위치</div>
-      <div class="tut-desc">기기 앞면 아래쪽에 버튼이 6개 있어요.<br>왼쪽 끝과 오른쪽 끝의 <strong style="color:var(--yellow)">삼각형 버튼</strong>이<br>패닝 키예요!</div>
-      <div class="tut-demo" style="font-family:monospace;font-size:12px;line-height:2">
-        ◀<strong>이전패닝</strong>  F1  F2  F3  F4  <strong>다음패닝</strong>▶<br>
-        <span style="font-size:10px;color:var(--dim)">삼각형▲&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;삼각형▲</span><br>
-        <span style="font-size:10px;color:var(--green)">게임에서: 이전패닝=왼쪽&nbsp; 다음패닝=오른쪽</span>
+    <div class="live-bpm-pill" id="liveBpmPill" aria-label="BPM"></div>
+    <div class="live-timer" id="liveTimer" aria-label="재생 시간">0:00</div>
+    <div class="live-pad-status">
+      <div class="live-pad-dot" id="padStatusDot" style="background:#555"></div>
+      <span id="padStatusTxt" style="font-size:10px">Dot Pad 미연결</span>
+    </div>
+  </div>
+  <div class="live-progress"><div class="live-progress-fill" id="liveProgressFill"></div></div>
+
+  <div class="live-body">
+    <!-- Module 2: Performance -->
+    <div class="live-perf">
+      <div class="mod-label" style="color:var(--cyan)">
+        <div class="dot" style="background:var(--cyan)"></div>
+        MODULE 2 · PERFORMANCE
+      </div>
+      <div class="perf-events" id="perfEvents" aria-live="polite" aria-label="퍼포먼스 라이브 중계"></div>
+    </div>
+
+    <!-- Module 3: Dot Pad Haptic -->
+    <div class="live-pad">
+      <div class="fx-overlay" id="fxOverlay" aria-live="assertive">
+        <div class="fx-countdown" id="fxCountdown">3</div>
+        <div class="fx-label" id="fxLabel">FIREWORKS</div>
+      </div>
+      <div class="dotpad-wrap">
+        <div class="dotpad-label">DOT PAD 320 · 60×40</div>
+        <canvas id="pad-canvas" width="480" height="320" aria-label="Dot Pad 촉각 디스플레이 — 비트 동기화 및 가사 점자 출력"></canvas>
+        <div class="dotpad-brand">MODULE 3 · HAPTIC SYNC</div>
+      </div>
+      <div class="haptic-bar" aria-hidden="true">
+        <div>
+          <div class="haptic-bpm-label">BPM</div>
+          <div id="hapticBpmVal" style="font-family:'DM Mono',monospace;font-size:14px;color:var(--pink);font-weight:600">128</div>
+        </div>
+        <div class="haptic-beats" id="hapticBeats"></div>
+        <div class="haptic-next-fx">
+          <div class="haptic-next-label">NEXT FX</div>
+          <div class="haptic-next-val" id="nextFxVal">—</div>
+        </div>
       </div>
     </div>
-    <!-- Step 2: 소리 큐 -->
-    <div class="tut-step" id="tut-2">
-      <div class="tut-icon">🔔</div>
-      <div class="tut-title">① 소리 듣기</div>
-      <div class="tut-desc">두구두구~ 소리가 들리면<br>그 방향 패닝 키를 <strong style="color:var(--yellow)">준비</strong>해요!</div>
-      <div class="tut-demo">🔉 이전 패닝=낮은 소리&nbsp;&nbsp;🔊 다음 패닝=높은 소리</div>
-    </div>
-    <!-- Step 3: 핀 울릴 때 -->
-    <div class="tut-step" id="tut-3">
-      <div class="tut-icon">💥</div>
-      <div class="tut-title">② 핀 울릴 때 눌러요!</div>
-      <div class="tut-desc">쾅! 핀이 올라오면<br>그 방향 패닝 키를 <strong style="color:var(--pink)">딱!</strong> 눌러요</div>
-      <div class="tut-demo">아래 버튼으로 체험해봐요!</div>
-    </div>
-    <!-- Step 4: 출발 -->
-    <div class="tut-step" id="tut-4">
-      <div class="tut-icon">🎉</div>
-      <div class="tut-title">③ 출발!</div>
-      <div class="tut-desc">검지손가락 → 닷패드 판정선(아래쪽 핀)<br>엄지손가락 → 이전/다음 패닝 키<br><span style="font-size:11px;color:var(--dim)">※ 양쪽 패닝 키 1.5초 이상 동시 = 배터리 확인</span></div>
-      <div class="tut-demo">준비됐나요? 어서 시작해봐요! 🚀</div>
+
+    <!-- Module 1: Lyric -->
+    <div class="live-lyric">
+      <div class="mod-label" style="color:var(--pink)">
+        <div class="dot" style="background:var(--pink)"></div>
+        MODULE 1 · LYRIC
+      </div>
+      <div class="lyric-stream" role="region" aria-label="실시간 가사 스트리밍">
+        <div class="lyric-prev" id="lyricPrev" aria-label="이전 가사"></div>
+        <div class="lyric-current" id="lyricCurrent" aria-live="polite" aria-label="현재 가사">
+          <div class="lyric-member-badge" id="lyricMember" style="background:rgba(255,32,96,.18);color:var(--pink)"></div>
+          <div class="lyric-text" id="lyricText"></div>
+          <div class="lyric-ko" id="lyricKo"></div>
+        </div>
+        <div class="lyric-next" id="lyricNext" aria-label="다음 가사"></div>
+      </div>
+      <div class="braille-panel" aria-label="점자 출력 20셀">
+        <div class="braille-title">BRAILLE OUTPUT · 20 CELLS</div>
+        <div class="braille-cells" id="brailleCells"></div>
+      </div>
     </div>
   </div>
-  <div class="tut-nav">
-    <button class="tut-btn skip" id="tut-skip" aria-label="튜토리얼 건너뛰기">건너뛰기</button>
-    <button class="tut-btn next" id="tut-next">다음 ▶</button>
-  </div>
-  <div class="tut-dots">
-    <div class="tut-dot on" id="td0"></div><div class="tut-dot" id="td1"></div>
-    <div class="tut-dot" id="td2"></div><div class="tut-dot" id="td3"></div>
-    <div class="tut-dot" id="td4"></div>
+
+  <div class="live-bottom">
+    <button class="lb-btn on" id="btnTTS" aria-pressed="true" aria-label="TTS 음성 읽기 켜기/끄기">TTS ON</button>
+    <button class="lb-btn" id="btnHaptic" aria-label="촉각 진동 켜기/끄기">HAPTIC ON</button>
+    <button class="lb-btn" id="btnSkipSong" aria-label="다음 곡으로 건너뛰기">NEXT SONG ▶</button>
+    <div class="lb-spacer"></div>
+    <div class="lb-info" id="lbInfo"></div>
+    <button class="lb-btn" id="btnEndShow" aria-label="공연 종료 및 큐시트 보기" style="color:var(--text3)">공연 종료</button>
   </div>
 </div>
 
-<!-- ════ INTRO ════ -->
-<div id="scene-intro" class="scene" style="flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:13px">
-  <div class="intro-header">
-    <div class="intro-char-name" id="intro-char-name">🦈 아기상어가 놀러왔어요!</div>
-    <div class="intro-hint" id="intro-hint">꼬리(왼쪽)와 코(오른쪽)를 만져봐요!</div>
-  </div>
-  <div class="dotpad-frame">
-    <div class="dotpad-label">DOT PAD — 음/양각 캐릭터 탐색 모드 · 색상 없음</div>
-    <canvas class="dotpad-canvas" id="intro-canvas" width="480" height="300"></canvas>
-    <div class="dotpad-brand">올라온 핀을 손으로 탐색해요 · Dot Inc. · DotPad 320</div>
-  </div>
-  <div class="intro-controls">
-    <button class="intro-btn l" id="ibtn-l" aria-label="이전 패닝 키 — 꼬리 건드리기">🌊 꼬리<br><small style="font-size:9px">◀ 이전 패닝 키</small></button>
-    <button class="intro-btn c" id="ibtn-start" aria-label="게임 시작 — 양쪽 패닝 키 동시">▶▶ 시작!<br><small style="font-size:9px">양쪽 패닝 키 동시</small></button>
-    <button class="intro-btn r" id="ibtn-r" aria-label="다음 패닝 키 — 코 건드리기">🦷 코 앞<br><small style="font-size:9px">다음 패닝 키 ▶</small></button>
-  </div>
-  <div class="intro-timer"><div class="intro-timer-bar" id="intro-timer-bar"></div></div>
-</div>
-
-<!-- ════ READY ════ -->
-<div id="scene-ready" class="scene" style="flex-direction:column;align-items:center;justify-content:center;gap:18px">
-  <div class="ready-msg">손가락을<br><span>판정선</span>에 올려요!</div>
-  <div class="hand-guide">🖐️</div>
-  <div class="countdown-ring" aria-live="assertive">
-    <svg viewBox="0 0 100 100"><circle class="bg" cx="50" cy="50" r="45"/><circle class="prog" id="countdown-circle" cx="50" cy="50" r="45"/></svg>
-    <div class="countdown-num" id="countdown-num">5</div>
-  </div>
-  <div class="ready-sub">검지 → 닷패드 판정선(하단 핀) &nbsp;|&nbsp; 엄지 → 패닝 키<br>
-    <span style="color:var(--yellow);font-size:11px">🔔 두구두구 = 준비 &nbsp;→&nbsp; 쾅! = 이전/다음 패닝 키!</span><br>
-    <span style="font-size:10px;color:var(--dim)">◀이전패닝&nbsp; F1&nbsp; F2&nbsp; F3&nbsp; F4&nbsp; 다음패닝▶</span></div>
-</div>
-
-<!-- ════ PLAYING ════ -->
-<div id="scene-playing" class="scene" style="position:relative">
-  <div style="display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:11px 16px 14px;width:100%;height:100%">
-    <div class="hud" role="region" aria-label="게임 점수판">
-      <div class="hud-left"><div class="hud-score-label">SCORE</div><div class="hud-score-val" id="hud-score" aria-live="polite">000000</div></div>
-      <div class="hud-center"><div class="hud-combo-val" id="hud-combo" aria-live="polite">0</div><div class="hud-combo-label">COMBO</div><div class="hud-acc" id="hud-acc">--%</div></div>
-      <div class="hud-right"><div class="hud-song-name" id="hud-song-name">아기상어</div><div class="hud-song-bpm" id="hud-song-bpm" style="font-size:10px;color:var(--dim)">BPM 72</div><div class="hud-session-time" id="hud-session-time">0:00</div><div class="hud-practice-badge" id="hud-practice-badge">🐢 연습</div></div>
+<!-- ══════════════════════════════════════
+     SCENE: POSTSHOW
+══════════════════════════════════════ -->
+<div id="s-postshow" class="scene" role="main" aria-label="공연 후 — 하이라이트 큐시트">
+  <div class="postshow-badge">POST-SHOW · 공연 후</div>
+  <h2 class="postshow-title">오늘 공연의<br><span style="color:var(--cyan)">하이라이트 큐시트</span></h2>
+  <p class="postshow-sub" id="postsub"></p>
+  <div class="cuesheet">
+    <div class="cuesheet-header">
+      <div class="cuesheet-title">내 공연 기록</div>
+      <div class="cuesheet-count" id="cuesheetCount"></div>
     </div>
-    <div class="progress-wrap" role="progressbar" aria-label="곡 진행도"><div class="progress-bar" id="progress-bar"></div></div>
-    <div class="judge-display" aria-live="assertive"><div class="judge-text" id="judge-text">PERFECT!</div></div>
-    <div class="dotpad-frame">
-      <div class="dotpad-label">DOT PAD — 음/양각 출력 · 좌우 위치로만 구분 · 색상 없음</div>
-      <canvas class="dotpad-canvas" id="pad-canvas" width="480" height="300"></canvas>
-      <div class="dotpad-brand">◀ 왼쪽 트랙 &nbsp;|&nbsp; ——— 판정선 ———&nbsp; |&nbsp; 오른쪽 트랙 ▶ &nbsp;|&nbsp; Dot Inc. · DotPad 320</div>
-    </div>
-    <div class="panning-keys">
-      <button class="pan-key left" id="key-left" aria-label="이전 패닝 키 — 왼쪽 트랙 입력">
-        <div class="pan-key-icon" id="kl-icon">🌊</div>
-        <div class="pan-key-label" id="kl-label">꼬리 지느러미</div>
-        <div class="pan-key-hint" style="font-size:9px;line-height:1.5">◀ 이전 패닝 키<br>(삼각형 버튼 / A키)</div>
-      </button>
-      <button class="pan-key right" id="key-right" aria-label="다음 패닝 키 — 오른쪽 트랙 입력">
-        <div class="pan-key-icon" id="kr-icon">🦷</div>
-        <div class="pan-key-label" id="kr-label">상어 코 앞</div>
-        <div class="pan-key-hint" style="font-size:9px;line-height:1.5">다음 패닝 키 ▶<br>(삼각형 버튼 / L키)</div>
-      </button>
-    </div>
+    <div class="cuesheet-body" id="cuesheetBody" aria-live="polite"></div>
   </div>
-</div>
-
-<!-- ════ RESULT ════ -->
-<div id="scene-result" class="scene" style="flex-direction:column;align-items:center;justify-content:center;gap:11px;padding:20px">
-  <div class="result-title" id="result-title">🎉 완주!</div>
-  <div class="result-student-name" id="result-student-name"></div>
-  <div class="result-stars" role="img" aria-label="별점">
-    <span class="result-star" id="rstar0">★</span>
-    <span class="result-star" id="rstar1">★</span>
-    <span class="result-star" id="rstar2">★</span>
-  </div>
-  <div class="result-card">
-    <div class="result-score-lbl">SCORE</div>
-    <div class="result-score-val" id="result-score">0</div>
-    <div class="result-acc" id="result-acc">정확도 --%</div>
-    <div class="result-stats">
-      <div class="result-stat"><div class="result-stat-val" id="res-p" style="color:var(--yellow)">0</div><div class="result-stat-lbl">PERFECT</div></div>
-      <div class="result-stat"><div class="result-stat-val" id="res-g" style="color:var(--blue)">0</div><div class="result-stat-lbl">GOOD</div></div>
-      <div class="result-stat"><div class="result-stat-val" id="res-m" style="color:#ff4060">0</div><div class="result-stat-lbl">MISS</div></div>
-      <div class="result-stat"><div class="result-stat-val" id="res-c" style="color:var(--purple)">0</div><div class="result-stat-lbl">MAX COMBO</div></div>
-    </div>
-    <div class="result-new-best" id="result-new-best">🎊 새 최고 기록!</div>
-  </div>
-  <div class="all-combo-banner" id="all-combo-banner">⭐ 올 콤보 달성! ⭐</div>
-  <div class="result-btns">
-    <button class="result-btn next-student" id="btn-next-student" aria-label="다음 학생으로 전환">👤 다음 학생</button>
-    <button class="result-btn retry" id="btn-retry">🔄 다시 도전!</button>
-    <button class="result-btn guardian" id="btn-guardian" aria-label="보호자 리포트 열기">📊 보호자 리포트</button>
-    <button class="result-btn menu" id="btn-menu">🏠 메인으로</button>
+  <div class="postshow-actions">
+    <button class="btn-replay" id="btnReplay" aria-label="공연 다시 보기">다시 공연 보기</button>
+    <button class="btn-exit" id="btnExit" aria-label="처음으로 돌아가기">처음으로</button>
   </div>
 </div>
 
 <script>
-'use strict';
-/* ══════════════════════════════════════════
-   DotPad SDK Adapter
-══════════════════════════════════════════ */
-class DotPadAdapter{
-  constructor(){
-    this.mode='mock';
-    this.device=null;
-    this.sdk=new DotPadSDK();
-    this._updateUI();
-  }
-  _updateUI(){
-    const el=document.getElementById('sdk-dot');
-    if(!el) return;
-    if(this.mode==='sdk'){
-      el.className='sdk-dot connected';
-      el.textContent='🟢 DotPad 연결됨';
-    } else {
-      el.className='sdk-dot mock';
-      el.textContent='⚪ DotPad 연결 안됨';
-    }
-  }
-  // ── 블루투스 연결 ──
-  async connect(){
-    try{
-      const device = await this.sdk.request();
-      const connected = await this.sdk.connect(device);
-      if(connected){
-        this.device=device;
-        this.mode='sdk';
-        this._updateUI();
-        // 패닝 키 이벤트 등록
-        await this.sdk.addListenerKeyEvent(device, (key)=>{
-          // key: "0"=이전패닝, "5"=다음패닝, "1"=F1, "2"=F2, "3"=F3, "4"=F4
-          if(key==='0') pressTrack('L',true);   // 이전 패닝 키
-          else if(key==='5') pressTrack('R',true); // 다음 패닝 키
-          setTimeout(()=>{
-            pressTrack('L',false);
-            pressTrack('R',false);
-          },100);
-          // 메뉴에서도 작동
-          if(_scene==='menu'){
-            if(key==='0') menuKeyPress('L');
-            else if(key==='5') menuKeyPress('R');
-          }
-          if(_scene==='intro'){
-            if(key==='0') introTouch('L');
-            else if(key==='5') introTouch('R');
-            else if(key==='0' && key==='5') introTransitionOut();
-          }
-        });
-        speak('닷패드 연결됐어요!');
-        return true;
-      }
-    }catch(e){
-      console.log('DotPad 연결 실패:', e);
-      this.mode='mock';
-      this._updateUI();
-    }
-    return false;
-  }
-  async disconnect(){
-    if(this.device){
-      await this.sdk.disconnect(this.device);
-      this.device=null;
-      this.mode='mock';
-      this._updateUI();
-    }
-  }
-  // ── 핀맵을 hex로 변환해서 displayGraphicData 호출 ──
-  sendPinMap(map){
-    if(this.mode!=='sdk'||!this.device) return;
-    // 18행 × 24열 → 300셀 그래픽 영역 (30열 × 10행) 으로 매핑
-    // DotPad 그래픽: 8핀 셀 30개 × 10줄 = 300셀
-    // 게임 핀맵(24col×18row) → DotPad 300셀 hex 변환
-    let hexStr = '';
-    for(let r=0;r<10;r++){
-      for(let c=0;c<30;c++){
-        // 게임 맵에서 대응 위치 (스케일)
-        const gr = Math.floor(r * 18/10);
-        const gc = Math.floor(c * 24/30);
-        const pin = map[gr]?.[gc];
-        // 8핀 셀: up이면 핀 ON (아래 4핀만 사용)
-        const val = (pin&&pin.up) ? 0x0F : 0x00;
-        hexStr += val.toString(16).padStart(2,'0');
-      }
-    }
-    this.sdk.displayGraphicData(this.device, hexStr);
-  }
-  activateNote(tr){
-    if(navigator.vibrate) navigator.vibrate(90);
-  }
-  beatPulse(tr){}
-  renderPinMap(map){
-    // 캐릭터 탐색 모드 — 전체 핀맵 전송
-    if(this.mode!=='sdk'||!this.device) return;
-    this.sendPinMap(map);
-  }
-  clear(){
-    if(this.mode!=='sdk'||!this.device) return;
-    this.sdk.resetGraphicData(this.device);
-  }
-}
-const dotPad=new DotPadAdapter();
-
-/* ══════════════════════════════════════════
-   Progress DB
-══════════════════════════════════════════ */
-const DB={
-  _k:i=>`db2_s${i}`,
-  get(i){try{return JSON.parse(localStorage.getItem(this._k(i)))||null;}catch{return null;}},
-  save(i,d){try{localStorage.setItem(this._k(i),JSON.stringify(d));}catch{}},
-  getUser(){try{return JSON.parse(localStorage.getItem('db2_user'))||null;}catch{return null;}},
-  saveUser(d){try{localStorage.setItem('db2_user',JSON.stringify(d));}catch{}},
-  getStats(){try{return JSON.parse(localStorage.getItem('db2_stats'))||{totalSessions:0,totalTime:0};}catch{return{totalSessions:0,totalTime:0};}},
-  saveStats(d){try{localStorage.setItem('db2_stats',JSON.stringify(d));}catch{}},
-  isFirst(){return!localStorage.getItem('db2_visited');},
-  markVisited(){try{localStorage.setItem('db2_visited','1');}catch{}},
-};
-
-/* ══════════════════════════════════════════
-   Achievements
-══════════════════════════════════════════ */
-const ACH=[
-  {id:'first_clear',icon:'🎵',name:'첫 클리어!',tip:'처음으로 곡을 완주했어요'},
-  {id:'all_combo',icon:'⭐',name:'올 콤보!',tip:'미스 없이 완주했어요'},
-  {id:'combo30',icon:'🔥',name:'30 콤보!',tip:'30콤보를 달성했어요'},
-  {id:'perfect_pro',icon:'💎',name:'퍼펙트 장인',tip:'정확도 90% 이상 달성'},
-  {id:'all_songs',icon:'🌟',name:'모든 곡 클리어',tip:'4곡을 모두 완주했어요'},
-  {id:'shark_master',icon:'🦈',name:'상어왕',tip:'아기상어를 올 콤보로 클리어'},
-];
-const Ach={
-  list(){try{return JSON.parse(localStorage.getItem('db2_ach'))||[];}catch{return[];}},
-  unlock(id){const l=this.list();if(l.includes(id))return false;l.push(id);try{localStorage.setItem('db2_ach',JSON.stringify(l));}catch{}const a=ACH.find(x=>x.id===id);if(a)showAchToast(`${a.icon} ${a.name}`);return true;},
-  has(id){return this.list().includes(id);},
-};
-function showAchToast(txt){
-  const el=document.getElementById('ach-toast');el.textContent=txt;el.classList.add('show');
-  speak(txt+' 업적 달성!');setTimeout(()=>el.classList.remove('show'),2800);
-}
-
-/* ══════════════════════════════════════════
-   Constants
-══════════════════════════════════════════ */
-const COLS=24,ROWS=18,CW=480,CH=300,CW_=CW/COLS,CH_=CH/ROWS;
-const PIN_R=Math.min(CW_,CH_)*0.31;
-const BASELINE_ROWS=3,TL={s:1,e:10},TR={s:13,e:22};
-const PERFECT_MS=280,GOOD_MS=520,CUE_AHEAD=900,VIBE_DUR=90,INTRO_DURATION=8000;
-
-/* ══════════════════════════════════════════
-   Song data with educational metadata
-══════════════════════════════════════════ */
-const SONGS_META=[
-  {chips:'<span class="chip level-easy">⭐ 입문</span><span class="chip skill">🎵 박자감</span><span class="chip skill">🤲 촉각인식</span>',
-   tip:'느린 박자(BPM 72)로 <strong>청각-촉각 연계 능력</strong>을 훈련합니다. 왼손·오른손 교차 자극으로 <strong>좌우 협응 능력</strong>도 기릅니다.'},
-  {chips:'<span class="chip level-mid">🦀 초급</span><span class="chip skill">🎵 박자감</span><span class="chip skill">🎼 음정인식</span><span class="chip skill">🤲 양손협응</span>',
-   tip:'홀드 노트를 통해 <strong>지속적 촉각 집중력</strong>을 기릅니다. 음정 변화가 있어 <strong>청각 구별 능력</strong>도 훈련됩니다.'},
-  {chips:'<span class="chip level-mid">🐙 중급</span><span class="chip skill">⚡ 반응속도</span><span class="chip skill">🎵 리듬감</span><span class="chip skill">💪 집중력</span>',
-   tip:'빠른 BPM(110)으로 <strong>청각 반응 속도</strong>와 <strong>리듬 유지 능력</strong>을 심화 훈련합니다.'},
-  {chips:'<span class="chip level-easy">⭐ 입문</span><span class="chip skill">🎵 박자감</span><span class="chip skill">👶 입문</span><span class="chip skill">🤲 촉각인식</span>',
-   tip:'친숙한 멜로디로 <strong>게임 진입 장벽</strong>을 낮춥니다. 처음 닷패드를 접하는 아이에게 추천합니다.'},
-];
-function bChart(bpm,pat){const B=60000/bpm;return pat.map(([b,tr,tp,dur])=>({time:b*B,track:tr,type:tp||'S',dur:dur?dur*B:0}));}
-const SONGS=[
-  {name:'아기상어 리믹스',bpm:72,emoji:'🦈',artGrad:'linear-gradient(135deg,#001a4a,#003399,#006699)',
-   charName:'🦈 아기상어가 놀러왔어요!',charHint:'꼬리(왼쪽)와 코(오른쪽)를 만져봐요!',
-   keys:{L:{icon:'🌊',label:'꼬리 지느러미',hint:'← / A'},R:{icon:'🦷',label:'상어 코 앞',hint:'→ / L'}},
-   notes:bChart(72,[[0,'L'],[2,'R'],[4,'L'],[6,'R'],[8,'B'],[10,'L'],[12,'R'],[14,'L','H',2],[17,'R'],[19,'L'],[21,'R'],[23,'B'],[25,'L'],[27,'R'],[29,'L'],[31,'R','H',2],[34,'L'],[36,'B'],[38,'R'],[40,'L'],[42,'R'],[44,'B']])},
-  {name:'도레미 파티',bpm:90,emoji:'🎵',artGrad:'linear-gradient(135deg,#1a0040,#6600cc,#cc00ff)',
-   charName:'🎵 음표가 춤을 춰요!',charHint:'왼쪽은 음표머리, 오른쪽은 깃발이에요!',
-   keys:{L:{icon:'🎵',label:'음표 머리',hint:'← / A'},R:{icon:'🎶',label:'리듬 깃발',hint:'→ / L'}},
-   notes:bChart(90,[[0,'L'],[2,'R'],[4,'L'],[6,'R'],[8,'B'],[10,'L','H',1.5],[12,'R'],[14,'L'],[16,'R'],[18,'B'],[20,'L'],[22,'R'],[24,'L'],[26,'B'],[28,'R','H',2],[31,'L'],[33,'R'],[35,'B'],[37,'L'],[39,'R'],[41,'L'],[43,'B']])},
-  {name:'별빛 EDM',bpm:110,emoji:'✨',artGrad:'linear-gradient(135deg,#1a001a,#660033,#cc0066)',
-   charName:'✨ 반짝이는 별이 왔어요!',charHint:'별의 꼭짓점을 눌러봐요!',
-   keys:{L:{icon:'⭐',label:'왼쪽 꼭짓점',hint:'← / A'},R:{icon:'💫',label:'오른쪽 꼭짓점',hint:'→ / L'}},
-   notes:bChart(110,[[0,'L'],[1.5,'R'],[3,'L'],[4.5,'R'],[6,'B'],[7.5,'L'],[9,'R'],[10.5,'L','H',1.5],[13,'R'],[14.5,'L'],[16,'B'],[17.5,'L'],[19,'R'],[20.5,'L'],[22,'R'],[23.5,'B'],[25,'L','H',1.5],[27,'R'],[28.5,'L'],[30,'B'],[31.5,'L'],[33,'R'],[34.5,'L'],[36,'R'],[37.5,'B']])},
-  {name:'반짝 작은별',bpm:80,emoji:'🌟',artGrad:'linear-gradient(135deg,#1a1a00,#444400,#888800)',
-   charName:'🌟 작은 별이 반짝여요!',charHint:'왼쪽 별과 오른쪽 별을 만져봐요!',
-   keys:{L:{icon:'🌟',label:'왼쪽 별빛',hint:'← / A'},R:{icon:'✨',label:'오른쪽 별빛',hint:'→ / L'}},
-   notes:bChart(80,[[0,'L'],[2,'L'],[4,'R'],[6,'R'],[8,'L'],[9,'R'],[10,'L'],[12,'B'],[14,'R'],[16,'L'],[18,'R'],[20,'L','H',1.5],[22,'R'],[24,'L'],[25,'R'],[26,'B'],[28,'L'],[30,'R'],[32,'L'],[33,'R'],[34,'L'],[36,'B'],[38,'L'],[39,'R'],[40,'L'],[42,'R'],[44,'L','H',2],[47,'R'],[48,'L'],[50,'B']])},
-];
-
-/* ══════════════════════════════════════════
-   Character Maps
-══════════════════════════════════════════ */
-function bMap(fn){const m=Array.from({length:ROWS},()=>new Array(COLS).fill(0));const s=(r,c,v=1)=>{if(r>=0&&r<ROWS&&c>=0&&c<COLS&&v>m[r][c])m[r][c]=v};fn(s);return m;}
-function sharkMap(){return bMap(s=>{for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++)if(((c-12)/9)**2+((r-9.5)/4)**2<=1)s(r,c,1);for(let r=2;r<=5;r++){const hw=(r-2)*1.5;for(let c=Math.floor(11-hw);c<=Math.ceil(11+hw);c++)s(r,c,1)}for(let r=4;r<=8;r++){const w=Math.max(0,Math.round(4-Math.abs(r-6)));for(let c=0;c<=w;c++)s(r,c,1)}for(let r=10;r<=14;r++){const w=Math.max(0,Math.round(4-Math.abs(r-12)));for(let c=0;c<=w;c++)s(r,c,1)}[8,9,10].forEach(r=>{s(r,21,1);s(r,22,1)});s(9,23,1);[[8,17],[8,18],[9,17],[9,18]].forEach(([r,c])=>s(r,c,3));[[11,19],[11,20],[11,21]].forEach(([r,c])=>s(r,c,2));})}
-function noteMap(){return bMap(s=>{for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++)if(((c-13)/4)**2+((r-13)/2.5)**2<=1)s(r,c,1);for(let r=4;r<=13;r++)s(r,17,1);for(let r=4;r<=7;r++){const w=(r-4)*1.5;for(let c=17;c<=17+Math.round(w);c++)s(r,c,1)}s(7,18,3);s(7,19,3);})}
-function starMap(){return bMap(s=>{const cx=12,cy=9,R=7.5,r=3,v=[];for(let i=0;i<5;i++){const a0=-Math.PI/2+i*2*Math.PI/5,a1=-Math.PI/2+(i+.5)*2*Math.PI/5;v.push([cx+R*Math.cos(a0),cy+R*Math.sin(a0)]);v.push([cx+r*Math.cos(a1),cy+r*Math.sin(a1)]);}for(let row=0;row<ROWS;row++){const xs=[];for(let i=0;i<v.length;i++){const[x1,y1]=v[i],[x2,y2]=v[(i+1)%v.length];if((y1<=row&&y2>row)||(y2<=row&&y1>row))xs.push(x1+(row-y1)*(x2-x1)/(y2-y1));}xs.sort((a,b)=>a-b);for(let i=0;i<xs.length-1;i+=2)for(let c=Math.floor(xs[i]);c<=Math.ceil(xs[i+1]);c++)s(row,c,1);}s(9,12,3);})}
-function twinStarMap(){return bMap(s=>{[[5,5],[5,18]].forEach(([cy,cx])=>{const R=4,r=1.8,vx=[];for(let i=0;i<5;i++){const a0=-Math.PI/2+i*2*Math.PI/5,a1=-Math.PI/2+(i+.5)*2*Math.PI/5;vx.push([cx+R*Math.cos(a0),cy+R*Math.sin(a0)]);vx.push([cx+r*Math.cos(a1),cy+r*Math.sin(a1)]);}for(let row=0;row<ROWS;row++){const xs=[];for(let i=0;i<vx.length;i++){const[x1,y1]=vx[i],[x2,y2]=vx[(i+1)%vx.length];if((y1<=row&&y2>row)||(y2<=row&&y1>row))xs.push(x1+(row-y1)*(x2-x1)/(y2-y1));}xs.sort((a,b)=>a-b);for(let i=0;i<xs.length-1;i+=2)for(let c=Math.floor(xs[i]);c<=Math.ceil(xs[i+1]);c++)s(row,c,1);}s(Math.round(cy),Math.round(cx),3);});})}
-const CHAR_MAPS=[sharkMap,noteMap,starMap,twinStarMap];
-const MASCOTS=['🦈','🎵','✨','🌟'];
-
-/* ══════════════════════════════════════════
-   Audio
-══════════════════════════════════════════ */
-let AC=null;
-function getAC(){if(!AC)AC=new AudioContext();if(AC.state==='suspended')AC.resume();return AC;}
-function playTone(f,tp,dur,vol=.3,when=0){const ac=getAC(),t=when||ac.currentTime;const o=ac.createOscillator(),g=ac.createGain();o.connect(g);g.connect(ac.destination);o.type=tp;o.frequency.value=f;g.gain.setValueAtTime(vol,t);g.gain.exponentialRampToValueAtTime(0.0001,t+dur);o.start(t);o.stop(t+dur);}
-function scheduleCue(track,aT){if(track==='L'||track==='B'){playTone(330,'triangle',.14,.28,aT);playTone(262,'triangle',.18,.30,aT+.18);}if(track==='R'||track==='B'){playTone(523,'triangle',.12,.24,aT);playTone(659,'triangle',.16,.28,aT+.18);}}
-function scheduleActiveTone(track,aT){const ac=getAC();playTone(track==='L'?80:110,'square',.06,.5,aT);playTone(track==='L'?1200:1600,'sawtooth',.03,.35,aT);const buf=ac.createBuffer(1,Math.floor(ac.sampleRate*.04),ac.sampleRate);const d=buf.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=(Math.random()*2-1)*Math.exp(-i/(d.length*.3)*6);const src=ac.createBufferSource(),g=ac.createGain();src.buffer=buf;src.connect(g);g.connect(ac.destination);g.gain.value=.55;src.start(aT);}
-function playHit(t){const ac=getAC(),n=ac.currentTime;if(t==='perfect'){playTone(880,'sine',.08,.4,n);playTone(1320,'sine',.07,.3,n+.04);}else if(t==='good'){playTone(660,'sine',.1,.28,n);}else{const o=ac.createOscillator(),g=ac.createGain();o.connect(g);g.connect(ac.destination);o.type='sawtooth';o.frequency.setValueAtTime(280,n);o.frequency.exponentialRampToValueAtTime(80,n+.22);g.gain.setValueAtTime(.28,n);g.gain.exponentialRampToValueAtTime(.0001,n+.22);o.start(n);o.stop(n+.22);}}
-function playHoldEndWarn(){const ac=getAC(),t=ac.currentTime;playTone(880,'sine',.07,.25,t);playTone(660,'sine',.07,.2,t+.09);}
-function playCute(tr){const ac=getAC(),t=ac.currentTime;if(tr==='L'){const buf=ac.createBuffer(1,Math.floor(ac.sampleRate*.18),ac.sampleRate);const d=buf.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=(Math.random()*2-1)*Math.exp(-i/d.length*7);const src=ac.createBufferSource(),flt=ac.createBiquadFilter(),g=ac.createGain();flt.type='bandpass';flt.frequency.value=600;flt.Q.value=.8;src.buffer=buf;src.connect(flt);flt.connect(g);g.connect(ac.destination);g.gain.value=.45;src.start(t);}else if(tr==='R'){const o=ac.createOscillator(),g=ac.createGain();o.connect(g);g.connect(ac.destination);o.type='sawtooth';o.frequency.setValueAtTime(220,t);o.frequency.exponentialRampToValueAtTime(130,t+.13);g.gain.setValueAtTime(.38,t);g.gain.exponentialRampToValueAtTime(.001,t+.15);o.start(t);o.stop(t+.15);}else{[1200,900,1600,1000].forEach((f,i)=>playTone(f,'sine',.05,.18,t+i*.05));}}
-function playAllComboFanfare(){const ac=getAC();let t=ac.currentTime;[[523,.12],[659,.12],[784,.12],[1047,.35]].forEach(([f,d])=>{playTone(f,'sine',d,.45,t);t+=d;});}
-function playBeatDrums(bpm,as,tot){const B=60/bpm;for(let i=0;i<tot;i++){const t=as+i*B,dn=i%4===0;playTone(dn?200:160,'square',.05,dn?.14:.09,t);}}
-function playMilestone(n){const ac=getAC(),t=ac.currentTime;(n>=30?[880,1047,1318]:[660,784,880]).forEach((f,i)=>playTone(f,'sine',.12,.35,t+i*.12));}
-
-/* ══════════════════════════════════════════
+/* ══════════════════════════════════════════════════════
    TTS
-══════════════════════════════════════════ */
-let _ttsQ=[],_ttsBusy=false,_ttsBarT;
-function speak(txt){_ttsQ.push(txt);if(!_ttsBusy)_ttsFlush();}
-function _ttsFlush(){if(!_ttsQ.length){_ttsBusy=false;return;}_ttsBusy=true;const txt=_ttsQ.shift();if(!window.speechSynthesis){_ttsBusy=false;_ttsFlush();return;}speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(txt);u.lang='ko-KR';u.rate=1.1;u.pitch=1.2;if(_koreanVoice)u.voice=_koreanVoice;u.onend=()=>{clearTimeout(_ttsBarT);_ttsBarT=setTimeout(_ttsFlush,100);};u.onerror=()=>{clearTimeout(_ttsBarT);_ttsBarT=setTimeout(_ttsFlush,100);};speechSynthesis.speak(u);const bar=document.getElementById('tts-bar');bar.textContent=txt;bar.classList.add('visible');clearTimeout(_ttsBarT);_ttsBarT=setTimeout(()=>{bar.classList.remove('visible');_ttsFlush();},Math.max(1800,txt.length*85));}
-function speakNow(txt){_ttsQ=[];_ttsBusy=false;if(!window.speechSynthesis)return;speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(txt);u.lang='ko-KR';u.rate=1.2;u.pitch=1.3;if(_koreanVoice)u.voice=_koreanVoice;speechSynthesis.speak(u);const bar=document.getElementById('tts-bar');bar.textContent=txt;bar.classList.add('visible');setTimeout(()=>bar.classList.remove('visible'),800);}
+══════════════════════════════════════════════════════ */
+let _ttsQ=[];let _ttsBusy=false;let ttsEnabled=true;
+function speak(txt,interrupt=false){
+  if(!ttsEnabled)return;
+  if(interrupt){_ttsQ=[];_ttsBusy=false;window.speechSynthesis&&speechSynthesis.cancel();}
+  _ttsQ.push(txt);if(!_ttsBusy)_ttsFlush();
+}
+function _ttsFlush(){
+  if(!_ttsQ.length){_ttsBusy=false;return;}
+  _ttsBusy=true;const txt=_ttsQ.shift();
+  if(!window.speechSynthesis){_ttsBusy=false;_ttsFlush();return;}
+  speechSynthesis.cancel();
+  const u=new SpeechSynthesisUtterance(txt);
+  u.lang='ko-KR';u.rate=1.1;u.pitch=1.0;
+  u.onend=()=>{_ttsBusy=false;_ttsFlush();};
+  u.onerror=()=>{_ttsBusy=false;_ttsFlush();};
+  speechSynthesis.speak(u);
+  document.getElementById('sr-announcer').textContent=txt;
+}
 
-/* ══════════════════════════════════════════
-   State & helpers
-══════════════════════════════════════════ */
-function createStars(){const bg=document.getElementById('stars-bg');for(let i=0;i<55;i++){const s=document.createElement('div');s.className='star';const sz=Math.random()*2.2+.8;s.style.cssText=`width:${sz}px;height:${sz}px;top:${Math.random()*100}%;left:${Math.random()*100}%;--d:${2+Math.random()*4}s;--o:${.2+Math.random()*.6};animation-delay:${Math.random()*5}s`;bg.appendChild(s);}}
-let _scene='setup';
-function showScene(id){document.querySelectorAll('.scene').forEach(s=>s.classList.remove('active'));document.getElementById('scene-'+id).classList.add('active');_scene=id;setTimeout(updateObserver,50);}
-const CS={IDLE:0,INCOMING:1,ACTIVE:2,CONFIRMED:3,MISSED:4};
-const G={
-  songIdx:0,levelIdx:0,practiceMode:false,
-  studentName:'',studentRole:'student',
-  score:0,combo:0,maxCombo:0,perfects:0,goods:0,misses:0,total:0,missCount:0,
-  notes:[],startTime:0,audioStartTime:0,bpm:72,
-  sessionStart:0,sessionElapsed:0,
-  _effPerfect:PERFECT_MS,_effGood:GOOD_MS,
-  leftHeld:false,rightHeld:false,
-  ch:{L:{state:0,stateT:0,noteRef:null},R:{state:0,stateT:0,noteRef:null}},
-  animId:null,
-  charMap:null,introStart:0,introTimerStart:0,introRipples:[],
-  _warned3:false,_warned2:false,_warned1:false,
-  particles:[],
+/* ══════════════════════════════════════════════════════
+   SONG DATA
+══════════════════════════════════════════════════════ */
+const SONGS=[
+  {
+    id:'supernova',title:'Supernova',artist:'aespa',bpm:128,duration:38,
+    mood:'강렬·미래',color:'#ff2060',
+    members:['Winter','Karina','Giselle','Ningning'],
+    context:'SM SMP 세계관의 정점. aespa의 에너지와 정체성이 폭발하는 곡. 강렬한 비트와 미래적 사운드로 구성되어 있습니다.',
+    lyrics:[
+      {t:0,  member:'ALL',     text:'Supernova 느껴져 이 에너지',     ko:'초신성처럼 타오르는 에너지'},
+      {t:4,  member:'KARINA',  text:'심장이 뜨겁게 울려 퍼져',       ko:'심장이 뜨겁게 고동치는 느낌'},
+      {t:8,  member:'WINTER',  text:'눈을 감아도 보여 빛나는 너',    ko:'눈을 감아도 선명하게 보여'},
+      {t:12, member:'GISELLE', text:'We are the stars tonight',        ko:'오늘 밤 우리가 별이야'},
+      {t:16, member:'NINGNING',text:'함께라면 무엇이든 가능해',       ko:'함께라면 불가능은 없어'},
+      {t:20, member:'ALL',     text:'I\'m a supernova — 빛나고 싶어', ko:'초신성처럼 빛나고 싶어'},
+      {t:24, member:'KARINA+WINTER', text:'하늘을 가르는 빛의 궤적', ko:'하늘을 가르며 나아가는 빛'},
+      {t:28, member:'ALL',     text:'Touch the sky, feel the vibe',    ko:'하늘에 닿아, 이 진동을 느껴'},
+      {t:32, member:'ALL',     text:'(Bridge) 우리는 하나, aespa!',   ko:'우리는 하나'},
+      {t:36, member:'ALL',     text:'⭐ Supernova — 끝',              ko:'곡이 클라이맥스에 도달했습니다'},
+    ],
+    fx:[
+      {t:19, type:'FIREWORKS', desc:'🎆 폭죽 발사',       label:'FIREWORKS',warn:3},
+      {t:32, type:'CONFETTI',  desc:'🎊 컨페티 낙하',     label:'CONFETTI',warn:3},
+      {t:35, type:'LASERS',    desc:'💫 레이저 피날레',   label:'LASERS',warn:2},
+    ],
+    perf:[
+      {t:0,  type:'formation', text:'▷ 4인 V자 대형으로 등장'},
+      {t:6,  type:'gesture',   text:'✦ Karina — 관객 향해 손하트'},
+      {t:10, type:'dance',     text:'▷ 칼군무 시작 — 4인 동시 동작'},
+      {t:16, type:'highlight', text:'⚡ 관객 함성 폭발 — 포인트 안무'},
+      {t:19, type:'fx',        text:'🎆 3초 후 폭죽! 가슴 짜릿한 기대감'},
+      {t:22, type:'gesture',   text:'✦ Winter — 팬들에게 윙크'},
+      {t:26, type:'formation', text:'▷ 원형 대형 전환 — 중앙 집중'},
+      {t:32, type:'highlight', text:'⚡ 최고조 — 전원 점프 동작'},
+    ],
+  },
+  {
+    id:'blackmamba',title:'Black Mamba',artist:'aespa',bpm:140,duration:36,
+    mood:'미스터리·강렬',color:'#b45aff',
+    members:['Winter','Karina','Giselle','Ningning'],
+    context:'aespa 데뷔곡. 가상과 현실의 경계를 허무는 KWANGYA 세계관. 강한 비트와 신비로운 분위기.',
+    lyrics:[
+      {t:0,  member:'ALL',    text:'Black Mamba — 독을 뿜어',      ko:'위험한 존재처럼 독을 뿜는다'},
+      {t:4,  member:'KARINA', text:'너를 가둬 내 세계 속에',       ko:'너를 내 세계 안에 가둔다'},
+      {t:8,  member:'WINTER', text:'KWANGYA 속을 달려',             ko:'광야라 불리는 공간을 질주'},
+      {t:12, member:'ALL',    text:'우리의 ae와 avatar',             ko:'현실의 나와 가상의 아바타'},
+      {t:16, member:'GISELLE',text:'넌 나를 막을 수 없어',          ko:'어느 누구도 막을 수 없어'},
+      {t:20, member:'NINGNING',text:'빠져나와 광야로',              ko:'가상 세계를 벗어나 광야로'},
+      {t:24, member:'ALL',    text:'(Drop) NÆVIS 우리를 불러',      ko:'AI NÆVIS가 우리를 소환한다'},
+      {t:28, member:'ALL',    text:'Black Mamba, Black Mamba',       ko:'우리는 블랙 맘바'},
+      {t:32, member:'ALL',    text:'광야에서 우리가 승리해!',       ko:'광야에서 승리를 거머쥔다'},
+    ],
+    fx:[
+      {t:12, type:'SMOKE',    desc:'💨 연기 효과',      label:'SMOKE',warn:3},
+      {t:24, type:'FIREWORKS',desc:'🎆 폭죽 발사',      label:'FIREWORKS',warn:3},
+      {t:32, type:'LIGHTS',   desc:'🌟 전체 조명',      label:'LIGHTS',warn:2},
+    ],
+    perf:[
+      {t:0,  type:'formation',text:'▷ 어둠 속 4인 등장 — 안개 효과'},
+      {t:5,  type:'dance',    text:'▷ 느린 카리스마 안무 시작'},
+      {t:12, type:'highlight',text:'⚡ 관객 탄성 — 대형 전환'},
+      {t:16, type:'gesture',  text:'✦ Ningning — 카메라 향해 포즈'},
+      {t:20, type:'formation',text:'▷ 전면 일렬 대형'},
+      {t:24, type:'fx',       text:'🎆 3초 후 폭죽! 준비하세요'},
+      {t:28, type:'dance',    text:'▷ 최강 칼군무 — 관중 열광'},
+    ],
+  },
+  {
+    id:'power',title:'Power',artist:'EXO',bpm:128,duration:34,
+    mood:'신나는·밝음',color:'#00e5ff',
+    members:['Suho','Baekhyun','Chanyeol','D.O.','Kai','Sehun'],
+    context:'EXO의 대표 응원곡. 밝고 신나는 에너지로 팬들과 함께 즐기는 무대. 자연스러운 팬 참여가 특징.',
+    lyrics:[
+      {t:0,  member:'ALL',     text:'Power — 우리에게 힘을 줘',    ko:'우리에게 에너지를 채워줘'},
+      {t:4,  member:'BAEKHYUN',text:'전기처럼 퍼져 너의 기운',    ko:'전기처럼 퍼지는 너의 에너지'},
+      {t:8,  member:'CHANYEOL',text:'온 세상을 밝혀줘',            ko:'온 세상이 환해지는 느낌'},
+      {t:12, member:'KAI',     text:'움직임에 담긴 에너지',        ko:'춤 동작 하나하나에 담긴 힘'},
+      {t:16, member:'SEHUN',   text:'같이 외쳐봐 Power!',          ko:'모두 함께 소리쳐요'},
+      {t:20, member:'ALL',     text:'(팬챈트) EXO! EXO! 사랑해요', ko:'팬들이 함께 외치는 응원 소리'},
+      {t:24, member:'SUHO',    text:'우리가 함께일 때 최강',       ko:'함께일 때 가장 강하다'},
+      {t:28, member:'ALL',     text:'Power — 영원히 함께해',        ko:'영원히 함께하겠다는 약속'},
+      {t:31, member:'ALL',     text:'🎤 앙코르! 감사합니다',        ko:'공연에 감사인사'},
+    ],
+    fx:[
+      {t:8,  type:'CONFETTI', desc:'🎊 컨페티 낙하',  label:'CONFETTI',warn:3},
+      {t:20, type:'LIGHTSTICK',desc:'💚 응원봉 점등', label:'GLOW STICKS',warn:2},
+      {t:28, type:'FIREWORKS', desc:'🎆 피날레 폭죽', label:'FIREWORKS',warn:3},
+    ],
+    perf:[
+      {t:0,  type:'formation', text:'▷ 6인 멤버 전원 등장 — 팬 환호'},
+      {t:4,  type:'gesture',   text:'✦ Baekhyun — 팬석 향해 손 흔들기'},
+      {t:8,  type:'highlight', text:'⚡ 전체 함성 — 컨페티 낙하!'},
+      {t:12, type:'dance',     text:'▷ Kai 솔로 댄스 브레이크'},
+      {t:18, type:'gesture',   text:'✦ Sehun — 팬들과 눈맞춤'},
+      {t:20, type:'highlight', text:'⚡ 팬챈트 구간 — 모두가 하나'},
+      {t:25, type:'formation', text:'▷ 하트 대형 전환 — 관중 감동'},
+    ],
+  },
+];
+
+/* ══════════════════════════════════════════════════════
+   STATE
+══════════════════════════════════════════════════════ */
+let ST={
+  scene:'intro',          // intro | preshow | live | postshow
+  padConnected:false,
+  device:null,
+  selectedSong:0,         // preshow 선택 곡
+  currentSong:0,          // live 현재 곡
+  tick:0,                 // live tick (60fps → 1초당 60)
+  playing:false,
+  ttsOn:true,
+  hapticOn:true,
+  lyricIdx:-1,
+  fxCountdown:null,       // null or {t, label, val}
+  cueLog:[],              // 하이라이트 기록
+  beatPhase:0,
+  perfShown:new Set(),
+  fxShown:new Set(),
+  rafId:null,
+  preTimer:30,
 };
 
-/* ══════════════════════════════════════════
-   SETUP
-══════════════════════════════════════════ */
-document.querySelectorAll('.role-btn').forEach(b=>b.addEventListener('click',()=>{
-  document.querySelectorAll('.role-btn').forEach(x=>{x.classList.remove('active');x.setAttribute('aria-pressed','false');});
-  b.classList.add('active');b.setAttribute('aria-pressed','true');
-  G.studentRole=b.dataset.role;
-}));
-document.getElementById('setup-go').addEventListener('click',()=>{
-  const val=document.getElementById('name-input').value.trim();
-  G.studentName=val||'친구';
-  DB.saveUser({name:G.studentName,role:G.studentRole});
-  DB.markVisited();
-  speak(`안녕하세요, ${G.studentName}! 닷 비트를 시작해요!`);
-  if(DB.isFirst()) showScene('tutorial');
-  else{showScene('menu');updateMenu();}
-  showTutStep(0);
-});
-document.getElementById('name-input').addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('setup-go').click();});
-
-/* ══════════════════════════════════════════
-   MENU
-══════════════════════════════════════════ */
-function updateMenu(){
-  const s=SONGS[G.songIdx];
-  document.getElementById('song-emoji').textContent=s.emoji;
-  document.getElementById('song-name').textContent=s.name;
-  document.getElementById('song-meta').textContent=`BPM ${s.bpm}`;
-  document.getElementById('song-idx').textContent=`${G.songIdx+1} / ${SONGS.length}`;
-  document.querySelector('.song-art').style.setProperty('--art-grad',s.artGrad);
-  document.getElementById('song-chips').innerHTML=SONGS_META[G.songIdx].chips;
-  document.getElementById('hud-song-name').textContent=s.name;
-  document.getElementById('kl-icon').textContent=s.keys.L.icon;
-  document.getElementById('kl-label').textContent=s.keys.L.label;
-  document.querySelector('#key-left .pan-key-hint').textContent=s.keys.L.hint;
-  document.getElementById('kr-icon').textContent=s.keys.R.icon;
-  document.getElementById('kr-label').textContent=s.keys.R.label;
-  document.querySelector('#key-right .pan-key-hint').textContent=s.keys.R.hint;
-  document.getElementById('ibtn-l').innerHTML=`${s.keys.L.icon} ${s.keys.L.label}<br><small style="font-size:9px">◀ 이전 패닝 키</small>`;
-  document.getElementById('ibtn-r').innerHTML=`${s.keys.R.icon} ${s.keys.R.label}<br><small style="font-size:9px">다음 패닝 키 ▶</small>`;
-  const saved=DB.get(G.songIdx);
-  const stars=saved?.stars||0;
-  for(let i=0;i<3;i++){const el=document.getElementById(`ss${i}`);el.className='song-star'+(i<stars?' on':'');}
-  document.getElementById('best-score-txt').textContent=saved?`최고 ${saved.score.toLocaleString()}점`:'';
-  document.getElementById('song-best-badge').className='song-best-badge'+(stars===3?' show':'');
-  // student greeting
-  const user=DB.getUser();const name=user?.name||G.studentName;
-  const stats=DB.getStats();
-  const avatar=MASCOTS[G.songIdx];
-  document.getElementById('menu-avatar').textContent=avatar;
-  document.getElementById('menu-student-name').textContent=`${name}${name.slice(-1)==='이'?'야':'아'}, 반가워요! 👋`;
-  document.getElementById('menu-student-level').textContent=`총 ${stats.totalSessions}판 플레이`;
-  // melody preview
-  const ac=getAC(),t=ac.currentTime+.1;
-  [0,2,4,2,3,5,3].forEach((n,i)=>playTone(261*Math.pow(2,n/12),'sine',.18,.2,t+i*.2));
+/* ══════════════════════════════════════════════════════
+   DOT PAD SDK (inline)
+══════════════════════════════════════════════════════ */
+class DotPadSDK{
+  static deviceMap=new Map;
+  constructor(){
+    this.DOTPAD_SERVICE='49535343-fe7d-4ae5-8fa9-9fafd205e455';
+    this.DOTPAD_CHARACTERISTIC='49535343-1e4d-4bd9-ba61-23c647249616';
+  }
+  async request(){
+    return await navigator.bluetooth.requestDevice({
+      filters:[{namePrefix:'DotPad'}],optionalServices:[this.DOTPAD_SERVICE]
+    });
+  }
+  async connect(dev){
+    if(!dev)throw new Error('No device');
+    const server=await dev.gatt.connect();
+    const svc=await dev.gatt.getPrimaryService(this.DOTPAD_SERVICE);
+    const char=await svc.getCharacteristic(this.DOTPAD_CHARACTERISTIC);
+    DotPadSDK.deviceMap.set(dev.name,{service:svc,characteristic:char});
+    return server.connected;
+  }
+  async sendGraphic(dev,hex){
+    const info=DotPadSDK.deviceMap.get(dev.name);
+    if(!info)return;
+    const bytes=hex.match(/.{2}/g).map(b=>parseInt(b,16));
+    const data=new Uint8Array(bytes);
+    await info.characteristic.writeValue(data);
+  }
 }
-let _mkT={L:0,R:0},_mkTimer=null;
-function menuKeyPress(tr){
-  if(_scene!=='menu')return;
-  _mkT[tr]=performance.now();clearTimeout(_mkTimer);
-  _mkTimer=setTimeout(()=>{
-    if(Math.abs(_mkT.L-_mkT.R)<220&&_mkT.L>0&&_mkT.R>0){playTone(880,'sine',.12,.4);goToIntro();return;}
-    if(tr==='L'){G.songIdx=(G.songIdx-1+SONGS.length)%SONGS.length;}else{G.songIdx=(G.songIdx+1)%SONGS.length;}
-    updateMenu();speak(SONGS[G.songIdx].name);
-  },180);
-}
-document.getElementById('btn-prev').addEventListener('click',()=>menuKeyPress('L'));
-document.getElementById('btn-next').addEventListener('click',()=>menuKeyPress('R'));
-document.querySelectorAll('.level-btn').forEach((b,i)=>b.addEventListener('click',()=>{
-  G.levelIdx=i;document.querySelectorAll('.level-btn').forEach((x,j)=>{x.classList.toggle('active',j===i);x.setAttribute('aria-pressed',j===i?'true':'false');});
-}));
-document.getElementById('btn-start').addEventListener('click',goToIntro);
-document.getElementById('practice-btn').addEventListener('click',()=>{
-  G.practiceMode=!G.practiceMode;
-  const btn=document.getElementById('practice-btn');
-  btn.className='practice-toggle'+(G.practiceMode?' on':'');
-  btn.setAttribute('aria-pressed',G.practiceMode?'true':'false');
-  speak(G.practiceMode?'연습 모드 켰어요! 더 천천히 연주해요.':'일반 모드로 바꿨어요!');
-});
-document.getElementById('menu-guardian-btn').addEventListener('click',openGuardianOverlay);
+const sdk=new DotPadSDK();
 
-/* ══════════════════════════════════════════
-   TUTORIAL
-══════════════════════════════════════════ */
-let _tutStep=0;
-const TUT_MSGS=[
-  '닷 비트 시작하기! 닷패드의 패닝 키 두 개로만 게임해요. 먼저 버튼 위치를 알아봐요!',
-  '닷패드 앞면 아래쪽에 버튼이 6개 있어요. 왼쪽 끝의 삼각형 버튼이 이전 패닝 키, 오른쪽 끝의 삼각형 버튼이 다음 패닝 키예요! 가운데 4개는 에프 원부터 에프 포 키예요.',
-  '첫 번째! 두구두구 소리가 들리면 그 방향 패닝 키를 준비해요! 이전 패닝 키는 낮은 소리, 다음 패닝 키는 높은 소리예요.',
-  '두 번째! 쾅! 핀이 올라오면 그 방향 패닝 키를 딱 눌러요!',
-  '세 번째! 검지를 닷패드 판정선에, 엄지를 패닝 키에 올리고 시작해봐요! 참고로 두 패닝 키를 1.5초 이상 동시에 누르면 배터리를 확인할 수 있어요.'
-];
-function showTutStep(n){
-  document.querySelectorAll('.tut-step').forEach((s,i)=>s.classList.toggle('active',i===n));
-  document.querySelectorAll('.tut-dot').forEach((d,i)=>d.classList.toggle('on',i===n));
-  _tutStep=n;
-  document.getElementById('tut-next').textContent=n===4?'▶ 게임 시작!':'다음 ▶';
-  speak(TUT_MSGS[n]);
-  if(n===2){const ac=getAC(),t=ac.currentTime+1.5;playTone(330,'triangle',.14,.28,t);playTone(262,'triangle',.18,.30,t+.18);playTone(523,'triangle',.12,.24,t+.7);playTone(659,'triangle',.16,.28,t+.88);}
-  if(n===3)setTimeout(()=>scheduleActiveTone('L',getAC().currentTime+.1),1200);
+/* ══════════════════════════════════════════════════════
+   SCENE SWITCH
+══════════════════════════════════════════════════════ */
+function goScene(id){
+  document.querySelectorAll('.scene').forEach(s=>s.classList.remove('on'));
+  document.getElementById('s-'+id).classList.add('on');
+  ST.scene=id;
 }
-document.getElementById('tut-next').addEventListener('click',()=>{if(_tutStep===4){DB.markVisited();showScene('menu');updateMenu();}else showTutStep(_tutStep+1);});
-document.getElementById('tut-skip').addEventListener('click',()=>{DB.markVisited();showScene('menu');updateMenu();});
 
-/* ══════════════════════════════════════════
+/* ══════════════════════════════════════════════════════
    INTRO
-══════════════════════════════════════════ */
-const introCanvas=document.getElementById('intro-canvas');
-const ictx=introCanvas.getContext('2d');
-function goToIntro(){
-  getAC();cancelAnimationFrame(G.animId);
-  const song=SONGS[G.songIdx];
-  G.charMap=CHAR_MAPS[G.songIdx]();
-  G.introStart=performance.now();G.introTimerStart=0;G.introRipples=[];
-  G._warned3=false;G._warned2=false;G._warned1=false;
-  document.getElementById('intro-char-name').textContent=song.charName;
-  document.getElementById('intro-hint').textContent=song.charHint;
-  document.getElementById('intro-timer-bar').style.width='100%';
-  showScene('intro');dotPad.renderPinMap(G.charMap);
-  G.animId=requestAnimationFrame(introFrame);
-  const n=G.studentName||'친구';
-  speak(`${n}야, ${song.charName} 이전 패닝 키로 ${song.keys.L.label}을, 다음 패닝 키로 ${song.keys.R.label}을 만져봐요!`);
-}
-function introFrame(ts){
-  if(_scene!=='intro')return;
-  if(!G.introTimerStart)G.introTimerStart=ts;
-  const elapsed=ts-G.introTimerStart,age=ts-G.introStart;
-  document.getElementById('intro-timer-bar').style.width=Math.max(0,1-elapsed/INTRO_DURATION)*100+'%';
-  if(elapsed>=INTRO_DURATION-3000&&!G._warned3){G._warned3=true;speakNow('3초 후 시작!');playTone(660,'triangle',.15,.35);}
-  if(elapsed>=INTRO_DURATION-2000&&!G._warned2){G._warned2=true;speakNow('둘!');playTone(770,'triangle',.15,.35);}
-  if(elapsed>=INTRO_DURATION-1000&&!G._warned1){G._warned1=true;speakNow('하나!');playTone(880,'triangle',.15,.35);}
-  if(elapsed>=INTRO_DURATION){introTransitionOut();return;}
-  renderIntro(age);G.animId=requestAnimationFrame(introFrame);
-}
-function renderIntro(age){
-  ictx.clearRect(0,0,CW,CH);
-  ictx.fillStyle='#13112a'; ictx.fillRect(0,0,CW,CH);
-  const map=G.charMap;
-  for(let r=0;r<ROWS;r++) for(let c=0;c<COLS;c++){
-    const v=map[r][c], px=c*CW_+CW_/2, py=r*CH_+CH_/2;
-    const dist=Math.sqrt((r-9)**2+(c-12)**2);
-    const prog=Math.min(1,Math.max(0,(age-dist*55)/300));
-    if(v===0){ pinDown(ictx,px,py); continue; }
-    if(prog===0) continue;
-    // 핀 높이: 눈(v=3) > 입(v=2) > 몸통(v=1) — 같은 흰색, 높이만 다름
-    const baseI = v===3?1.0 : v===2?0.82 : 0.70;
-    // 터치 리플: 눌린 부분 핀이 더 높이 솟아오름
-    let rb=0;
-    for(const rpl of G.introRipples){
-      const rA=performance.now()-rpl.t; if(rA>600) continue;
-      const hit=(rpl.tr==='L'&&c<=4)||(rpl.tr==='R'&&c>=18)||(rpl.tr==='eye'&&r<=5&&c>=8&&c<=16);
-      if(hit) rb=Math.max(rb,(1-rA/600)*.22);
-    }
-    const sc=.3+prog*.7;
-    ictx.save(); ictx.translate(px,py); ictx.scale(sc,sc); ictx.translate(-px,-py);
-    pinUp(ictx, px, py, Math.min(1, baseI+rb));
-    ictx.restore();
+══════════════════════════════════════════════════════ */
+document.getElementById('btnConnect').addEventListener('click',async()=>{
+  if(!navigator.bluetooth){
+    // Demo mode
+    ST.padConnected=true;
+    document.getElementById('btnConnect').className='btn-connect connected';
+    document.getElementById('btnConnectTxt').textContent='Dot Pad 연결됨 (Demo)';
+    speak('데모 모드로 Dot Pad가 연결됐습니다');
+    return;
   }
-  G.introRipples=G.introRipples.filter(r=>performance.now()-r.t<600);
-}
-function introTouch(tr){G.introRipples.push({tr,t:performance.now()});const btn=tr==='L'?document.getElementById('ibtn-l'):document.getElementById('ibtn-r');btn.classList.add('flash');setTimeout(()=>btn.classList.remove('flash'),300);playCute(tr);}
-introCanvas.addEventListener('click',e=>{if(_scene!=='intro')return;const rect=introCanvas.getBoundingClientRect();const col=Math.floor((e.clientX-rect.left)/rect.width*COLS),row=Math.floor((e.clientY-rect.top)/rect.height*ROWS);if(G.charMap[row]?.[col]>0){const tr=col<=4?'L':col>=18?'R':'eye';G.introRipples.push({tr,t:performance.now()});playCute(tr);}});
-function introTransitionOut(){
-  cancelAnimationFrame(G.animId);G.introTimerStart=0;
-  let shift=0;const t0=performance.now();
-  function sl(ts){if(_scene!=='intro')return;const p=Math.min((ts-t0)/600,1);shift=Math.round(p*ROWS*1.3);ictx.clearRect(0,0,CW,CH);ictx.fillStyle='#0a0820';ictx.fillRect(0,0,CW,CH);for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++){if(!G.charMap[r]?.[c])continue;const nr=r+shift;if(nr>=ROWS)continue;const px=c*CW_+CW_/2,py=nr*CH_+CH_/2;ictx.beginPath();ictx.arc(px,py,PIN_R,0,Math.PI*2);ictx.fillStyle=`rgba(216,208,255,${Math.max(0,1-p*.9)})`;ictx.fill();}if(p<1){requestAnimationFrame(sl);return;}dotPad.clear();speakNow('슝!');setTimeout(startReady,500);}
-  requestAnimationFrame(sl);
-}
-document.getElementById('ibtn-l').addEventListener('click',()=>introTouch('L'));
-document.getElementById('ibtn-r').addEventListener('click',()=>introTouch('R'));
-document.getElementById('ibtn-start').addEventListener('click',introTransitionOut);
+  try{
+    const dev=await sdk.request();
+    await sdk.connect(dev);
+    ST.device=dev;ST.padConnected=true;
+    document.getElementById('btnConnect').className='btn-connect connected';
+    document.getElementById('btnConnectTxt').textContent=dev.name+' 연결됨';
+    speak(dev.name+'에 연결됐습니다');
+  }catch(e){speak('연결을 취소했습니다');}
+});
+document.getElementById('btnStart').addEventListener('click',()=>startPreshow());
+document.addEventListener('keydown',e=>{
+  if(ST.scene==='intro'&&(e.code==='Space'||e.code==='Enter'))startPreshow();
+  if(ST.scene==='live'){
+    if(e.code==='Space'){e.preventDefault();togglePlay();}
+    if(e.code==='KeyN')skipSong();
+    if(e.code==='KeyT')toggleTTS();
+  }
+});
 
-/* ══════════════════════════════════════════
-   READY
-══════════════════════════════════════════ */
-const CWORDS=['','하나!','둘!','셋!','넷!','다섯!'];
-function startReady(){
-  showScene('ready');let count=5;
-  const circle=document.getElementById('countdown-circle'),numEl=document.getElementById('countdown-num');
-  const CIRC=2*Math.PI*45;circle.style.strokeDashoffset=CIRC;
-  speak('검지를 판정선에, 엄지를 이전 또는 다음 패닝 키에 올려요!');
-  function tick(){numEl.textContent=count;circle.style.strokeDashoffset=CIRC*(1-(5-count)/5);speakNow(CWORDS[count]);playTone(count<=2?880:count===3?770:660,'sine',.15,.4);if(count===1){setTimeout(()=>{speakNow('시작!');setTimeout(launchPlay,500);},700);return;}count--;setTimeout(tick,1000);}
-  setTimeout(tick,1800);
+/* ══════════════════════════════════════════════════════
+   PRESHOW
+══════════════════════════════════════════════════════ */
+function startPreshow(){
+  speak('공연 전 화면입니다. 오늘의 셋리스트를 미리 확인하세요.',true);
+  goScene('preshow');
+  renderSetlist();
+  selectSong(0);
+  startPreTimer();
+}
+function renderSetlist(){
+  const c=document.getElementById('setlistItems');
+  c.innerHTML='';
+  SONGS.forEach((s,i)=>{
+    const el=document.createElement('div');
+    el.className='song-item'+(i===ST.selectedSong?' active':'');
+    el.setAttribute('role','listitem');
+    el.setAttribute('tabindex','0');
+    el.setAttribute('aria-label',`${i+1}번 곡. ${s.artist} ${s.title}. ${s.mood} 분위기. BPM ${s.bpm}`);
+    el.innerHTML=`
+      <span class="song-num">${String(i+1).padStart(2,'0')}</span>
+      <div class="song-info">
+        <div class="song-name">${s.title}</div>
+        <div class="song-artist-bpm">${s.artist} · BPM ${s.bpm}</div>
+      </div>
+      <span class="song-mood" style="background:${s.color}22;color:${s.color};border:1px solid ${s.color}44">${s.mood}</span>`;
+    el.addEventListener('click',()=>selectSong(i));
+    el.addEventListener('keydown',e=>{if(e.code==='Enter'||e.code==='Space'){e.preventDefault();selectSong(i);}});
+    c.appendChild(el);
+  });
+}
+function selectSong(idx){
+  ST.selectedSong=idx;
+  renderSetlist();
+  const s=SONGS[idx];
+  const panel=document.getElementById('songDetailPanel');
+  panel.innerHTML=`
+    <div class="detail-kicker">SONG ${String(idx+1).padStart(2,'0')} · 상세 정보</div>
+    <div class="detail-song-header">
+      <div class="detail-color-dot" style="background:${s.color}"></div>
+      <div>
+        <div class="detail-song-title" style="color:${s.color}">${s.title}</div>
+        <div class="detail-song-artist">${s.artist} · BPM ${s.bpm} · ${s.mood}</div>
+      </div>
+    </div>
+    <div class="detail-context">${s.context}</div>
+    <div class="detail-label">멤버 라인업</div>
+    <div class="detail-members">${s.members.map(m=>`<span class="member-badge">${m}</span>`).join('')}</div>
+    <div class="detail-label">가사 미리보기 (첫 5줄)</div>
+    <div class="lyric-preview">${
+      s.lyrics.slice(0,5).map(l=>`
+        <div class="lp-row">
+          <span class="lp-member" style="color:${s.color}">${l.member}</span>
+          <span class="lp-text">${l.text}</span>
+        </div>`).join('')
+    }</div>
+    <div class="detail-label">특수 효과 (FX) 예고</div>
+    <div class="lyric-preview">${
+      s.fx.map(f=>`
+        <div class="lp-row">
+          <span class="lp-member" style="color:var(--amber)">${Math.floor(f.t/60)}:${String(f.t%60).padStart(2,'0')}</span>
+          <span class="lp-text">${f.desc} — ${f.warn}초 전 예고</span>
+        </div>`).join('')
+    }</div>`;
+  speak(`${idx+1}번 곡. ${s.artist}의 ${s.title}. ${s.context}`);
+}
+let _preTimerIv=null;
+function startPreTimer(){
+  ST.preTimer=30;
+  if(_preTimerIv)clearInterval(_preTimerIv);
+  _preTimerIv=setInterval(()=>{
+    ST.preTimer=Math.max(0,ST.preTimer-1);
+    const m=Math.floor(ST.preTimer/60),sec=ST.preTimer%60;
+    document.getElementById('timerVal').textContent=`${String(m).padStart(2,'0')}:${String(sec).padStart(2,'0')}`;
+    if(ST.preTimer===0){clearInterval(_preTimerIv);goLive();}
+  },1000);
+}
+document.getElementById('btnGoLive').addEventListener('click',()=>goLive());
+function goLive(){
+  if(_preTimerIv)clearInterval(_preTimerIv);
+  ST.currentSong=0;
+  startLive();
 }
 
-/* ══════════════════════════════════════════
-   PLAYING
-══════════════════════════════════════════ */
+/* ══════════════════════════════════════════════════════
+   LIVE
+══════════════════════════════════════════════════════ */
+// init braille cells
+(()=>{
+  const bc=document.getElementById('brailleCells');
+  for(let i=0;i<20;i++){
+    const cell=document.createElement('div');cell.className='bc';
+    for(let j=0;j<6;j++){const p=document.createElement('div');p.className='bp';cell.appendChild(p);}
+    bc.appendChild(cell);
+  }
+})();
+// init haptic beats UI
+(()=>{
+  const hb=document.getElementById('hapticBeats');
+  for(let i=0;i<16;i++){const b=document.createElement('div');b.className='hb';hb.appendChild(b);}
+})();
+
+// Dot Pad canvas
 const padCanvas=document.getElementById('pad-canvas');
-const pctx=padCanvas.getContext('2d');
-function launchPlay(){
-  showScene('playing');
-  const song=SONGS[G.songIdx];const effBpm=G.practiceMode?Math.round(song.bpm*.72):song.bpm;G.bpm=effBpm;
-  G.score=0;G.combo=0;G.maxCombo=0;G.perfects=0;G.goods=0;G.misses=0;G.total=0;G.missCount=0;G.particles=[];
-  G.ch.L={state:CS.IDLE,stateT:0,noteRef:null};G.ch.R={state:CS.IDLE,stateT:0,noteRef:null};
-  G.leftHeld=false;G.rightHeld=false;
-  const ts=G.practiceMode?song.bpm/effBpm:1;
-  G.notes=song.notes.map(n=>({...n,time:n.time*ts,dur:n.dur*ts,state:0,hitTime:-1,hitCount:0,_warnedEnd:false}));
-  G.total=G.notes.length;G._effPerfect=G.practiceMode?PERFECT_MS*1.6:PERFECT_MS;G._effGood=G.practiceMode?GOOD_MS*1.6:GOOD_MS;
-  G.startTime=G.sessionStart=performance.now();
-  const ac=getAC();G.audioStartTime=ac.currentTime+.05;
-  for(const note of G.notes){const aT=G.audioStartTime+note.time/1000;scheduleCue(note.track,aT-CUE_AHEAD/1000);scheduleActiveTone(note.track,aT);dotPad.activateNote(note.track);}
-  playBeatDrums(effBpm,G.audioStartTime,Math.ceil(G.notes[G.notes.length-1].time/60000*effBpm)+10);
-  document.getElementById('hud-practice-badge').style.display=G.practiceMode?'block':'none';
-  updateHUD();cancelAnimationFrame(G.animId);G.animId=requestAnimationFrame(gameFrame);
-  const n=G.studentName||'친구';
-  speak(G.practiceMode?`${n}야, 연습 시작! 두구두구 들리면 준비, 쾅 울릴 때 이전 또는 다음 패닝 키를 눌러요!`:`${n}야, 시작! 두구두구 = 준비, 쾅 울릴 때 해당 패닝 키를 눌러요!`);
-}
-let _jFlash=null;
-function gameFrame(ts){
-  if(_scene!=='playing')return;
-  const elapsed=ts-G.startTime;
-  const songDur=(G.notes[G.notes.length-1]?.time||0)+2500;
-  const allTracks=['L','R'];
-  for(const note of G.notes){
-    if(note.state===3)continue;const dt=elapsed-note.time;
-    const tracks=note.track==='B'?['L','R']:[note.track];
-    for(const tr of tracks){const ch=G.ch[tr];
-      if(dt>=-CUE_AHEAD&&dt<0&&ch.state===CS.IDLE){ch.state=CS.INCOMING;ch.stateT=elapsed;ch.noteRef=note;}
-      if(dt>=0&&ch.state===CS.INCOMING){ch.state=CS.ACTIVE;ch.stateT=elapsed;dotPad.beatPulse(tr);}
-      if(ch.state===CS.ACTIVE&&dt>G._effGood+80&&note.type!=='H'){ch.state=CS.MISSED;ch.stateT=elapsed;note.state=3;addResult('miss',note.track);}
-    }
-    for(const tr of allTracks){const ch=G.ch[tr];if((ch.state===CS.MISSED||ch.state===CS.CONFIRMED)&&elapsed-ch.stateT>380){ch.state=CS.IDLE;ch.noteRef=null;}}
-  }
-  for(const tr of allTracks){
-    const ch=G.ch[tr];if(ch.state!==CS.ACTIVE||ch.noteRef?.type!=='H')continue;
-    const note=ch.noteRef,held=tr==='L'?G.leftHeld:G.rightHeld,ht=note.time,dur=note.dur;
-    if(!note._warnedEnd&&elapsed>ht+dur-300){note._warnedEnd=true;playHoldEndWarn();}
-    if(!held&&elapsed>ht+100){const ratio=(elapsed-ht)/Math.max(dur,1);ch.state=CS.CONFIRMED;ch.stateT=elapsed;note.state=3;addResult(ratio>=.7?'good':'miss',tr);}
-    if(elapsed>ht+dur+100&&note.state!==3){ch.state=CS.CONFIRMED;ch.stateT=elapsed;note.state=3;addResult(held?'perfect':'miss',tr);}
-  }
-  renderPlay(elapsed);
-  G.sessionElapsed=elapsed/1000;
-  document.getElementById('progress-bar').style.width=Math.min(elapsed/songDur*100,100)+'%';
-  // session timer
-  const secs=Math.floor(elapsed/1000),m=Math.floor(secs/60),s=String(secs%60).padStart(2,'0');
-  document.getElementById('hud-session-time').textContent=`${m}:${s}`;
-  if(elapsed>=songDur){endGame();return;}
-  G.animId=requestAnimationFrame(gameFrame);
-}
-/* ══════════════════════════════════════════
-   핀 렌더 헬퍼 — 음/양각 바이너리
-   실제 닷패드와 동일: 올라옴(UP) / 내려감(DOWN)만 존재
-   색상 없음. 좌/우 구분은 위치(열 번호)로만.
-══════════════════════════════════════════ */
-function pinUp(ctx, px, py, intensity=0.85){
-  // 물리적으로 돌출된 핀: 3D 구 형태 (상단 하이라이트 + 하단 그림자)
-  const r = PIN_R*(0.72+intensity*0.28);
-  // 바닥 그림자 (높이감 표현)
-  ctx.shadowColor='rgba(0,0,0,.75)';
-  ctx.shadowBlur=4; ctx.shadowOffsetY=Math.round(intensity*2.5);
-  // 구 그라디언트: 상단 밝음 → 하단 어두움
-  const g=ctx.createRadialGradient(px-r*.28,py-r*.32,r*.06, px,py,r);
-  const hi=Math.round(120+intensity*135), mi=Math.round(60+intensity*80), lo=Math.round(20+intensity*45);
-  g.addColorStop(0,  `rgb(${hi},${hi},${hi})`);
-  g.addColorStop(.45,`rgb(${mi},${mi},${mi})`);
-  g.addColorStop(1,  `rgb(${lo},${lo},${lo})`);
-  ctx.beginPath(); ctx.arc(px,py,r,0,Math.PI*2);
-  ctx.fillStyle=g; ctx.fill();
-  ctx.shadowBlur=0; ctx.shadowOffsetY=0;
-}
-function pinDown(ctx, px, py){
-  // 납작하게 내려간 핀: 아주 작은 어두운 홈
-  ctx.beginPath(); ctx.arc(px,py,PIN_R*.26,0,Math.PI*2);
-  ctx.fillStyle='#1c1a36'; ctx.fill();
-}
+const padCtx=padCanvas.getContext('2d');
+const W=480,H=320,COLS=60,ROWS=40;
+const DX=W/COLS,DY=H/ROWS;
 
-/* ══════════════════════════════════════════
-   게임 핀맵 계산 — 바이너리
-   각 핀의 UP/DOWN 상태와 intensity(높이)를 반환
-   실제 DotPad SDK 연동 시 이 값으로 핀 제어
-══════════════════════════════════════════ */
-function computePinMap(elapsed){
-  // pinStates[r][c] = {up:bool, intensity:0-1}
-  const map=Array.from({length:ROWS},()=>Array.from({length:COLS},()=>({up:false,i:0})));
-  const beatMs=60000/G.bpm;
-  const phase=(elapsed%beatMs)/beatMs;
-  // BPM 박자: 정박에 살짝 올라오는 판정선 맥박
-  const beatPulse=Math.exp(-phase*7)*.18;
+function drawPad(lyricText,beatPhase,fxProgress,fxType){
+  padCtx.clearRect(0,0,W,H);
+  padCtx.fillStyle='#08080f';
+  padCtx.fillRect(0,0,W,H);
 
-  for(const [tr,tc] of [['L',TL],['R',TR]]){
-    const ch=G.ch[tr]; const {s:cs,e:ce}=tc;
-    for(let r=0;r<ROWS;r++) for(let c=cs;c<=ce;c++){
-      const isBase = r>=ROWS-BASELINE_ROWS;
-      let up=false, intensity=0;
+  const song=SONGS[ST.currentSong];
+  const beatEnergy=(Math.sin(beatPhase)+1)/2;
 
-      // ── 판정선 (하단 3줄): 항상 UP, BPM에 맞춰 맥박 ──
-      if(isBase){
-        up=true;
-        if(ch.state===CS.MISSED && elapsed-ch.stateT<130){
-          // Miss: 판정선도 잠깐 DOWN (오류 촉각 피드백)
-          up=false;
-        } else {
-          intensity=0.55+beatPulse*0.7;
-        }
-      }
-
-      // ── INCOMING: 판정선 위쪽을 아래→위로 채워올림 ──
-      // 스크롤 없음. 고정 위치의 핀들이 순서대로 솟아오름
-      if(ch.state===CS.INCOMING){
-        const prog=Math.min(1,(elapsed-ch.stateT)/CUE_AHEAD);
-        const rowsToFill=Math.floor(prog*(ROWS-BASELINE_ROWS-1)); // 최대 14줄
-        const rowFromBase=(ROWS-BASELINE_ROWS-1)-r; // 판정선 바로 위=0, 위로 갈수록 증가
-        if(rowFromBase>=0 && rowFromBase<rowsToFill){
-          up=true;
-          // 아래쪽(판정선 가까울수록) 더 강하게
-          intensity=0.25+(1-rowFromBase/Math.max(1,rowsToFill))*0.35*prog;
-        }
-      }
-
-      // ── ACTIVE: 하단 블록 전체 올라오며 진동 (T 도달) ──
-      else if(ch.state===CS.ACTIVE){
-        const age=elapsed-ch.stateT;
-        const bottomZone=r>=ROWS-8; // 하단 8줄이 진동 구역
-        if(age<VIBE_DUR){
-          // 빠른 교번: 짝수/홀수 행이 번갈아 오르내림 → 진동 시뮬레이션
-          const flip=Math.floor(age/9)%2;
-          if(bottomZone){
-            up=(r%2===flip); intensity=1.0;
-          } else if(isBase){ up=true; intensity=0.9; }
-        } else if(ch.noteRef?.type==='H' && elapsed<ch.noteRef.time+ch.noteRef.dur){
-          // 홀드 유지: 하단 블록 지속 UP
-          if(r>=ROWS-6){ up=true; intensity=0.65+beatPulse*.4; }
-          else if(isBase){ up=true; intensity=0.55+beatPulse*.5; }
-        } else {
-          // Active 후 안정화: 판정선만
-          const settle=Math.max(0,1-(age-VIBE_DUR)/280);
-          if(isBase){ up=true; intensity=0.5+settle*.35; }
-        }
-      }
-
-      // ── CONFIRMED (성공적 입력): 빠르게 복귀 ──
-      else if(ch.state===CS.CONFIRMED){
-        const fade=Math.max(0,1-(elapsed-ch.stateT)/320);
-        if(isBase){ up=true; intensity=0.5+fade*.4; }
-        else if(r>=ROWS-6 && fade>.4){
-          up=true; intensity=fade*.5;
-        }
-      }
-
-      // ── MISSED: 판정선 포함 전체 잠깐 DOWN 후 복귀 ──
-      else if(ch.state===CS.MISSED){
-        const age=elapsed-ch.stateT;
-        if(age<130){ up=false; } // 전체 DOWN (오류 느낌)
-        else if(isBase){
-          const rec=Math.min(1,(age-130)/300);
-          up=rec>.2; intensity=0.2+rec*.35;
-        }
-      }
-
-      if(up) map[r][c]={up:true, i:intensity};
+  // ── Area 1: Braille lyric (rows 0-7, top 8 rows) ──
+  // Simulate braille cells for current lyric text
+  const txt=(lyricText||'').substring(0,20);
+  for(let y=0;y<8;y++){
+    for(let x=0;x<60;x++){
+      // Braille column = floor(x / 3), braille dot = x%3 + y%4*3
+      const charIdx=Math.floor(x/3);
+      const ch=charIdx<txt.length?txt.charCodeAt(charIdx):0;
+      const dotIdx=(x%3)+(y%4)*3;
+      const on=ch>0&&((ch>>dotIdx)&1);
+      padCtx.beginPath();
+      padCtx.arc(x*DX+DX/2,y*DY+DY/2,Math.max(.8,DX*.28),0,Math.PI*2);
+      padCtx.fillStyle=on?`rgba(0,229,255,${.85+beatEnergy*.1})`:'rgba(255,255,255,.04)';
+      padCtx.fill();
     }
   }
-  // 구분자 열(11,12): 항상 DOWN
-  for(let r=0;r<ROWS;r++){map[r][11]={up:false,i:0};map[r][12]={up:false,i:0};}
-  return map;
-}
+  // Lyric row separator
+  padCtx.fillStyle='rgba(0,229,255,.18)';
+  padCtx.fillRect(0,8*DY-.5,W,1);
 
-function spawnParticles(tr){
-  // 파티클도 모노크롬: 흰색/회색 불꽃
-  const x=tr==='L'?(TL.s+TL.e)/2*CW_:tr==='R'?(TR.s+TR.e)/2*CW_:CW/2;
-  const y=(ROWS-BASELINE_ROWS)*CH_;
-  for(let i=0;i<10;i++){
-    const a=Math.random()*Math.PI*2, sp=Math.random()*3.5+1.5;
-    const bright=Math.round(160+Math.random()*95);
-    G.particles.push({x,y,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp-2.5,
-      life:1, color:`rgb(${bright},${bright},${bright})`, r:PIN_R*(.4+Math.random()*.5)});
+  // ── Area 2: Beat center (rows 8-32) ──
+  const beatCX=W/2, beatCY=(8+24/2)*DY;
+  const maxR=Math.min(W,H*.5)*.42;
+  const beatR=maxR*(0.3+beatEnergy*.7);
+  for(let y=8;y<33;y++){
+    for(let x=0;x<60;x++){
+      const cx=x*DX+DX/2,cy=y*DY+DY/2;
+      const dist=Math.sqrt((cx-beatCX)**2+(cy-beatCY)**2);
+      // Main beat circle
+      const inBeat=Math.abs(dist-beatR)<DX*.9;
+      // Inner pulse
+      const inInner=dist<beatR*.3;
+      // Ring decay
+      const prevBeat=maxR*(0.3+(Math.sin(beatPhase-.8)+1)/2*.7);
+      const inPrev=Math.abs(dist-prevBeat)<DX*.6;
+      let alpha=0;
+      if(inBeat) alpha=.7+beatEnergy*.25;
+      else if(inInner) alpha=.3+beatEnergy*.5;
+      else if(inPrev) alpha=.15;
+      else{
+        // background grid
+        if((x+y)%2===0) alpha=.03;
+      }
+      if(alpha>0){
+        padCtx.beginPath();
+        padCtx.arc(cx,cy,Math.max(.5,DX*.3),0,Math.PI*2);
+        padCtx.fillStyle=`rgba(255,32,96,${alpha})`;
+        padCtx.fill();
+      }
+    }
   }
-}
+  // BPM label in center
+  padCtx.font=`bold ${DY*1.4}px 'DM Mono',monospace`;
+  padCtx.fillStyle=`rgba(255,255,255,${.12+beatEnergy*.18})`;
+  padCtx.textAlign='center';padCtx.textBaseline='middle';
+  padCtx.fillText(song.bpm+'BPM',beatCX,beatCY);
 
-function renderPlay(elapsed){
-  pctx.clearRect(0,0,CW,CH);
-  pctx.fillStyle='#13112a'; pctx.fillRect(0,0,CW,CH);
-
-  const map=computePinMap(elapsed);
-
-  // 전체 핀 렌더링 (바이너리: 올라옴/내려감만)
-  for(let r=0;r<ROWS;r++) for(let c=0;c<COLS;c++){
-    const px=c*CW_+CW_/2, py=r*CH_+CH_/2;
-    const {up,i}=map[r][c];
-    if(up) pinUp(pctx,px,py,i);
-    else   pinDown(pctx,px,py);
-  }
-
-  // 판정선 구분선 (실제 기기에서는 없지만, 웹 시각화 보조용 — 매우 얇게)
-  const baseY=(ROWS-BASELINE_ROWS)*CH_;
-  pctx.beginPath(); pctx.moveTo(0,baseY); pctx.lineTo(CW,baseY);
-  pctx.strokeStyle='rgba(255,255,255,.12)'; pctx.lineWidth=1;
-  pctx.setLineDash([4,5]); pctx.stroke(); pctx.setLineDash([]);
-
-  // 트랙 구역 레이블 (웹 시각화 보조 — 실제 기기에는 없음)
-  pctx.font=`600 ${Math.round(CH_*.45)}px Nunito`;
-  pctx.textAlign='center'; pctx.fillStyle='rgba(255,255,255,.2)';
-  pctx.fillText('LEFT', (TL.s+TL.e)/2*CW_, CH_*.6);
-  pctx.fillText('RIGHT',(TR.s+TR.e)/2*CW_, CH_*.6);
-
-  // Incoming 상태 텍스트 표시 (웹 보조)
-  for(const [tr,cx_] of [['L',(TL.s+TL.e)/2*CW_],['R',(TR.s+TR.e)/2*CW_]]){
-    if(G.ch[tr].state===CS.INCOMING){
-      const prog=Math.min(1,(elapsed-G.ch[tr].stateT)/CUE_AHEAD);
-      pctx.font=`bold ${Math.round(CH_*.55)}px Black Han Sans`;
-      pctx.fillStyle=`rgba(255,255,255,${(prog*.6).toFixed(2)})`;
-      pctx.fillText('↑',cx_,(ROWS-BASELINE_ROWS-1)*CH_);
+  // ── FX countdown edge wave ──
+  if(fxProgress>0){
+    for(let x=0;x<COLS;x++){
+      // top edge
+      padCtx.beginPath();padCtx.arc(x*DX+DX/2,DY*.5,DX*.38,0,Math.PI*2);
+      padCtx.fillStyle=`rgba(255,197,64,${fxProgress*.9})`;padCtx.fill();
+      // bottom edge
+      padCtx.beginPath();padCtx.arc(x*DX+DX/2,(ROWS-1)*DY+DY*.5,DX*.38,0,Math.PI*2);
+      padCtx.fillStyle=`rgba(255,197,64,${fxProgress*.9})`;padCtx.fill();
+    }
+    for(let y=0;y<ROWS;y++){
+      padCtx.beginPath();padCtx.arc(DX*.5,y*DY+DY*.5,DX*.38,0,Math.PI*2);
+      padCtx.fillStyle=`rgba(255,197,64,${fxProgress*.9})`;padCtx.fill();
+      padCtx.beginPath();padCtx.arc((COLS-1)*DX+DX*.5,y*DY+DY*.5,DX*.38,0,Math.PI*2);
+      padCtx.fillStyle=`rgba(255,197,64,${fxProgress*.9})`;padCtx.fill();
     }
   }
 
-  // 히트 파티클 (흰색)
-  G.particles=G.particles.filter(p=>{
-    p.x+=p.vx; p.y+=p.vy; p.vy+=.14; p.life-=.045;
-    if(p.life<=0) return false;
-    pctx.globalAlpha=p.life;
-    pctx.beginPath(); pctx.arc(p.x,p.y,p.r*p.life,0,Math.PI*2);
-    pctx.fillStyle=p.color; pctx.fill();
-    pctx.globalAlpha=1; return true;
+  // ── Area 3: Formation (rows 33-39) ──
+  padCtx.fillStyle='rgba(255,255,255,.08)';
+  padCtx.fillRect(0,33*DY,W,1);
+  const members=song.members;
+  const formX=members.map((_,i)=>W*(i+1)/(members.length+1));
+  members.forEach((_,i)=>{
+    const fx=formX[i],fy=36*DY+DY/2;
+    padCtx.beginPath();padCtx.arc(fx,fy,DX*.55,0,Math.PI*2);
+    padCtx.fillStyle=`rgba(0,229,255,${.55+beatEnergy*.25})`;padCtx.fill();
+  });
+}
+
+/* braille cells update */
+function updateBrailleCells(txt){
+  const cells=document.querySelectorAll('#brailleCells .bc');
+  const t=(txt||'').substring(0,20).padEnd(20,' ');
+  cells.forEach((cell,i)=>{
+    const ch=t.charCodeAt(i)||32;
+    const pins=cell.querySelectorAll('.bp');
+    pins.forEach((p,j)=>{p.classList.toggle('on',ch>32&&((ch>>j)&1)===1);});
+  });
+}
+
+/* haptic beats visual */
+let _beatTick=0;
+function updateHapticBeats(bpm){
+  const beatMs=60000/bpm;
+  const beatIdx=Math.floor((performance.now()%(beatMs*16))/beatMs);
+  document.querySelectorAll('#hapticBeats .hb').forEach((b,i)=>{
+    b.classList.toggle('on',i===beatIdx%16||(i===(beatIdx+1)%16&&beatIdx%2===0));
+  });
+}
+
+/* performance events */
+function renderPerfEvent(ev,song){
+  const c=document.getElementById('perfEvents');
+  const el=document.createElement('div');
+  el.className=`perf-event ${ev.type}`;
+  const sec=ev.t,m=Math.floor(sec/60),s=sec%60;
+  el.innerHTML=`<div class="perf-time">${m}:${String(s).padStart(2,'0')}</div><div class="perf-text">${ev.text}</div>`;
+  c.insertBefore(el,c.firstChild);
+  while(c.children.length>8)c.removeChild(c.lastChild);
+  speak(ev.text);
+  ST.cueLog.push({t:ev.t,color:song.color,type:ev.type,text:ev.text,song:song.title});
+}
+
+/* lyric update */
+let _lastLyricIdx=-1;
+function updateLyric(){
+  const song=SONGS[ST.currentSong];
+  const sec=ST.tick/60;
+  let idx=song.lyrics.length-1;
+  for(let i=song.lyrics.length-1;i>=0;i--){
+    if(sec>=song.lyrics[i].t){idx=i;break;}
+    if(i===0)idx=-1;
+  }
+  if(idx===_lastLyricIdx)return;
+  _lastLyricIdx=idx;
+  if(idx<0)return;
+  const cur=song.lyrics[idx];
+  const prev=idx>0?song.lyrics[idx-1]:null;
+  const next=idx<song.lyrics.length-1?song.lyrics[idx+1]:null;
+
+  // member badge color
+  const col=song.color;
+  document.getElementById('lyricMember').style.background=col+'22';
+  document.getElementById('lyricMember').style.color=col;
+  document.getElementById('lyricMember').style.border=`1px solid ${col}44`;
+  document.getElementById('lyricMember').textContent=cur.member;
+  document.getElementById('lyricText').textContent=cur.text;
+  document.getElementById('lyricKo').textContent=cur.ko||'';
+  document.getElementById('lyricPrev').textContent=prev?`${prev.member}: ${prev.text}`:'';
+  document.getElementById('lyricNext').textContent=next?`${next.member}: ${next.text}`:'';
+
+  updateBrailleCells(cur.text);
+  if(ST.ttsOn){
+    const memberRead=cur.member.includes('+')?cur.member.replace('+',' and '):cur.member;
+    speak(`${memberRead}: ${cur.text}`);
+  }
+  ST.cueLog.push({t:Math.floor(sec),color:col,type:'lyric',text:`${cur.member}: ${cur.text}`,song:song.title});
+}
+
+/* FX countdown */
+let _fxCountdownIv=null;
+function triggerFXCountdown(fx,song){
+  let cnt=fx.warn;
+  document.getElementById('fxLabel').textContent=fx.label;
+  document.getElementById('fxCountdown').textContent=cnt;
+  document.getElementById('fxOverlay').classList.add('show');
+  speak(`${fx.warn}초 후 ${fx.desc}!`);
+  _fxCountdownIv=setInterval(()=>{
+    cnt--;
+    if(cnt<=0){
+      clearInterval(_fxCountdownIv);
+      document.getElementById('fxCountdown').textContent='NOW!';
+      speak(fx.desc+'!',true);
+      ST.cueLog.push({t:Math.floor(ST.tick/60),color:'#ffc540',type:'fx',text:fx.desc,song:song.title});
+      setTimeout(()=>document.getElementById('fxOverlay').classList.remove('show'),1200);
+    }else{
+      document.getElementById('fxCountdown').textContent=cnt;
+      speak(String(cnt));
+    }
+  },1000);
+}
+
+/* main loop */
+function liveLoop(){
+  if(!ST.playing){ST.rafId=requestAnimationFrame(liveLoop);return;}
+  ST.tick++;
+  const song=SONGS[ST.currentSong];
+  const sec=ST.tick/60;
+
+  // progress
+  const pct=Math.min(100,(sec/song.duration)*100);
+  document.getElementById('liveProgressFill').style.width=pct+'%';
+  const m=Math.floor(sec/60),s=Math.floor(sec%60);
+  document.getElementById('liveTimer').textContent=`${m}:${String(s).padStart(2,'0')}`;
+
+  // beat phase
+  ST.beatPhase+=((song.bpm/60)*(2*Math.PI))/60;
+
+  // lyric
+  updateLyric();
+
+  // performance events
+  song.perf.forEach((ev,i)=>{
+    if(!ST.perfShown.has(i)&&sec>=ev.t&&sec<ev.t+.5){
+      ST.perfShown.add(i);
+      renderPerfEvent(ev,song);
+    }
   });
 
-  // SDK 모드: 실제 핀맵 전송
-  if(dotPad.mode==='sdk') dotPad.sendPinMap(map);
-}
-function addResult(type,missTrack){
-  const n=G.studentName||'친구';
-  if(type==='perfect'){G.score+=1000+G.combo*10;G.combo++;G.perfects++;playHit('perfect');showJudge('PERFECT!','perfect');spawnParticles(missTrack||'B');}
-  else if(type==='good'){G.score+=500+G.combo*5;G.combo++;G.goods++;playHit('good');showJudge('GOOD!','good');}
-  else{G.combo=0;G.misses++;G.missCount++;playHit('miss');showJudge('MISS','miss');if(G.missCount<=3&&missTrack){const s=SONGS[G.songIdx],side=missTrack==='L'?s.keys.L.label:missTrack==='R'?s.keys.R.label:'양쪽';setTimeout(()=>speakNow(`${side}이었어요!`),320);}}
-  G.maxCombo=Math.max(G.maxCombo,G.combo);
-  if([10,20,30,50].includes(G.combo)){playMilestone(G.combo);speakNow(`${G.combo}콤보! 대단해요, ${n}!`);}
-  updateHUD();
-}
-function showJudge(txt,cls){
-  clearTimeout(_jFlash);const el=document.getElementById('judge-text');el.textContent=txt;el.className='judge-text show '+cls;
-  ['hud-combo','hud-score'].forEach(id=>{const e=document.getElementById(id);e.classList.remove('pop');void e.offsetWidth;e.classList.add('pop');});
-  document.getElementById('hud-combo').className='hud-combo-val'+(G.combo>=30?' fire':'')+' pop';
-  _jFlash=setTimeout(()=>{document.getElementById('judge-text').classList.remove('show');['hud-combo','hud-score'].forEach(id=>document.getElementById(id).classList.remove('pop'));},420);
-}
-function updateHUD(){
-  document.getElementById('hud-score').textContent=String(G.score).padStart(6,'0');
-  document.getElementById('hud-combo').textContent=G.combo;
-  const j=G.perfects+G.goods+G.misses;document.getElementById('hud-acc').textContent=j>0?`${Math.round(G.perfects/j*100)}%`:'--%';
-  updateObserver();
-}
-
-/* ══════════════════════════════════════════
-   INPUT
-══════════════════════════════════════════ */
-let _kT={L:0,R:0};
-function pressTrack(tr,isDown){
-  if(_scene!=='playing')return;const elapsed=performance.now()-G.startTime;
-  if(isDown){
-    _kT[tr]=performance.now();if(tr==='L')G.leftHeld=true;else G.rightHeld=true;
-    const isDual=(tr==='L'?G.rightHeld:G.leftHeld)&&Math.abs(_kT.L-_kT.R)<160;
-    let best=null,bestDiff=Infinity;
-    for(const note of G.notes){if(note.state===3)continue;const match=(note.track===tr)||((note.track==='B')&&isDual);if(!match)continue;const dt=Math.abs(elapsed-note.time);if(dt<bestDiff){bestDiff=dt;best=note;}}
-    if(!best||bestDiff>G._effGood)return;
-    if(best.track==='B'){best.hitCount=(best.hitCount||0)+1;if(best.hitCount>=2||isDual){best.state=3;G.ch.L.state=CS.CONFIRMED;G.ch.L.stateT=elapsed;G.ch.R.state=CS.CONFIRMED;G.ch.R.stateT=elapsed;spawnParticles('B');addResult(bestDiff<=G._effPerfect?'perfect':'good');}return;}
-    if(best.type==='H'){best.holdStartElapsed=elapsed;G.ch[tr].state=CS.CONFIRMED;G.ch[tr].stateT=elapsed;}
-    else{best.state=3;G.ch[tr].state=CS.CONFIRMED;G.ch[tr].stateT=elapsed;addResult(bestDiff<=G._effPerfect?'perfect':'good');}
-  }else{if(tr==='L')G.leftHeld=false;else G.rightHeld=false;}
-}
-document.addEventListener('keydown',e=>{
-  if(e.repeat)return;
-  if(_scene==='playing'){if(['ArrowLeft','a','A'].includes(e.key)){document.getElementById('key-left').classList.add('pressed');pressTrack('L',true);}if(['ArrowRight','l','L'].includes(e.key)){document.getElementById('key-right').classList.add('pressed');pressTrack('R',true);}if(e.key===' '){pressTrack('L',true);pressTrack('R',true);}}
-  if(_scene==='menu'){if(e.key==='ArrowLeft')menuKeyPress('L');if(e.key==='ArrowRight')menuKeyPress('R');if(e.key==='Enter')goToIntro();}
-  if(_scene==='intro'){if(['ArrowLeft','a','A'].includes(e.key))introTouch('L');if(['ArrowRight','l','L'].includes(e.key))introTouch('R');if(e.key==='Enter')introTransitionOut();}
-  if(_scene==='tutorial')document.getElementById('tut-next').click();
-  if(_scene==='result'){if(e.key==='Enter')document.getElementById('btn-retry').click();}
-  if(e.key==='Escape')closeGuardianOverlay();
-});
-document.addEventListener('keyup',e=>{if(_scene==='playing'){if(['ArrowLeft','a','A'].includes(e.key)){document.getElementById('key-left').classList.remove('pressed');pressTrack('L',false);}if(['ArrowRight','l','L'].includes(e.key)){document.getElementById('key-right').classList.remove('pressed');pressTrack('R',false);}}});
-['left','right'].forEach(side=>{const btn=document.getElementById('key-'+side),tr=side==='left'?'L':'R';btn.addEventListener('pointerdown',e=>{e.preventDefault();btn.classList.add('pressed');pressTrack(tr,true);});['pointerup','pointerleave','pointercancel'].forEach(ev=>btn.addEventListener(ev,()=>{btn.classList.remove('pressed');pressTrack(tr,false);}));});
-
-/* ══════════════════════════════════════════
-   RESULT
-══════════════════════════════════════════ */
-function endGame(){
-  cancelAnimationFrame(G.animId);if(AC){try{AC.close();}catch(e){}AC=null;}
-  const total=G.total,isAll=G.misses===0;
-  const j=G.perfects+G.goods+G.misses,acc=j>0?Math.round(G.perfects/j*100):100;
-  const stars=isAll||acc>=95?3:acc>=70?2:1;
-  const saved=DB.get(G.songIdx);
-  const isNewBest=!saved||G.score>saved.score;
-  if(isNewBest)DB.save(G.songIdx,{score:G.score,stars:Math.max(stars,saved?.stars||0),acc});
-  const stats=DB.getStats();stats.totalSessions++;stats.totalTime+=Math.floor(G.sessionElapsed||0);DB.saveStats(stats);
-  const n=G.studentName||'친구';
-  document.getElementById('result-title').textContent=isAll?'🎊 올 콤보!':'🎉 완주!';
-  document.getElementById('result-student-name').textContent=`${n} 학생, 수고했어요!`;
-  document.getElementById('result-score').textContent=G.score.toLocaleString();
-  document.getElementById('result-acc').textContent=`정확도 ${acc}%`;
-  document.getElementById('res-p').textContent=G.perfects;document.getElementById('res-g').textContent=G.goods;document.getElementById('res-m').textContent=G.misses;document.getElementById('res-c').textContent=G.maxCombo;
-  document.getElementById('result-new-best').className='result-new-best'+(isNewBest?' show':'');
-  document.getElementById('all-combo-banner').className='all-combo-banner'+(isAll?' show':'');
-  for(let i=0;i<3;i++){const el=document.getElementById(`rstar${i}`);el.className='result-star';if(i<stars)setTimeout(()=>{el.className='result-star on';el.style.animationDelay=`${i*.15}s`;playTone(880+i*220,'sine',.08,.3);},400+i*300);}
-  showScene('result');
-  if(isAll){playAllComboFanfare();launchConfetti();waveEffect();}
-  setTimeout(()=>{Ach.unlock('first_clear');if(isAll)Ach.unlock('all_combo');if(G.maxCombo>=30)Ach.unlock('combo30');if(acc>=90)Ach.unlock('perfect_pro');if(isAll&&G.songIdx===0)Ach.unlock('shark_master');if(SONGS.every((_,i)=>DB.get(i)!==null))Ach.unlock('all_songs');},1200);
-  const starWord=['','별 하나','별 둘','별 셋!'];const gradeMsg={3:'완벽해요!',2:'잘했어요!',1:'다시 해봐요!'};
-  const msg=isAll?`올 콤보! 완벽해요, ${n}! 점수 ${G.score.toLocaleString()}점, 정확도 ${acc}퍼센트, ${starWord[stars]}`:`완주! ${n}, 점수 ${G.score.toLocaleString()}점, 정확도 ${acc}퍼센트, 퍼펙트 ${G.perfects}개, ${gradeMsg[stars]}`;
-  setTimeout(()=>speak(msg),500);
-}
-function waveEffect(){
-  let wt=0;
-  function f(){
-    if(_scene!=='result') return;
-    pctx.fillStyle='#13112a'; pctx.fillRect(0,0,CW,CH);
-    const t=wt/12;
-    for(let r=0;r<ROWS;r++) for(let c=0;c<COLS;c++){
-      const wave=Math.sin(t+c*.4+r*.3);
-      const px=c*CW_+CW_/2, py=r*CH_+CH_/2;
-      if(wave>0) pinUp(pctx,px,py, 0.25+wave*.75);
-      else pinDown(pctx,px,py);
+  // FX countdown
+  song.fx.forEach((fx,i)=>{
+    const warnT=fx.t-fx.warn;
+    if(!ST.fxShown.has(i)&&sec>=warnT&&sec<warnT+.5){
+      ST.fxShown.add(i);
+      triggerFXCountdown(fx,song);
+      // next FX display
     }
-    wt++; if(wt<150) requestAnimationFrame(f);
-  }
-  requestAnimationFrame(f);
-}
-function launchConfetti(){const cv=document.getElementById('confetti-canvas');cv.width=window.innerWidth;cv.height=window.innerHeight;cv.classList.add('active');const cx=cv.getContext('2d');const ps=Array.from({length:130},()=>({x:Math.random()*cv.width,y:Math.random()*cv.height-cv.height,vx:(Math.random()-.5)*4,vy:Math.random()*3+2,r:Math.random()*6+3,color:`hsl(${Math.random()*360},100%,65%)`,rot:Math.random()*360,vr:(Math.random()-.5)*8}));let fr=0;function draw(){cx.clearRect(0,0,cv.width,cv.height);ps.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.rot+=p.vr;if(p.y>cv.height){p.y=-20;p.x=Math.random()*cv.width;}cx.save();cx.translate(p.x,p.y);cx.rotate(p.rot*Math.PI/180);cx.fillStyle=p.color;cx.fillRect(-p.r/2,-p.r/2,p.r,p.r);cx.restore();});if(++fr<200)requestAnimationFrame(draw);else cv.classList.remove('active');}requestAnimationFrame(draw);}
-document.getElementById('btn-retry').addEventListener('click',()=>{cancelAnimationFrame(G.animId);goToIntro();});
-document.getElementById('btn-guardian').addEventListener('click',openGuardianOverlay);
-document.getElementById('btn-menu').addEventListener('click',()=>{cancelAnimationFrame(G.animId);showScene('menu');updateMenu();speak('메인 메뉴! 이전 패닝 키와 다음 패닝 키로 곡을 이동하고, 양쪽 동시에 누르면 시작이에요!');});
+  });
+  // next FX
+  const nextFx=song.fx.find(fx=>fx.t>sec);
+  document.getElementById('nextFxVal').textContent=nextFx?`${Math.ceil(nextFx.t-sec)}s`:'—';
 
-/* ══════════════════════════════════════════
-   GUARDIAN OVERLAY
-══════════════════════════════════════════ */
-function openGuardianOverlay(){
-  const n=G.studentName||DB.getUser()?.name||'학생';
-  const stats=DB.getStats();
-  const secs=Math.floor(G.sessionElapsed||0);const m=Math.floor(secs/60),s=secs%60;
-  document.getElementById('gp-avatar').textContent=MASCOTS[G.songIdx];
-  document.getElementById('gp-name').textContent=`${n} 학생`;
-  document.getElementById('gp-meta').textContent=`총 ${stats.totalSessions}번 플레이 · 총 ${Math.floor(stats.totalTime/60)}분 학습`;
-  const j=G.perfects+G.goods+G.misses,acc=j>0?Math.round(G.perfects/j*100):0;
-  document.getElementById('gp-score').textContent=G.score.toLocaleString();
-  document.getElementById('gp-acc').textContent=`${acc}%`;
-  document.getElementById('gp-time').textContent=`${m}분${s}초`;
-  // Song progress
-  const songHTML=SONGS.map((song,i)=>{
-    const d=DB.get(i);const stars=d?.stars||0;const sc=d?.score||0;const ac2=d?.acc||0;
-    const starStr='★★★'.slice(0,stars)+'☆☆☆'.slice(stars);
-    const pct=sc>0?Math.min(100,Math.round(sc/15000*100)):0;
-    return `<div class="song-progress-row">
-      <div class="spr-top"><div class="spr-name">${song.emoji} ${song.name}<span class="spr-stars">${starStr}</span></div><div class="spr-score">${sc?sc.toLocaleString()+'점':'-'}</div></div>
-      <div class="spr-bar-wrap"><div class="spr-bar" style="width:${pct}%"></div></div>
-      <div class="spr-chips">${SONGS_META[i].chips}</div>
+  // haptic beats
+  updateHapticBeats(song.bpm);
+
+  // FX edge progress (0 when no countdown, 0-1 during warning)
+  let fxProg=0;
+  if(ST.fxCountdown){fxProg=1;}
+  const activeFx=song.fx.find(fx=>{const wt=fx.t-fx.warn;return sec>=wt&&sec<fx.t;});
+  if(activeFx){fxProg=(sec-(activeFx.t-activeFx.warn))/activeFx.warn;}
+
+  // Dot Pad canvas
+  drawPad(
+    document.getElementById('lyricText').textContent,
+    ST.beatPhase,fxProg,activeFx?.type||''
+  );
+
+  // song end
+  if(sec>=song.duration){
+    if(ST.currentSong<SONGS.length-1){
+      skipSong();
+    }else{
+      ST.playing=false;
+      speak('모든 공연이 끝났습니다. 오늘의 큐시트를 확인하세요.');
+      setTimeout(()=>goPostshow(),1500);
+    }
+  }
+
+  ST.rafId=requestAnimationFrame(liveLoop);
+}
+
+function startLive(){
+  goScene('live');
+  ST.tick=0;ST.playing=true;ST.lyricIdx=-1;_lastLyricIdx=-1;
+  ST.perfShown=new Set();ST.fxShown=new Set();ST.cueLog=[];
+  document.getElementById('perfEvents').innerHTML='';
+
+  const song=SONGS[ST.currentSong];
+  document.getElementById('liveSongTitle').textContent=song.title;
+  document.getElementById('liveSongArtist').textContent=song.artist;
+  document.getElementById('liveBpmPill').textContent='BPM '+song.bpm;
+  document.getElementById('hapticBpmVal').textContent=song.bpm;
+  document.getElementById('lbInfo').textContent=`${ST.currentSong+1} / ${SONGS.length} · ${song.title}`;
+
+  // pad status
+  const pdot=document.getElementById('padStatusDot');
+  const ptxt=document.getElementById('padStatusTxt');
+  if(ST.padConnected){pdot.style.background='#00e58a';ptxt.textContent='Dot Pad 연결됨';}
+  else{pdot.style.background='#555';ptxt.textContent='Dot Pad 미연결';}
+
+  speak(`공연이 시작됩니다. ${song.artist}의 ${song.title}. BPM ${song.bpm}. ${song.context}`,true);
+  if(ST.rafId)cancelAnimationFrame(ST.rafId);
+  ST.rafId=requestAnimationFrame(liveLoop);
+}
+
+function togglePlay(){
+  ST.playing=!ST.playing;
+  speak(ST.playing?'재생':'일시정지');
+}
+function toggleTTS(){
+  ST.ttsOn=!ST.ttsOn;ttsEnabled=ST.ttsOn;
+  document.getElementById('btnTTS').textContent=ST.ttsOn?'TTS ON':'TTS OFF';
+  document.getElementById('btnTTS').classList.toggle('on',ST.ttsOn);
+  speak(ST.ttsOn?'TTS 켜짐':'TTS 꺼짐');
+}
+function skipSong(){
+  if(_fxCountdownIv)clearInterval(_fxCountdownIv);
+  document.getElementById('fxOverlay').classList.remove('show');
+  ST.currentSong=Math.min(ST.currentSong+1,SONGS.length-1);
+  ST.tick=0;ST.lyricIdx=-1;_lastLyricIdx=-1;
+  ST.perfShown=new Set();ST.fxShown=new Set();
+  document.getElementById('perfEvents').innerHTML='';
+  const song=SONGS[ST.currentSong];
+  document.getElementById('liveSongTitle').textContent=song.title;
+  document.getElementById('liveSongArtist').textContent=song.artist;
+  document.getElementById('liveBpmPill').textContent='BPM '+song.bpm;
+  document.getElementById('hapticBpmVal').textContent=song.bpm;
+  document.getElementById('lbInfo').textContent=`${ST.currentSong+1} / ${SONGS.length} · ${song.title}`;
+  speak(`다음 곡. ${song.artist}의 ${song.title}.`,true);
+}
+document.getElementById('btnTTS').addEventListener('click',toggleTTS);
+document.getElementById('btnHaptic').addEventListener('click',()=>{ST.hapticOn=!ST.hapticOn;speak(ST.hapticOn?'촉각 켜짐':'촉각 꺼짐');});
+document.getElementById('btnSkipSong').addEventListener('click',skipSong);
+document.getElementById('btnEndShow').addEventListener('click',()=>{ST.playing=false;speak('공연을 종료합니다.');setTimeout(()=>goPostshow(),800);});
+
+/* ══════════════════════════════════════════════════════
+   POSTSHOW
+══════════════════════════════════════════════════════ */
+function goPostshow(){
+  if(ST.rafId)cancelAnimationFrame(ST.rafId);
+  goScene('postshow');
+  // build cuesheet (unique key moments)
+  const unique=[];const seen=new Set();
+  ST.cueLog.filter(c=>c.type!=='lyric'||(c.type==='lyric'&&unique.filter(u=>u.type==='lyric').length<8))
+    .forEach(c=>{const k=c.t+'_'+c.type+'_'+c.song;if(!seen.has(k)){seen.add(k);unique.push(c);}});
+  const highlights=unique.slice(0,12);
+
+  document.getElementById('postsub').textContent=`${SONGS.length}곡 · 총 ${highlights.length}개 하이라이트 기록`;
+  document.getElementById('cuesheetCount').textContent=`${highlights.length}개 기록`;
+  const body=document.getElementById('cuesheetBody');
+  body.innerHTML=highlights.map(c=>{
+    const m=Math.floor(c.t/60),s=c.t%60;
+    return `<div class="cue-row">
+      <span class="cue-time">${m}:${String(s).padStart(2,'0')}</span>
+      <div class="cue-type-dot" style="background:${c.color}"></div>
+      <span class="cue-text">[${c.song}] ${c.text}</span>
     </div>`;
   }).join('');
-  document.getElementById('gp-songs').innerHTML=songHTML;
-  // Achievements
-  const achList=Ach.list();
-  document.getElementById('gp-achievements').innerHTML=ACH.map(a=>`<div class="ach-item ${achList.includes(a.id)?'':'ach-locked'}"><span class="ach-icon">${a.icon}</span><div><div class="ach-name">${a.name}</div><div style="font-size:9px;color:var(--guardian-dim)">${a.tip}</div></div></div>`).join('');
-  // Tips
-  document.getElementById('gp-tips').innerHTML=`<p>💡 <strong>선생님·부모님 팁:</strong><br>${SONGS_META[G.songIdx].tip}</p>`;
-  document.getElementById('guardian-overlay').classList.add('open');
+  speak('공연이 모두 끝났습니다. 오늘의 하이라이트 큐시트가 준비됐습니다. 총 '+highlights.length+'개의 순간이 기록됐습니다.',true);
 }
-function closeGuardianOverlay(){document.getElementById('guardian-overlay').classList.remove('open');}
-document.getElementById('guardian-close').addEventListener('click',closeGuardianOverlay);
-document.getElementById('gp-close2').addEventListener('click',closeGuardianOverlay);
-document.getElementById('guardian-overlay').addEventListener('click',e=>{if(e.target===document.getElementById('guardian-overlay'))closeGuardianOverlay();});
+document.getElementById('btnReplay').addEventListener('click',()=>{ST.currentSong=0;startLive();});
+document.getElementById('btnExit').addEventListener('click',()=>{ST.currentSong=0;goScene('intro');speak('처음 화면으로 돌아왔습니다.');});
 
-/* ══════════════════════════════════════════
-   IDLE (메뉴/레디 화면용)
-══════════════════════════════════════════ */
-let _idleT=0;
-function idleFrame(){
-  if(_scene==='playing'||_scene==='result') return;
-  pctx.fillStyle='#13112a'; pctx.fillRect(0,0,CW,CH);
-  const t=_idleT*.04;
-  for(let r=0;r<ROWS;r++) for(let c=0;c<COLS;c++){
-    const px=c*CW_+CW_/2, py=r*CH_+CH_/2;
-    const isBase=r>=ROWS-BASELINE_ROWS;
-    const inL=c>=TL.s&&c<=TL.e, inR=c>=TR.s&&c<=TR.e;
-    const w=Math.sin(t+c*.4+r*.5);
-    if(isBase&&(inL||inR)){
-      // 판정선: 항상 UP, BPM 맥박 모방
-      pinUp(pctx,px,py, 0.55+Math.sin(t*1.8)*.12);
-    } else if((inL||inR)&&w>.45){
-      // 트랙 영역 잔잔한 웨이브
-      pinUp(pctx,px,py, (w-.45)*.55);
-    } else {
-      pinDown(pctx,px,py);
-    }
-  }
-  // 판정선 구분 (웹 보조)
-  const by=(ROWS-BASELINE_ROWS)*CH_;
-  pctx.beginPath(); pctx.moveTo(0,by); pctx.lineTo(CW,by);
-  pctx.strokeStyle='rgba(255,255,255,.1)'; pctx.lineWidth=1;
-  pctx.setLineDash([5,4]); pctx.stroke(); pctx.setLineDash([]);
-  pctx.font=`600 ${Math.round(CH_*.42)}px Nunito`;
-  pctx.textAlign='center'; pctx.fillStyle='rgba(255,255,255,.18)';
-  pctx.fillText('LEFT', (TL.s+TL.e)/2*CW_, CH_*.58);
-  pctx.fillText('RIGHT',(TR.s+TR.e)/2*CW_, CH_*.58);
-  _idleT++; requestAnimationFrame(idleFrame);
-}
-
-/* ══════════════════════════════════════════
-   DEMO RELIABILITY SYSTEMS
-   시연 환경 안정화 모듈
-══════════════════════════════════════════ */
-
-// ── A. TTS 한국어 음성 초기화 ──
-// 기기에 한국어 음성 없으면 경고 표시 (TTS 자체는 계속 작동)
-let _koreanVoice = null;
-function initTTSVoice(){
-  if(!window.speechSynthesis) return;
-  function findKorean(){
-    const voices = speechSynthesis.getVoices();
-    _koreanVoice = voices.find(v=>v.lang==='ko-KR')
-               || voices.find(v=>v.lang.startsWith('ko'))
-               || null;
-    if(!_koreanVoice && voices.length > 0){
-      document.getElementById('gate-tts-warn').classList.add('show');
-    }
-  }
-  findKorean();
-  speechSynthesis.addEventListener('voiceschanged', findKorean);
-}
-// speak() 에 음성 적용 (기존 함수 오버라이드)
-const _origTtsFlushRef = _ttsFlush;
-function _applyKoreanVoice(u){
-  if(_koreanVoice) u.voice = _koreanVoice;
-  u.lang = 'ko-KR';
-}
-
-// ── B. Audio Unlock Gate (iOS Safari 등 브라우저 정책) ──
-function setupAudioGate(){
-  const gate = document.getElementById('audio-gate');
-  const btn  = document.getElementById('gate-btn');
-  function unlock(){
-    // AudioContext 활성화
-    getAC();
-    if(AC && AC.state==='suspended') AC.resume();
-    // TTS 초기화
-    initTTSVoice();
-    // 게이트 숨김
-    gate.classList.add('hidden');
-    // 짧은 테스트 사운드 (소리 잠금 해제 확인)
-    setTimeout(()=>{ playTone(440,'sine',.08,.2); },100);
-    // 앱 초기화
-    initApp();
-  }
-  btn.addEventListener('click', e=>{ e.stopPropagation(); unlock(); });
-  gate.addEventListener('keydown', e=>{ if(e.key==='Enter'||e.key===' ') unlock(); });
-}
-
-// ── C. 전역 오류 핸들러 (시연 중 JS 오류 → 흰 화면 방지) ──
-window.onerror = function(msg, src, line, col, err){
-  console.error('[DotBeat Error]', msg, src, line);
-  // 게임 루프 정지
-  if(G && G.animId) cancelAnimationFrame(G.animId);
-  // 오디오 정리
-  if(AC){ try{ AC.close(); }catch(e){} AC=null; }
-  // 오류 오버레이
-  const overlay = document.getElementById('error-overlay');
-  const msgEl   = document.getElementById('err-msg');
-  if(overlay){
-    msgEl.textContent = '오류: '+msg.slice(0,80)+'… 새로고침하면 해결돼요!';
-    overlay.classList.add('show');
-  }
-  return true; // 브라우저 기본 오류 출력 방지
-};
-window.onunhandledrejection = function(e){
-  console.error('[DotBeat Promise]', e.reason);
-};
-
-// ── D. 탭 숨김 시 일시정지 (시연 중 다른 앱 전환 대응) ──
-document.addEventListener('visibilitychange',()=>{
-  if(document.hidden){
-    if(_scene==='playing'){
-      // 오디오 컨텍스트 일시 정지
-      if(AC && AC.state==='running') AC.suspend();
-    }
-  } else {
-    if(AC && AC.state==='suspended') AC.resume();
-  }
-});
-
-// ── E. Observer Bar 업데이트 ──
-const SCENE_LABELS = {
-  'setup':'설정 화면','menu':'곡 선택','tutorial':'튜토리얼',
-  'intro':'캐릭터 탐색','ready':'게임 준비','playing':'🎮 게임 중','result':'결과'
-};
-const OBS_TIPS = {
-  'setup':'학부모/교사가 학생 이름을 입력해요',
-  'menu':'이전/다음 패닝 키로 곡을 선택해요',
-  'tutorial':'패닝 키 위치와 조작법을 안내해요',
-  'intro':'닷패드에 캐릭터가 올라와요 — 만져볼 수 있어요',
-  'ready':'검지→판정선, 엄지→패닝키 준비',
-  'playing':'두구두구=준비 → 쾅=그 방향 패닝키!',
-  'result':'완주! 보호자 리포트를 확인하세요'
-};
-function updateObserver(){
-  const bar = document.getElementById('observer-bar');
-  if(!bar) return;
-  const sceneEl   = document.getElementById('obs-scene');
-  const studentEl = document.getElementById('obs-student');
-  const statEl    = document.getElementById('obs-stat');
-  const tipEl     = document.getElementById('obs-tip');
-  if(sceneEl) sceneEl.textContent = SCENE_LABELS[_scene]||_scene;
-  if(studentEl) studentEl.textContent = (G.studentName||'학생')+'님';
-  if(tipEl) tipEl.textContent = OBS_TIPS[_scene]||'';
-  if(statEl){
-    if(_scene==='playing'){
-      const j=G.perfects+G.goods+G.misses;
-      const acc=j>0?Math.round(G.perfects/j*100):100;
-      statEl.textContent = `점수 ${G.score.toLocaleString()} | 콤보 ${G.combo} | 정확도 ${acc}%`;
-    } else if(_scene==='result'){
-      const j=G.perfects+G.goods+G.misses;
-      const acc=j>0?Math.round(G.perfects/j*100):100;
-      statEl.textContent = `최종 ${G.score.toLocaleString()}점 | 정확도 ${acc}%`;
-    } else {
-      statEl.textContent = SONGS[G.songIdx]?.name||'-';
-    }
-  }
-}
-// showScene 에 observer 업데이트 직접 통합됨
-
-// ── F. 다음 학생 빠른 전환 ──
-function nextStudent(){
-  // 게임 정지
-  if(G.animId) cancelAnimationFrame(G.animId);
-  if(AC){ try{ AC.close(); }catch(e){} AC=null; }
-  // 이름/점수 리셋
-  G.studentName=''; G.score=0; G.combo=0; G.maxCombo=0;
-  G.perfects=0; G.goods=0; G.misses=0;
-  // 설정 화면으로
-  document.getElementById('name-input').value='';
-  showScene('setup');
-  speak('다음 학생! 이름을 입력하고 시작해요!');
-}
-document.getElementById('btn-next-student')?.addEventListener('click', nextStudent);
-
-// ── G. Demo Guide Modal ──
-document.getElementById('obs-guide-btn')?.addEventListener('click',()=>{
-  document.getElementById('demo-guide').classList.add('open');
-});
-document.getElementById('dg-close')?.addEventListener('click',()=>{
-  document.getElementById('demo-guide').classList.remove('open');
-});
-document.getElementById('demo-guide')?.addEventListener('click',e=>{
-  if(e.target===document.getElementById('demo-guide'))
-    document.getElementById('demo-guide').classList.remove('open');
-});
-
-// updateHUD 에 observer 업데이트 직접 통합됨
-
-/* ══════════════════════════════════════════
-   INIT
-══════════════════════════════════════════ */
-// Audio gate 설정 후 앱 초기화를 분리
-function initApp(){
-  createStars();
-  const _savedUser=DB.getUser();
-  if(_savedUser){
-    G.studentName=_savedUser.name;G.studentRole=_savedUser.role;
-    document.getElementById('name-input').value=_savedUser.name;
-    showScene('menu');updateMenu();
-    setTimeout(()=>speak(`어서와요, ${_savedUser.name}${_savedUser.name.slice(-1)==='이'?'야':'아'}! 이전 패닝 키와 다음 패닝 키로 곡을 이동하고, 양쪽 동시에 누르면 시작이에요!`),600);
-  } else {
-    showScene('setup');
-    setTimeout(()=>speak('닷 비트에 오신걸 환영해요! 이름을 입력하고 시작해요!'),600);
-  }
-  requestAnimationFrame(idleFrame);
-}
-
-createStars();
-setupAudioGate();
+/* Initial speak */
+speak('Touch the K-POP. 라이브 촉각 큐시트. Dot Pad 연결 후 공연 시작을 눌러주세요.',true);
 </script>
 </body>
 </html>
