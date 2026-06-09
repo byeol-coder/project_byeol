@@ -9,399 +9,299 @@
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --ink:#060610;
-  --surface:#0d0d1f;
-  --raise:#171730;
-  --lift:#1f1f40;
-  --rule:#282850;
-  --rule2:#383870;
-  --text:#f0eeff;
-  --muted:#8888aa;
-  --faint:#444466;
-  --dot:#7c6ff7;
-  --dot-lt:#a29bfe;
-  --dot-xlt:#c4bfff;
-  --green:#22d68a;
-  --amber:#f59e0b;
-  --rose:#f43f5e;
-  --teal:#2dd4b0;
+  --ink:#060610;--surface:#0d0d1f;--raise:#171730;--lift:#1f1f40;
+  --rule:#282850;--rule2:#383870;--text:#f0eeff;--muted:#8888aa;--faint:#444466;
+  --dot:#7c6ff7;--dot-lt:#a29bfe;--dot-xlt:#c4bfff;
 }
 html{scroll-behavior:smooth}
-body{background:var(--ink);color:var(--text);font-family:'Noto Sans KR',sans-serif;
-  min-height:100vh;-webkit-font-smoothing:antialiased}
+body{background:var(--ink);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;-webkit-font-smoothing:antialiased}
 a{text-decoration:none;color:inherit}
 button{font-family:inherit;cursor:pointer;border:none;background:none}
-
-/* ── SKIP NAV ── */
-.skip{position:absolute;top:-100px;left:8px;background:var(--dot);color:#fff;
-  padding:8px 16px;border-radius:6px;font-size:13px;font-weight:700;z-index:9999}
+.skip{position:absolute;top:-100px;left:8px;background:var(--dot);color:#fff;padding:8px 16px;border-radius:6px;font-size:13px;font-weight:700;z-index:9999}
 .skip:focus{top:8px}
-
-/* ── NAV ── */
-.nav{position:sticky;top:0;z-index:100;background:rgba(6,6,16,.92);
-  backdrop-filter:blur(12px);border-bottom:1px solid var(--rule);
-  padding:0 clamp(16px,4vw,56px);height:54px;
-  display:flex;align-items:center;justify-content:space-between}
+.nav{position:sticky;top:0;z-index:100;background:rgba(6,6,16,.94);backdrop-filter:blur(14px);border-bottom:1px solid var(--rule);padding:0 clamp(16px,4vw,56px);height:54px;display:flex;align-items:center;justify-content:space-between}
 .nav-logo{display:flex;align-items:center;gap:11px}
-.nav-mark{width:30px;height:30px;background:var(--dot);border-radius:8px;
-  display:grid;grid-template-columns:repeat(3,1fr);gap:3px;padding:6px;flex-shrink:0}
+.nav-mark{width:30px;height:30px;background:var(--dot);border-radius:8px;display:grid;grid-template-columns:repeat(3,1fr);gap:3px;padding:6px;flex-shrink:0}
 .nav-mark span{background:rgba(255,255,255,.9);border-radius:50%}
-.nav-wordmark{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:15px;
-  letter-spacing:-.3px;color:var(--text)}
+.nav-wordmark{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:15px;letter-spacing:-.3px;color:var(--text)}
 .nav-wordmark em{font-style:normal;color:var(--dot-lt)}
 .nav-wordmark .sep{color:var(--faint);margin:0 6px;font-weight:400}
-.nav-count{font-family:'DM Mono',monospace;font-size:11px;color:var(--faint);
-  border:1px solid var(--rule);padding:3px 10px;border-radius:99px}
-
-/* ── HEADER ── */
+.nav-count{font-family:'DM Mono',monospace;font-size:11px;color:var(--faint);border:1px solid var(--rule);padding:3px 10px;border-radius:99px}
 .hub-header{padding:48px clamp(16px,4vw,56px) 0}
-.hub-eyebrow{display:inline-flex;align-items:center;gap:8px;
-  font-family:'DM Mono',monospace;font-size:11px;font-weight:500;
-  letter-spacing:.1em;text-transform:uppercase;color:var(--dot);
-  margin-bottom:14px}
+.hub-eyebrow{display:inline-flex;align-items:center;gap:8px;font-family:'DM Mono',monospace;font-size:11px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--dot);margin-bottom:14px}
 .hub-eyebrow::before{content:'';width:20px;height:1px;background:var(--dot)}
-.hub-title{font-family:'Space Grotesk',sans-serif;font-size:clamp(26px,4vw,42px);
-  font-weight:700;letter-spacing:-.03em;line-height:1.15;margin-bottom:10px;color:var(--text)}
+.hub-title{font-family:'Space Grotesk',sans-serif;font-size:clamp(26px,4vw,42px);font-weight:700;letter-spacing:-.03em;line-height:1.15;margin-bottom:10px}
 .hub-title span{color:var(--dot-lt)}
 .hub-desc{font-size:14px;color:var(--muted);line-height:1.75;max-width:520px}
-
-/* ── FILTERS ── */
-.filter-wrap{padding:28px clamp(16px,4vw,56px) 0;
-  display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-.filter-btn{font-family:'DM Mono',monospace;font-size:11px;font-weight:500;
-  letter-spacing:.04em;padding:6px 16px;border-radius:99px;
-  border:1px solid var(--rule);color:var(--muted);
-  transition:all .15s;cursor:pointer;background:transparent;white-space:nowrap}
+.filter-wrap{padding:28px clamp(16px,4vw,56px) 0;display:flex;gap:8px;flex-wrap:wrap}
+.filter-btn{font-family:'DM Mono',monospace;font-size:11px;font-weight:500;letter-spacing:.04em;padding:6px 16px;border-radius:99px;border:1px solid var(--rule);color:var(--muted);transition:all .15s;cursor:pointer;background:transparent;white-space:nowrap}
 .filter-btn:hover{border-color:var(--dot);color:var(--dot-lt)}
 .filter-btn.active{background:var(--dot);border-color:var(--dot);color:#fff}
 .filter-btn:focus-visible{outline:2px solid var(--dot);outline-offset:2px}
-
-/* ── GRID ── */
 .grid-wrap{padding:24px clamp(16px,4vw,56px) 64px}
-.card-grid{display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(280px,1fr));
-  gap:20px}
-
-/* ── CARD ── */
-.card{display:block;background:var(--surface);border-radius:12px;
-  overflow:hidden;border:1px solid var(--rule);
-  transition:transform .22s ease,box-shadow .22s ease,border-color .22s ease;
-  outline:none;cursor:pointer}
-.card:hover,.card:focus-visible{
-  transform:translateY(-4px) scale(1.015);
-  box-shadow:0 20px 56px rgba(0,0,0,.7),0 0 0 1px var(--dot);
-  border-color:var(--dot)}
+.card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:20px}
+.card{display:block;background:var(--surface);border-radius:12px;overflow:hidden;border:1px solid var(--rule);transition:transform .25s ease,box-shadow .25s ease,border-color .2s;outline:none;cursor:pointer;position:relative}
+.card:hover,.card:focus-visible{transform:translateY(-6px) scale(1.02);box-shadow:0 24px 64px rgba(0,0,0,.75),0 0 0 1px var(--dot);border-color:var(--dot)}
 .card:focus-visible{box-shadow:0 0 0 3px var(--dot-lt)}
-
-/* Thumb */
-.card-thumb{position:relative;aspect-ratio:16/9;overflow:hidden;background:var(--ink)}
-.card-thumb canvas{display:block;width:100%;height:100%;image-rendering:pixelated}
-.card-thumb-overlay{position:absolute;inset:0;
-  background:linear-gradient(to top,rgba(6,6,16,.9) 0%,rgba(6,6,16,.2) 60%,transparent 100%);
-  display:flex;flex-direction:column;justify-content:flex-end;padding:14px}
-.card-badges{display:flex;gap:5px;flex-wrap:wrap}
-.badge{font-family:'DM Mono',monospace;font-size:9px;font-weight:500;
-  padding:3px 7px;border-radius:4px;letter-spacing:.4px;white-space:nowrap}
-.card-open-hint{position:absolute;top:10px;right:10px;
-  width:28px;height:28px;background:rgba(124,111,247,.9);border-radius:6px;
-  display:flex;align-items:center;justify-content:center;
-  opacity:0;transition:opacity .2s;font-size:13px}
-.card:hover .card-open-hint,.card:focus-visible .card-open-hint{opacity:1}
-
-/* Info */
-.card-info{padding:14px 16px 16px}
-.card-title{font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:700;
-  color:var(--text);margin-bottom:5px;letter-spacing:-.2px;line-height:1.3;
-  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.card-desc{font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:11px;
-  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-.card-footer{display:flex;align-items:center;justify-content:space-between}
-.card-cat{font-family:'DM Mono',monospace;font-size:10px;color:var(--faint)}
-.card-link-hint{font-family:'DM Mono',monospace;font-size:9px;
-  color:var(--dot);letter-spacing:.04em;display:flex;align-items:center;gap:4px;
-  opacity:0;transition:opacity .15s}
-.card:hover .card-link-hint,.card:focus-visible .card-link-hint{opacity:1}
-
-/* ── FOOTER ── */
-.site-footer{border-top:1px solid var(--rule);padding:24px clamp(16px,4vw,56px);
-  display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
+.card-thumb{position:relative;aspect-ratio:16/9;overflow:hidden;background:#0a0a14}
+.card-thumb svg{display:block;width:100%;height:100%}
+.card-hover-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(6,6,16,1) 0%,rgba(6,6,16,.65) 45%,rgba(6,6,16,.15) 100%);opacity:0;transition:opacity .22s;display:flex;flex-direction:column;justify-content:flex-end;padding:16px}
+.card:hover .card-hover-overlay,.card:focus-visible .card-hover-overlay{opacity:1}
+.hover-title{font-family:'Space Grotesk',sans-serif;font-size:16px;font-weight:700;color:#fff;margin-bottom:6px;letter-spacing:-.2px}
+.hover-desc{font-size:12px;color:rgba(255,255,255,.75);line-height:1.55;margin-bottom:10px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.hover-meta{display:flex;align-items:center;justify-content:space-between}
+.hover-open{font-family:'DM Mono',monospace;font-size:10px;color:var(--dot-xlt);display:flex;align-items:center;gap:5px;font-weight:500}
+.hover-tags{display:flex;gap:4px}
+.hover-tag{font-family:'DM Mono',monospace;font-size:9px;padding:2px 7px;border-radius:4px;font-weight:500}
+.card-info{padding:13px 15px 15px}
+.card-title{font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:700;color:var(--text);margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.card-sub{font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+.site-footer{border-top:1px solid var(--rule);padding:24px clamp(16px,4vw,56px);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
 .footer-text{font-family:'DM Mono',monospace;font-size:11px;color:var(--faint)}
-
-/* ── SR ONLY ── */
-.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;
-  overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
-
-/* ── RESPONSIVE ── */
 @media(max-width:768px){.card-grid{grid-template-columns:repeat(2,1fr);gap:12px}}
 @media(max-width:480px){.card-grid{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
-
 <a href="#main" class="skip">본문으로 건너뛰기</a>
-
 <nav class="nav" aria-label="주 내비게이션">
   <div class="nav-logo">
-    <div class="nav-mark" aria-hidden="true">
-      <span></span><span></span><span></span>
-      <span></span><span></span><span></span>
-      <span></span><span></span><span></span>
-    </div>
-    <div class="nav-wordmark">
-      <em>byeol</em><span class="sep">×</span>DOT
-    </div>
+    <div class="nav-mark" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+    <div class="nav-wordmark"><em>byeol</em><span class="sep">×</span>DOT</div>
   </div>
   <div class="nav-count" id="navCount" aria-live="polite"></div>
 </nav>
-
 <header>
   <div class="hub-header">
     <div class="hub-eyebrow">Accessibility Prototype Hub</div>
     <h1 class="hub-title">접근성을 위한<br><span>AI 프로토타입</span> 모음</h1>
-    <p class="hub-desc">바이브코딩으로 제작한 시각장애·청각장애인을 위한 Dot Pad 촉각 그래픽·AI 인터랙티브 프로토타입입니다. 카드를 클릭하면 바로 열립니다.</p>
+    <p class="hub-desc">바이브코딩으로 제작한 시각장애·청각장애인을 위한 Dot Pad 촉각 그래픽·AI 인터랙티브 프로토타입입니다.</p>
   </div>
   <div class="filter-wrap" id="filterWrap" role="tablist" aria-label="카테고리 필터"></div>
 </header>
-
 <main id="main">
   <div class="grid-wrap">
     <div class="card-grid" id="cardGrid" aria-label="프로젝트 목록"></div>
   </div>
 </main>
-
 <footer class="site-footer">
   <span class="footer-text">이샛별 · 닷 디자인실 시니어 디자이너</span>
   <span class="footer-text" id="footerCount"></span>
 </footer>
-
 <script>
-// ── BADGE COLORS ──
-const BC={
-  'Dot Pad':'#7c6ff7','Game':'#22d68a','Accessibility':'#4a9eff',
-  'AI':'#f59e0b','Concert':'#f43f5e','Tactile':'#a29bfe',
-  'Extension':'#2dd4b0','Story':'#f59e0b','Education':'#4a9eff',
-  'Remote':'#22d68a','Public':'#4a9eff','Ideation':'#888',
-  'MVP':'#22d68a','아동':'#f59e0b','촉각':'#a29bfe'
+const THUMBS = {
+  dotbeat: `<svg viewBox="0 0 480 270" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="db-bg" x1="0" y1="0" x2="0.5" y2="1"><stop offset="0%" stop-color="#0f0c28"/><stop offset="100%" stop-color="#1a1248"/></linearGradient></defs><rect width="480" height="270" fill="url(#db-bg)"/><circle cx="40" cy="30" r="1" fill="#fff" opacity=".5"/><circle cx="120" cy="15" r="1.5" fill="#fff" opacity=".4"/><circle cx="340" cy="40" r="1" fill="#fff" opacity=".6"/><circle cx="420" cy="20" r="1.2" fill="#fff" opacity=".3"/><rect x="160" y="18" width="160" height="22" rx="6" fill="rgba(0,212,255,.08)" stroke="rgba(0,212,255,.2)" stroke-width="1"/><text x="240" y="33" text-anchor="middle" font-size="10" fill="#00d4ff" font-family="sans-serif" font-weight="800" letter-spacing="3">DOT BEAT</text><rect x="56" y="52" width="368" height="130" rx="8" fill="#0e0c22" stroke="#2a2768" stroke-width="1.5"/><rect x="66" y="62" width="130" height="110" rx="4" fill="rgba(0,212,255,.04)" stroke="rgba(0,212,255,.15)" stroke-width="1"/><rect x="284" y="62" width="130" height="110" rx="4" fill="rgba(255,63,164,.04)" stroke="rgba(255,63,164,.15)" stroke-width="1"/><circle cx="90" cy="90" r="4" fill="rgba(0,212,255,.6)"/><circle cx="110" cy="90" r="4" fill="rgba(0,212,255,.5)"/><circle cx="130" cy="90" r="4" fill="rgba(0,212,255,.4)"/><circle cx="90" cy="106" r="5" fill="#00d4ff" opacity=".85"/><circle cx="110" cy="106" r="5" fill="#00d4ff" opacity=".85"/><circle cx="130" cy="106" r="5" fill="#00d4ff" opacity=".85"/><rect x="72" y="148" width="118" height="18" rx="3" fill="rgba(0,212,255,.3)"/><circle cx="96" cy="157" r="3.5" fill="#00d4ff"/><circle cx="116" cy="157" r="3.5" fill="#00d4ff"/><circle cx="136" cy="157" r="3.5" fill="#00d4ff"/><circle cx="156" cy="157" r="3.5" fill="#00d4ff"/><circle cx="176" cy="157" r="3.5" fill="#00d4ff"/><circle cx="316" cy="90" r="6.5" fill="#ff3fa4" opacity=".9"/><circle cx="340" cy="90" r="6.5" fill="#ff3fa4" opacity=".9"/><circle cx="364" cy="90" r="6.5" fill="#ff3fa4" opacity=".85"/><circle cx="316" cy="108" r="6" fill="#ff3fa4" opacity=".7"/><circle cx="340" cy="108" r="6" fill="#ff3fa4" opacity=".7"/><rect x="290" y="148" width="118" height="18" rx="3" fill="rgba(255,63,164,.35)"/><circle cx="310" cy="157" r="3.5" fill="#ff3fa4"/><circle cx="330" cy="157" r="3.5" fill="#ff3fa4"/><circle cx="350" cy="157" r="3.5" fill="#ff3fa4"/><circle cx="370" cy="157" r="3.5" fill="#ff3fa4"/><circle cx="390" cy="157" r="3.5" fill="#ff3fa4"/><text x="240" y="120" text-anchor="middle" font-size="20" fill="#ffe033" font-family="sans-serif" font-weight="900" opacity=".9">PERFECT!</text><text x="80" y="210" font-size="9" fill="rgba(255,255,255,.4)" font-family="sans-serif" letter-spacing="3">SCORE</text><text x="80" y="225" font-size="18" fill="#f0eeff" font-family="sans-serif" font-weight="900">012400</text><text x="240" y="208" text-anchor="middle" font-size="9" fill="rgba(255,255,255,.4)" font-family="sans-serif" letter-spacing="2">COMBO</text><text x="240" y="228" text-anchor="middle" font-size="22" fill="#00d4ff" font-family="sans-serif" font-weight="900">8</text><rect x="56" y="238" width="168" height="26" rx="12" fill="rgba(0,47,85,.9)" stroke="rgba(0,212,255,.35)" stroke-width="1.5"/><text x="140" y="255" text-anchor="middle" font-size="11" fill="#00d4ff" font-family="sans-serif" font-weight="800">LEFT</text><rect x="256" y="238" width="168" height="26" rx="12" fill="rgba(64,0,32,.9)" stroke="rgba(255,63,164,.35)" stroke-width="1.5"/><text x="340" y="255" text-anchor="middle" font-size="11" fill="#ff3fa4" font-family="sans-serif" font-weight="800">RIGHT</text><text x="400" y="228" text-anchor="end" font-size="11" fill="#b45aff" font-family="sans-serif" font-weight="800">BPM 72</text></svg>`,
+  dotventure: `<svg viewBox="0 0 480 270" xmlns="http://www.w3.org/2000/svg"><rect width="480" height="270" fill="#0a0814"/><rect x="0" y="0" width="140" height="270" fill="#111428" stroke="#252545" stroke-width="1"/><text x="12" y="20" font-size="8" fill="#6b6898" font-family="monospace">LIBRARY</text><rect x="8" y="26" width="124" height="34" rx="6" fill="#1c1846" stroke="#2a2768" stroke-width="1"/><text x="14" y="42" font-size="9" fill="#f0eeff" font-family="sans-serif" font-weight="700">고대 신전의 비밀</text><text x="14" y="53" font-size="8" fill="#6a639a" font-family="sans-serif">어드벤처 · 보통</text><rect x="8" y="64" width="124" height="34" rx="6" fill="#1c1846" stroke="#22d68a" stroke-width="1.5"/><text x="14" y="80" font-size="9" fill="#22d68a" font-family="sans-serif" font-weight="700">마법의 숲 탐험</text><text x="14" y="91" font-size="8" fill="#6a639a" font-family="sans-serif">탐험 · 쉬움</text><rect x="8" y="102" width="124" height="34" rx="6" fill="#1c1846" stroke="#2a2768" stroke-width="1"/><text x="14" y="118" font-size="9" fill="#f0eeff" font-family="sans-serif" font-weight="700">우주 정거장 탈출</text><text x="14" y="129" font-size="8" fill="#6a639a" font-family="sans-serif">퍼즐 · 어려움</text><rect x="148" y="36" width="186" height="196" rx="6" fill="#0f0c22"/><rect x="148" y="36" width="186" height="16" fill="#1c1846"/><rect x="148" y="216" width="186" height="16" fill="#1c1846"/><rect x="196" y="68" width="17" height="50" fill="#1c1846" rx="2"/><rect x="230" y="52" width="17" height="34" fill="#1c1846" rx="2"/><rect x="264" y="84" width="17" height="34" fill="#1c1846" rx="2"/><rect x="155" y="120" width="18" height="18" rx="4" fill="#7c6ff7"/><circle cx="164" cy="129" r="5" fill="#a29bfe"/><text x="248" y="66" text-anchor="middle" font-size="11">&#x1F5DD;</text><rect x="342" y="0" width="138" height="270" fill="#0d0d1c" stroke="#252545" stroke-width="1"/><text x="350" y="16" font-size="8" fill="#6b6898" font-family="monospace">DOT PAD</text><rect x="346" y="20" width="126" height="90" rx="6" fill="#0a0a12" stroke="#1f1f35" stroke-width="1.5"/><g fill="#7c6ff7" opacity=".75"><circle cx="358" cy="30" r="2.5"/><circle cx="366" cy="30" r="2.5"/><circle cx="374" cy="30" r="2.5"/><circle cx="382" cy="30" r="2.5"/><circle cx="390" cy="30" r="2.5"/><circle cx="406" cy="30" r="2.5"/><circle cx="414" cy="30" r="2.5"/><circle cx="446" cy="30" r="2.5"/><circle cx="358" cy="39" r="2.5"/><circle cx="446" cy="39" r="2.5"/><circle cx="358" cy="48" r="2.5"/><circle cx="374" cy="48" r="2.5"/><circle cx="382" cy="48" r="2.5"/><circle cx="446" cy="48" r="2.5"/><circle cx="358" cy="57" r="2.5"/><circle cx="446" cy="57" r="2.5"/><circle cx="358" cy="66" r="2.5"/><circle cx="366" cy="66" r="2.5"/><circle cx="374" cy="66" r="2.5"/><circle cx="382" cy="66" r="2.5"/><circle cx="446" cy="66" r="2.5"/><circle cx="358" cy="75" r="2.5"/><circle cx="366" cy="75" r="2.5"/><circle cx="446" cy="75" r="2.5"/><circle cx="358" cy="84" r="2.5"/><circle cx="366" cy="84" r="2.5"/><circle cx="374" cy="84" r="2.5"/><circle cx="446" cy="84" r="2.5"/><circle cx="358" cy="93" r="2.5"/><circle cx="446" cy="93" r="2.5"/><circle cx="358" cy="100" r="2.5"/><circle cx="374" cy="100" r="2.5"/><circle cx="382" cy="100" r="2.5"/><circle cx="446" cy="100" r="2.5"/></g><text x="352" y="128" font-size="8" fill="#555580" font-family="monospace">현재위치: 5,3</text><rect x="346" y="180" width="126" height="18" rx="4" fill="rgba(124,111,247,.1)" stroke="rgba(124,111,247,.2)" stroke-width="1"/><text x="352" y="193" font-size="9" fill="#a29bfe" font-family="sans-serif">&#x1F5DD; 열쇠 획득!</text><rect x="140" y="0" width="204" height="32" fill="#13112a"/><text x="155" y="20" font-size="11" fill="#f0eeff" font-family="sans-serif" font-weight="700">고대 신전의 비밀</text></svg>`,
+  election: `<svg viewBox="0 0 480 270" xmlns="http://www.w3.org/2000/svg"><rect width="480" height="270" fill="#f8f8f6"/><rect width="480" height="44" fill="#fff" stroke="#e8e8e4" stroke-width="1"/><rect x="0" y="43" width="480" height="3" fill="#1a5cff"/><rect x="16" y="12" width="32" height="20" rx="5" fill="#1a5cff"/><text x="26" y="26" font-size="9" fill="#fff" font-family="sans-serif" font-weight="900">DOT</text><text x="58" y="27" font-size="13" fill="#111" font-family="sans-serif" font-weight="700">Election Reader</text><rect x="360" y="11" width="80" height="22" rx="8" fill="#1a5cff"/><text x="400" y="26" text-anchor="middle" font-size="10" fill="#fff" font-family="sans-serif" font-weight="700">읽어주기</text><rect x="0" y="46" width="195" height="224" fill="#fff" stroke="#e8e8e4" stroke-width="1"/><text x="12" y="65" font-size="8" fill="#999" font-family="monospace">후보자</text><rect x="8" y="70" width="178" height="36" rx="7" fill="#eef2ff" stroke="#1a5cff" stroke-width="1.5"/><circle cx="30" cy="88" r="10" fill="#1a5cff"/><text x="30" y="92" text-anchor="middle" font-size="10" fill="#fff" font-family="sans-serif" font-weight="900">1</text><text x="46" y="84" font-size="11" fill="#111" font-family="sans-serif" font-weight="700">김민준</text><text x="46" y="97" font-size="9" fill="#888" font-family="sans-serif">미래연합당</text><rect x="8" y="110" width="178" height="36" rx="7" fill="#fff" stroke="#e8e8e4" stroke-width="1"/><circle cx="30" cy="128" r="10" fill="rgba(220,38,38,.12)"/><text x="30" y="132" text-anchor="middle" font-size="10" fill="#dc2626" font-family="sans-serif" font-weight="900">2</text><text x="46" y="124" font-size="11" fill="#111" font-family="sans-serif" font-weight="700">이수현</text><text x="46" y="137" font-size="9" fill="#888" font-family="sans-serif">국민혁신당</text><rect x="8" y="150" width="178" height="36" rx="7" fill="#fff" stroke="#e8e8e4" stroke-width="1"/><circle cx="30" cy="168" r="10" fill="rgba(22,163,74,.12)"/><text x="30" y="172" text-anchor="middle" font-size="10" fill="#16a34a" font-family="sans-serif" font-weight="900">3</text><text x="46" y="164" font-size="11" fill="#111" font-family="sans-serif" font-weight="700">박지영</text><text x="46" y="177" font-size="9" fill="#888" font-family="sans-serif">녹색시민당</text><rect x="198" y="46" width="282" height="224" fill="#f8f8f6"/><text x="208" y="70" font-size="16" fill="#111" font-family="sans-serif" font-weight="900">1번 김민준</text><text x="208" y="84" font-size="9" fill="#666" font-family="sans-serif">미래연합당 · 만 58세 · 전 국무총리</text><rect x="208" y="94" width="262" height="162" rx="8" fill="#fff" stroke="#e8e8e4" stroke-width="1"/><rect x="208" y="94" width="262" height="22" rx="8" fill="#111"/><text x="220" y="109" font-size="9" fill="#fff" font-family="sans-serif" font-weight="700">정책 이슈</text><rect x="314" y="94" width="52" height="22" fill="#1a5cff"/><text x="340" y="109" text-anchor="middle" font-size="9" fill="#fff" font-family="sans-serif" font-weight="700">1번</text><rect x="366" y="94" width="52" height="22" fill="#dc2626"/><text x="392" y="109" text-anchor="middle" font-size="9" fill="#fff" font-family="sans-serif" font-weight="700">2번</text><rect x="418" y="94" width="52" height="22" fill="#16a34a"/><text x="444" y="109" text-anchor="middle" font-size="9" fill="#fff" font-family="sans-serif" font-weight="700">3번</text><g font-family="sans-serif" font-size="9"><text x="218" y="130" fill="#333">기본소득 도입</text><rect x="318" y="120" width="44" height="16" rx="4" fill="#f0fdf4"/><text x="340" y="132" text-anchor="middle" font-size="8" fill="#16a34a" font-weight="700">찬성</text><rect x="370" y="120" width="44" height="16" rx="4" fill="#fef2f2"/><text x="392" y="132" text-anchor="middle" font-size="8" fill="#dc2626" font-weight="700">반대</text><rect x="422" y="120" width="44" height="16" rx="4" fill="#f0fdf4"/><text x="444" y="132" text-anchor="middle" font-size="8" fill="#16a34a" font-weight="700">찬성</text><line x1="208" y1="139" x2="470" y2="139" stroke="#e8e8e4" stroke-width="1"/><text x="218" y="152" fill="#333">대학 무상교육</text><rect x="318" y="142" width="44" height="16" rx="4" fill="#fffbeb"/><text x="340" y="154" text-anchor="middle" font-size="8" fill="#b45309" font-weight="700">중립</text><rect x="370" y="142" width="44" height="16" rx="4" fill="#f0fdf4"/><text x="392" y="154" text-anchor="middle" font-size="8" fill="#16a34a" font-weight="700">찬성</text><rect x="422" y="142" width="44" height="16" rx="4" fill="#f0fdf4"/><text x="444" y="154" text-anchor="middle" font-size="8" fill="#16a34a" font-weight="700">찬성</text><line x1="208" y1="161" x2="470" y2="161" stroke="#e8e8e4" stroke-width="1"/><text x="218" y="174" fill="#333">재생에너지 전환</text><rect x="318" y="164" width="44" height="16" rx="4" fill="#f0fdf4"/><text x="340" y="176" text-anchor="middle" font-size="8" fill="#16a34a" font-weight="700">찬성</text><rect x="370" y="164" width="44" height="16" rx="4" fill="#f0fdf4"/><text x="392" y="176" text-anchor="middle" font-size="8" fill="#16a34a" font-weight="700">찬성</text><rect x="422" y="164" width="44" height="16" rx="4" fill="#f0fdf4"/><text x="444" y="176" text-anchor="middle" font-size="8" fill="#16a34a" font-weight="700">찬성</text><line x1="208" y1="183" x2="470" y2="183" stroke="#e8e8e4" stroke-width="1"/><text x="218" y="196" fill="#333">법인세 인상</text><rect x="318" y="186" width="44" height="16" rx="4" fill="#fef2f2"/><text x="340" y="198" text-anchor="middle" font-size="8" fill="#dc2626" font-weight="700">반대</text><rect x="370" y="186" width="44" height="16" rx="4" fill="#fffbeb"/><text x="392" y="198" text-anchor="middle" font-size="8" fill="#b45309" font-weight="700">중립</text><rect x="422" y="186" width="44" height="16" rx="4" fill="#f0fdf4"/><text x="444" y="198" text-anchor="middle" font-size="8" fill="#16a34a" font-weight="700">찬성</text><line x1="208" y1="205" x2="470" y2="205" stroke="#e8e8e4" stroke-width="1"/><text x="218" y="218" fill="#333">의료 국유화</text><rect x="318" y="208" width="44" height="16" rx="4" fill="#fef2f2"/><text x="340" y="220" text-anchor="middle" font-size="8" fill="#dc2626" font-weight="700">반대</text><rect x="370" y="208" width="44" height="16" rx="4" fill="#fffbeb"/><text x="392" y="220" text-anchor="middle" font-size="8" fill="#b45309" font-weight="700">중립</text><rect x="422" y="208" width="44" height="16" rx="4" fill="#f0fdf4"/><text x="444" y="220" text-anchor="middle" font-size="8" fill="#16a34a" font-weight="700">찬성</text></g></svg>`,
+  concert: `<svg viewBox="0 0 480 270" xmlns="http://www.w3.org/2000/svg"><rect width="480" height="270" fill="#08080f"/><ellipse cx="240" cy="300" rx="280" ry="200" fill="rgba(255,45,120,.12)"/><ellipse cx="150" cy="0" rx="200" ry="160" fill="rgba(74,158,255,.08)"/><ellipse cx="350" cy="0" rx="200" ry="160" fill="rgba(255,45,120,.1)"/><rect x="0" y="0" width="480" height="36" fill="rgba(15,15,26,.95)" stroke="rgba(255,45,120,.2)" stroke-width="1"/><text x="16" y="22" font-size="11" fill="#f0eeff" font-family="sans-serif" font-weight="900">K-pop Barrier-free Concert</text><rect x="360" y="8" width="50" height="20" rx="6" fill="rgba(255,45,120,.15)" stroke="rgba(255,45,120,.4)" stroke-width="1"/><circle cx="369" cy="18" r="3" fill="#ff2d78"/><text x="378" y="22" font-size="8" fill="#ff2d78" font-family="monospace" font-weight="700">LIVE</text><circle cx="40" cy="46" r="5" fill="#ff2d78" opacity=".7"/><circle cx="100" cy="46" r="5" fill="#4a9eff" opacity=".7"/><circle cx="160" cy="46" r="5" fill="#ffe033" opacity=".7"/><circle cx="220" cy="46" r="5" fill="#ff2d78" opacity=".8"/><circle cx="280" cy="46" r="5" fill="#4a9eff" opacity=".6"/><circle cx="340" cy="46" r="5" fill="#ffe033" opacity=".7"/><circle cx="400" cy="46" r="5" fill="#ff2d78" opacity=".8"/><line x1="40" y1="46" x2="40" y2="200" stroke="rgba(255,45,120,.07)" stroke-width="10"/><line x1="160" y1="46" x2="160" y2="200" stroke="rgba(255,224,51,.05)" stroke-width="10"/><line x1="280" y1="46" x2="280" y2="200" stroke="rgba(74,158,255,.06)" stroke-width="10"/><line x1="400" y1="46" x2="400" y2="200" stroke="rgba(255,45,120,.07)" stroke-width="10"/><ellipse cx="200" cy="158" rx="18" ry="35" fill="rgba(0,0,0,.7)"/><circle cx="200" cy="120" r="13" fill="rgba(0,0,0,.7)"/><line x1="182" y1="148" x2="162" y2="128" stroke="rgba(0,0,0,.7)" stroke-width="7" stroke-linecap="round"/><line x1="218" y1="148" x2="238" y2="128" stroke="rgba(0,0,0,.7)" stroke-width="7" stroke-linecap="round"/><ellipse cx="300" cy="162" rx="14" ry="28" fill="rgba(0,0,0,.6)"/><circle cx="300" cy="130" r="10" fill="rgba(0,0,0,.6)"/><rect x="350" y="155" width="6" height="30" rx="2" fill="#ff2d78" opacity=".7"/><rect x="360" y="148" width="6" height="37" rx="2" fill="#ff2d78" opacity=".8"/><rect x="370" y="160" width="6" height="25" rx="2" fill="#4a9eff" opacity=".7"/><rect x="380" y="143" width="6" height="42" rx="2" fill="#ff2d78" opacity=".9"/><rect x="390" y="155" width="6" height="30" rx="2" fill="#4a9eff" opacity=".6"/><rect x="400" y="150" width="6" height="35" rx="2" fill="#ffe033" opacity=".7"/><rect x="0" y="196" width="480" height="40" fill="rgba(8,8,15,.92)" stroke="rgba(255,45,120,.15)" stroke-width="1"/><rect x="60" y="200" width="5" height="30" rx="2" fill="#ff2d78" opacity=".8"/><rect x="70" y="207" width="5" height="23" rx="2" fill="#ff2d78" opacity=".6"/><rect x="80" y="198" width="5" height="32" rx="2" fill="#ff2d78" opacity=".9"/><rect x="90" y="203" width="5" height="27" rx="2" fill="#ff2d78" opacity=".7"/><rect x="100" y="201" width="5" height="29" rx="2" fill="#4a9eff" opacity=".6"/><rect x="110" y="205" width="5" height="25" rx="2" fill="#ff2d78" opacity=".8"/><rect x="120" y="198" width="5" height="32" rx="2" fill="#ff2d78" opacity=".85"/><rect x="130" y="204" width="5" height="26" rx="2" fill="#4a9eff" opacity=".5"/><rect x="140" y="200" width="5" height="30" rx="2" fill="#ff2d78" opacity=".7"/><rect x="150" y="197" width="5" height="33" rx="2" fill="#ff2d78" opacity=".9"/><rect x="370" y="198" width="100" height="32" rx="6" fill="rgba(0,0,0,.85)" stroke="rgba(255,45,120,.4)" stroke-width="1.5"/><text x="420" y="210" text-anchor="middle" font-size="14">&#x1F91F;</text><text x="420" y="225" text-anchor="middle" font-size="7" fill="#888" font-family="monospace">수어 통역</text><rect x="0" y="236" width="480" height="34" fill="rgba(0,0,0,.88)"/><text x="240" y="250" text-anchor="middle" font-size="12" fill="#fff" font-family="sans-serif" font-weight="700">So I'ma light it up like dynamite</text><text x="240" y="264" text-anchor="middle" font-size="9" fill="rgba(255,255,255,.55)" font-family="sans-serif">다이너마이트처럼 불을 밝혀</text></svg>`,
+  aitactile: `<svg viewBox="0 0 480 270" xmlns="http://www.w3.org/2000/svg"><rect width="480" height="270" fill="#f9f9f7"/><rect x="0" y="0" width="190" height="270" fill="#fff" stroke="#e8e8e4" stroke-width="1"/><rect x="10" y="10" width="32" height="32" rx="9" fill="#7c3aed"/><text x="26" y="30" text-anchor="middle" font-size="14" fill="#fff">+</text><text x="52" y="22" font-size="11" fill="#111" font-family="sans-serif" font-weight="900">AI Tactile</text><text x="52" y="35" font-size="9" fill="#888" font-family="sans-serif">Generator</text><rect x="8" y="50" width="174" height="28" rx="7" fill="#f0f0ee" stroke="#e8e8e4" stroke-width="1"/><rect x="10" y="52" width="84" height="24" rx="6" fill="#fff"/><text x="52" y="68" text-anchor="middle" font-size="9" fill="#111" font-family="sans-serif" font-weight="700">텍스트 프롬프트</text><text x="142" y="68" text-anchor="middle" font-size="9" fill="#888" font-family="sans-serif">이미지 업로드</text><text x="12" y="90" font-size="8" fill="#888" font-family="monospace">프롬프트</text><rect x="8" y="95" width="174" height="48" rx="7" fill="#f4f4f2" stroke="#d0d0cc" stroke-width="1.5"/><text x="14" y="110" font-size="9" fill="#555" font-family="sans-serif">한반도 지형도</text><rect x="8" y="161" width="82" height="20" rx="5" fill="#f0f0ee" stroke="#d4d4d0" stroke-width="1"/><text x="49" y="174" text-anchor="middle" font-size="8" fill="#555" font-family="sans-serif">심장 단면도</text><rect x="96" y="161" width="86" height="20" rx="5" fill="#f5f3ff" stroke="#ddd6fe" stroke-width="1"/><text x="139" y="174" text-anchor="middle" font-size="8" fill="#7c3aed" font-family="sans-serif">태양계 배치</text><rect x="8" y="185" width="82" height="20" rx="5" fill="#f0f0ee" stroke="#d4d4d0" stroke-width="1"/><text x="49" y="198" text-anchor="middle" font-size="8" fill="#555" font-family="sans-serif">꽃의 구조</text><rect x="8" y="232" width="174" height="28" rx="8" fill="#7c3aed"/><text x="95" y="250" text-anchor="middle" font-size="11" fill="#fff" font-family="sans-serif" font-weight="700">촉각 그래픽 생성</text><rect x="192" y="0" width="184" height="270" fill="#f4f4f2"/><rect x="200" y="22" width="168" height="112" rx="8" fill="#fff" stroke="#e8e8e4" stroke-width="1"/><g fill="#1a1a1a"><circle cx="228" cy="43" r="2.5"/><circle cx="238" cy="40" r="2.5"/><circle cx="248" cy="38" r="2.5"/><circle cx="258" cy="40" r="2.5"/><circle cx="268" cy="43" r="2.5"/><circle cx="276" cy="47" r="2.5"/><circle cx="226" cy="53" r="2.5"/><circle cx="280" cy="53" r="2.5"/><circle cx="224" cy="63" r="2.5"/><circle cx="282" cy="61" r="2.5"/><circle cx="223" cy="73" r="2.5"/><circle cx="284" cy="70" r="2.5"/><circle cx="224" cy="83" r="2.5"/><circle cx="283" cy="80" r="2.5"/><circle cx="226" cy="93" r="2.5"/><circle cx="281" cy="88" r="2.5"/><circle cx="230" cy="103" r="2.5"/><circle cx="258" cy="108" r="2.5"/><circle cx="280" cy="100" r="2.5"/><circle cx="250" cy="128" r="2"/><circle cx="258" cy="128" r="2"/></g><rect x="200" y="138" width="168" height="3" rx="99" fill="#7c3aed"/><rect x="200" y="172" width="168" height="50" rx="8" fill="#fff" stroke="#e8e8e4" stroke-width="1"/><text x="208" y="187" font-size="8" fill="#888" font-family="sans-serif">활성 핀 847 / 2,400  밀도 35%</text><text x="208" y="202" font-size="8" fill="#7c3aed" font-family="monospace">DTMS 300 bytes</text><rect x="200" y="232" width="168" height="28" rx="8" fill="#7c3aed"/><text x="284" y="250" text-anchor="middle" font-size="11" fill="#fff" font-family="sans-serif" font-weight="700">Dot Pad 전송</text><rect x="376" y="0" width="104" height="270" fill="#0d0d14" stroke="#1f1f35" stroke-width="1"/><text x="382" y="16" font-size="7" fill="#444" font-family="monospace">DOT PAD</text><rect x="380" y="20" width="92" height="64" rx="5" fill="#0a0a12" stroke="#1f1f35" stroke-width="1"/><g fill="#7c3aed" opacity=".8"><circle cx="388" cy="28" r="2"/><circle cx="395" cy="28" r="2"/><circle cx="402" cy="28" r="2"/><circle cx="416" cy="28" r="2"/><circle cx="423" cy="28" r="2"/><circle cx="430" cy="28" r="2"/><circle cx="444" cy="28" r="2"/><circle cx="460" cy="28" r="2"/><circle cx="388" cy="36" r="2"/><circle cx="444" cy="36" r="2"/><circle cx="460" cy="36" r="2"/><circle cx="388" cy="44" r="2"/><circle cx="402" cy="44" r="2"/><circle cx="409" cy="44" r="2"/><circle cx="444" cy="44" r="2"/><circle cx="388" cy="52" r="2"/><circle cx="416" cy="52" r="2"/><circle cx="444" cy="52" r="2"/><circle cx="388" cy="60" r="2"/><circle cx="402" cy="60" r="2"/><circle cx="409" cy="60" r="2"/><circle cx="416" cy="60" r="2"/><circle cx="423" cy="60" r="2"/><circle cx="430" cy="60" r="2"/><circle cx="444" cy="60" r="2"/><circle cx="388" cy="68" r="2"/><circle cx="444" cy="68" r="2"/><circle cx="388" cy="76" r="2"/><circle cx="402" cy="76" r="2"/><circle cx="409" cy="76" r="2"/><circle cx="416" cy="76" r="2"/><circle cx="444" cy="76" r="2"/></g></svg>`,
+  edulens: `<svg viewBox="0 0 480 270" xmlns="http://www.w3.org/2000/svg"><rect width="480" height="270" fill="#fff"/><rect width="480" height="40" fill="#fff" stroke="#eee" stroke-width="1"/><text x="16" y="17" font-size="16" fill="#1a1a1a" font-family="sans-serif" font-weight="900">dot::Lens</text><text x="80" y="17" font-size="16" fill="#eb5b33" font-family="sans-serif" font-weight="900"> </text><text x="16" y="30" font-size="7" fill="#7a7a7a" font-family="sans-serif">v0.4 Multi-Modal</text><rect x="338" y="8" width="134" height="24" rx="6" fill="#e8f5e9" stroke="#4caf50" stroke-width="1"/><circle cx="352" cy="20" r="4" fill="#4caf50"/><text x="361" y="24" font-size="9" fill="#2e7d32" font-family="sans-serif" font-weight="700">닷패드 연결됨</text><rect x="8" y="46" width="464" height="34" rx="17" fill="#eb5b33"/><text x="240" y="67" text-anchor="middle" font-size="11" fill="#fff" font-family="sans-serif" font-weight="800">Real-time Cursor Sync (ON)</text><rect x="8" y="86" width="464" height="36" rx="8" fill="#f4f3ef"/><rect x="8" y="86" width="5" height="36" fill="#eb5b33" rx="3"/><text x="20" y="101" font-size="9" fill="#1a1a1a" font-family="sans-serif">Text: Dot Pad 기반 촉각 학습 서비스</text><text x="20" y="115" font-size="8" fill="#7a7a7a" font-family="sans-serif">스크린 캡처: x=142 y=88 w=320 h=180</text><text x="12" y="133" font-size="8" fill="#555" font-family="sans-serif" font-weight="800">Graphic Area (60x40)</text><rect x="8" y="138" width="464" height="80" rx="5" fill="#1a1a1a"/><g fill="#eb5b33" opacity=".9"><rect x="20" y="145" width="60" height="5" rx="1"/><rect x="86" y="145" width="80" height="5" rx="1"/><rect x="172" y="145" width="50" height="5" rx="1"/><rect x="20" y="155" width="200" height="4" rx="1"/><rect x="226" y="155" width="120" height="4" rx="1"/><rect x="20" y="164" width="160" height="4" rx="1"/><rect x="186" y="164" width="80" height="4" rx="1"/><rect x="20" y="173" width="100" height="4" rx="1"/><rect x="126" y="173" width="60" height="4" rx="1"/><rect x="20" y="182" width="180" height="4" rx="1"/><rect x="20" y="191" width="120" height="4" rx="1"/><rect x="146" y="191" width="90" height="4" rx="1"/></g><text x="8" y="228" font-size="8" fill="#555" font-family="sans-serif" font-weight="800">Braille Text Bar (20 Cells)</text><rect x="8" y="232" width="464" height="32" rx="4" fill="#1a1a1a"/><g><rect x="12" y="234" width="20" height="28" rx="2" fill="#2a2a2a"/><circle cx="17" cy="239" r="2" fill="#eb5b33"/><circle cx="23" cy="239" r="2" fill="#333"/><circle cx="17" cy="246" r="2" fill="#333"/><circle cx="23" cy="246" r="2" fill="#eb5b33"/><circle cx="17" cy="253" r="2" fill="#eb5b33"/><circle cx="23" cy="253" r="2" fill="#333"/><rect x="35" y="234" width="20" height="28" rx="2" fill="#2a2a2a"/><rect x="58" y="234" width="20" height="28" rx="2" fill="#2a2a2a"/><rect x="81" y="234" width="20" height="28" rx="2" fill="#2a2a2a"/><rect x="104" y="234" width="20" height="28" rx="2" fill="#2a2a2a"/><rect x="127" y="234" width="20" height="28" rx="2" fill="#2a2a2a"/><rect x="150" y="234" width="20" height="28" rx="2" fill="#2a2a2a"/><rect x="173" y="234" width="20" height="28" rx="2" fill="#2a2a2a"/><rect x="196" y="234" width="20" height="28" rx="2" fill="#2a2a2a"/><rect x="219" y="234" width="20" height="28" rx="2" fill="#2a2a2a"/><rect x="242" y="234" width="20" height="28" rx="2" fill="#2a2a2a"/><rect x="265" y="234" width="20" height="28" rx="2" fill="#2a2a2a"/><rect x="288" y="234" width="20" height="28" rx="2" fill="#2a2a2a"/><rect x="311" y="234" width="20" height="28" rx="2" fill="#2a2a2a"/><rect x="334" y="234" width="20" height="28" rx="2" fill="#2a2a2a"/><rect x="357" y="234" width="20" height="28" rx="2" fill="#2a2a2a"/><rect x="380" y="234" width="20" height="28" rx="2" fill="#2a2a2a"/><rect x="403" y="234" width="20" height="28" rx="2" fill="#2a2a2a"/><rect x="426" y="234" width="20" height="28" rx="2" fill="#2a2a2a"/><rect x="449" y="234" width="20" height="28" rx="2" fill="#2a2a2a"/></g></svg>`,
+  dotnori: `<svg viewBox="0 0 480 270" xmlns="http://www.w3.org/2000/svg"><rect width="480" height="270" fill="#0a1a0a"/><ellipse cx="240" cy="300" rx="300" ry="200" fill="rgba(34,214,138,.06)"/><rect width="480" height="48" fill="rgba(10,20,10,.9)" stroke="rgba(34,214,138,.15)" stroke-width="1"/><text x="26" y="20" text-anchor="middle" font-size="16">&#x1F33F;</text><text x="50" y="20" font-size="13" fill="#f0eeff" font-family="sans-serif" font-weight="900">Dot Nori</text><text x="50" y="34" font-size="9" fill="#22d68a" font-family="sans-serif">AI 촉각 학습 놀이터</text><rect x="380" y="12" width="90" height="24" rx="8" fill="rgba(34,214,138,.12)" stroke="rgba(34,214,138,.3)" stroke-width="1"/><circle cx="391" cy="24" r="4" fill="#22d68a"/><text x="430" y="28" text-anchor="middle" font-size="9" fill="#22d68a" font-family="sans-serif" font-weight="700">연결</text><rect x="16" y="58" width="448" height="32" rx="8" fill="rgba(255,255,255,.04)" stroke="rgba(255,255,255,.06)" stroke-width="1"/><rect x="20" y="61" width="70" height="26" rx="6" fill="rgba(34,214,138,.15)" stroke="rgba(34,214,138,.3)" stroke-width="1"/><text x="55" y="78" text-anchor="middle" font-size="9" fill="#22d68a" font-family="sans-serif" font-weight="700">동물</text><text x="120" y="78" font-size="9" fill="#668866" font-family="sans-serif">지리</text><text x="160" y="78" font-size="9" fill="#668866" font-family="sans-serif">과학</text><text x="200" y="78" font-size="9" fill="#668866" font-family="sans-serif">수학</text><rect x="16" y="100" width="240" height="155" rx="10" fill="rgba(255,255,255,.03)" stroke="rgba(255,255,255,.06)" stroke-width="1"/><rect x="22" y="106" width="228" height="90" rx="7" fill="#0a1508"/><g fill="#22d68a" opacity=".85"><circle cx="60" cy="125" r="3"/><circle cx="70" cy="122" r="3"/><circle cx="80" cy="120" r="3"/><circle cx="90" cy="122" r="3"/><circle cx="100" cy="125" r="3"/><circle cx="55" cy="135" r="3"/><circle cx="105" cy="135" r="3"/><circle cx="52" cy="145" r="3"/><circle cx="62" cy="142" r="3"/><circle cx="98" cy="142" r="3"/><circle cx="108" cy="145" r="3"/><circle cx="52" cy="155" r="3"/><circle cx="70" cy="160" r="3"/><circle cx="90" cy="160" r="3"/><circle cx="108" cy="155" r="3"/><circle cx="60" cy="175" r="3"/><circle cx="75" cy="178" r="3"/><circle cx="85" cy="178" r="3"/><circle cx="100" cy="175" r="3"/></g><text x="156" y="155" text-anchor="middle" font-size="24">&#x1F42F;</text><text x="156" y="173" text-anchor="middle" font-size="9" fill="#668866" font-family="sans-serif">Wikipedia: 호랑이</text><rect x="22" y="200" width="228" height="48" rx="7" fill="rgba(34,214,138,.05)" stroke="rgba(34,214,138,.1)" stroke-width="1"/><text x="30" y="214" font-size="9" fill="#f0eeff" font-family="sans-serif" font-weight="700">호랑이 (Panthera tigris)</text><text x="30" y="227" font-size="8" fill="#668866" font-family="sans-serif">고양잇과 대형 포유류</text><rect x="268" y="100" width="196" height="155" rx="10" fill="rgba(255,255,255,.03)" stroke="rgba(255,255,255,.06)" stroke-width="1"/><rect x="274" y="124" width="184" height="70" rx="8" fill="rgba(34,214,138,.08)" stroke="rgba(34,214,138,.2)" stroke-width="1"/><text x="284" y="140" font-size="9" fill="#22d68a" font-family="sans-serif" font-weight="700">피포</text><text x="284" y="155" font-size="9" fill="#c8e8c8" font-family="sans-serif">촉각 그래픽이 Dot Pad에</text><text x="284" y="168" font-size="9" fill="#c8e8c8" font-family="sans-serif">표시됐어요! 만져보세요!</text><rect x="372" y="200" width="88" height="46" rx="7" fill="rgba(34,214,138,.15)" stroke="rgba(34,214,138,.4)" stroke-width="1.5"/><text x="416" y="222" text-anchor="middle" font-size="16">&#x27A1;&#xFE0F;</text><text x="416" y="239" text-anchor="middle" font-size="8" fill="#22d68a" font-weight="700">다음</text></svg>`,
+  dotnana: `<svg viewBox="0 0 480 270" xmlns="http://www.w3.org/2000/svg"><rect width="480" height="270" fill="#fff"/><rect x="0" y="0" width="168" height="270" fill="#fff" stroke="#e8e8e4" stroke-width="1"/><rect x="10" y="11" width="34" height="30" rx="9" fill="#111"/><g fill="rgba(255,255,255,.85)"><circle cx="19" cy="19" r="2.2"/><circle cx="27" cy="19" r="2.2"/><circle cx="35" cy="19" r="2.2"/><circle cx="19" cy="27" r="2.2"/><circle cx="27" cy="27" r="2.2"/><circle cx="35" cy="27" r="2.2"/><circle cx="19" cy="35" r="2.2"/><circle cx="27" cy="35" r="2.2"/><circle cx="35" cy="35" r="2.2"/></g><text x="52" y="25" font-size="11" fill="#111" font-family="sans-serif" font-weight="900">Dot-Nana</text><text x="52" y="38" font-size="7" fill="#999" font-family="sans-serif">촉각 구연동화</text><rect x="8" y="70" width="152" height="28" rx="8" fill="#f5f3ff" stroke="#7c3aed" stroke-width="1"/><text x="12" y="84" font-size="9" fill="#7c3aed" font-family="sans-serif" font-weight="700">시연 모드</text><rect x="8" y="102" width="152" height="28" rx="8" fill="transparent" stroke="#e8e8e4" stroke-width="1"/><text x="12" y="116" font-size="9" fill="#888" font-family="sans-serif">도서관 파일</text><rect x="8" y="134" width="152" height="28" rx="8" fill="transparent" stroke="#e8e8e4" stroke-width="1"/><text x="12" y="148" font-size="9" fill="#888" font-family="sans-serif">AI 창작</text><rect x="8" y="172" width="152" height="52" rx="8" fill="#fdf4ff" stroke="#f0abfc" stroke-width="1"/><text x="14" y="185" font-size="7" fill="#aaa" font-family="sans-serif">DEMO STORY</text><text x="14" y="198" font-size="10" fill="#111" font-family="sans-serif" font-weight="700">별을 삼킨 고래</text><text x="14" y="211" font-size="8" fill="#888" font-family="sans-serif">4페이지</text><rect x="14" y="214" width="60" height="6" rx="99" fill="#f0e0ff"/><rect x="14" y="214" width="20" height="6" rx="99" fill="#c026d3"/><rect x="170" y="0" width="188" height="270" fill="#f7f7f8"/><rect x="170" y="0" width="188" height="40" fill="#fff" stroke="#e8e8e4" stroke-width="1"/><text x="206" y="24" font-size="10" fill="#111" font-family="sans-serif" font-weight="700">별을 삼킨 고래</text><text x="350" y="24" text-anchor="end" font-size="8" fill="#aaa" font-family="monospace">1/4</text><rect x="178" y="48" width="172" height="130" rx="10" fill="#fff" stroke="#e8e8e4" stroke-width="1"/><rect x="184" y="72" width="164" height="88" rx="6" fill="#f4f4f2"/><g fill="#1a1a1a" opacity=".85"><circle cx="210" cy="98" r="2.5"/><circle cx="218" cy="95" r="2.5"/><circle cx="226" cy="93" r="2.5"/><circle cx="234" cy="92" r="2.5"/><circle cx="242" cy="93" r="2.5"/><circle cx="250" cy="95" r="2.5"/><circle cx="258" cy="98" r="2.5"/><circle cx="264" cy="102" r="2.5"/><circle cx="206" cy="108" r="2.5"/><circle cx="268" cy="106" r="2.5"/><circle cx="204" cy="118" r="2.5"/><circle cx="268" cy="114" r="2.5"/><circle cx="206" cy="128" r="2.5"/><circle cx="226" cy="133" r="2.5"/><circle cx="246" cy="131" r="2.5"/><circle cx="256" cy="128" r="2.5"/><circle cx="264" cy="123" r="2.5"/><circle cx="220" cy="106" r="3" fill="#1a1a1a"/></g><rect x="226" y="160" width="38" height="38" rx="99" fill="#111"/><text x="245" y="184" text-anchor="middle" font-size="16" fill="#fff">&#9654;</text><rect x="180" y="198" width="172" height="24" rx="6" fill="rgba(0,0,0,.04)"/><text x="266" y="214" text-anchor="middle" font-size="8" fill="#555" font-family="sans-serif">깊고 깊은 밤하늘 바다에...</text><rect x="358" y="0" width="122" height="270" fill="#fff" stroke="#e8e8e4" stroke-width="1"/><text x="365" y="14" font-size="8" fill="#aaa" font-family="sans-serif">KANANA 보이스</text><rect x="362" y="18" width="30" height="34" rx="6" fill="#f0f0f2" stroke="#111" stroke-width="1.5"/><text x="377" y="32" text-anchor="middle" font-size="14">&#x1F469;&#x200D;&#x1F3EB;</text><text x="377" y="46" text-anchor="middle" font-size="6" fill="#111" font-family="sans-serif" font-weight="700">선생님</text><rect x="396" y="18" width="30" height="34" rx="6" fill="#f4f4f2" stroke="#e8e8e4" stroke-width="1"/><text x="411" y="32" text-anchor="middle" font-size="14">&#x1F981;</text><rect x="430" y="18" width="30" height="34" rx="6" fill="#f4f4f2" stroke="#e8e8e4" stroke-width="1"/><text x="445" y="32" text-anchor="middle" font-size="14">&#x1F9DA;</text><rect x="362" y="58" width="96" height="170" rx="6" fill="#f7f7f8"/><rect x="366" y="64" width="84" height="40" rx="8" fill="#fff" stroke="#e8e8e4" stroke-width="1"/><text x="370" y="77" font-size="7" fill="#888" font-family="sans-serif">Kanana 선생님</text><text x="370" y="89" font-size="8" fill="#111" font-family="sans-serif">별을 삼킨 고래 눌러봐!</text><rect x="370" y="110" width="76" height="20" rx="8" fill="#111"/><text x="408" y="124" text-anchor="middle" font-size="8" fill="#fff" font-family="sans-serif">다음 페이지</text><rect x="362" y="232" width="96" height="28" rx="99" fill="#f0f0f2" stroke="#e8e8e4" stroke-width="1"/><text x="400" y="250" text-anchor="middle" font-size="8" fill="#aaa" font-family="sans-serif">말해봐!</text></svg>`,
+  tactilelearning: `<svg viewBox="0 0 480 270" xmlns="http://www.w3.org/2000/svg"><rect width="480" height="270" fill="#f0f4ff"/><rect width="480" height="44" fill="#fff" stroke="#e0e8ff" stroke-width="1"/><rect x="12" y="10" width="28" height="24" rx="6" fill="#1a5cff"/><text x="26" y="26" text-anchor="middle" font-size="9" fill="#fff" font-family="sans-serif" font-weight="900">DOT</text><text x="50" y="22" font-size="11" fill="#111" font-family="sans-serif" font-weight="700">Dot Tactile Learning</text><text x="50" y="34" font-size="8" fill="#888" font-family="sans-serif">원격 교실 실시간 송출 시스템</text><rect x="406" y="10" width="64" height="24" rx="6" fill="#1a5cff"/><text x="438" y="26" text-anchor="middle" font-size="9" fill="#fff" font-family="sans-serif" font-weight="700">전체 송출</text><rect x="8" y="52" width="136" height="210" rx="8" fill="#fff" stroke="#e0e8ff" stroke-width="1"/><text x="16" y="68" font-size="8" fill="#888" font-family="monospace">자료 업로드</text><rect x="14" y="72" width="124" height="50" rx="6" fill="#f0f4ff" stroke="#c7d4ff" stroke-width="1.5" stroke-dasharray="4,3"/><text x="76" y="100" text-anchor="middle" font-size="18">&#x1F4C4;</text><text x="76" y="114" text-anchor="middle" font-size="8" fill="#1a5cff" font-family="sans-serif">PDF 업로드</text><rect x="14" y="128" width="124" height="28" rx="6" fill="#eef2ff" stroke="#c7d4ff" stroke-width="1"/><text x="76" y="146" text-anchor="middle" font-size="9" fill="#1a5cff" font-family="sans-serif">세포 분열.pdf</text><rect x="14" y="174" width="58" height="22" rx="5" fill="#1a5cff"/><text x="43" y="189" text-anchor="middle" font-size="8" fill="#fff" font-family="sans-serif" font-weight="700">촉각 그래픽</text><rect x="76" y="174" width="62" height="22" rx="5" fill="#f0f4ff" stroke="#c7d4ff" stroke-width="1"/><text x="107" y="189" text-anchor="middle" font-size="8" fill="#888" font-family="sans-serif">점자 변환</text><rect x="14" y="206" width="124" height="24" rx="6" fill="#1a5cff"/><text x="76" y="222" text-anchor="middle" font-size="9" fill="#fff" font-family="sans-serif" font-weight="700">변환 시작</text><rect x="152" y="52" width="244" height="210" rx="8" fill="#fff" stroke="#e0e8ff" stroke-width="1"/><text x="162" y="68" font-size="8" fill="#888" font-family="monospace">학생 단말 (72/80)</text><g><rect x="160" y="76" width="22" height="22" rx="4" fill="#22c55e" opacity=".15" stroke="#22c55e" stroke-width="1"/><text x="171" y="91" text-anchor="middle" font-size="7" fill="#16a34a">01</text><rect x="186" y="76" width="22" height="22" rx="4" fill="#22c55e" opacity=".15" stroke="#22c55e" stroke-width="1"/><text x="197" y="91" text-anchor="middle" font-size="7" fill="#16a34a">02</text><rect x="212" y="76" width="22" height="22" rx="4" fill="#22c55e" opacity=".15" stroke="#22c55e" stroke-width="1"/><rect x="238" y="76" width="22" height="22" rx="4" fill="#22c55e" opacity=".15" stroke="#22c55e" stroke-width="1"/><rect x="264" y="76" width="22" height="22" rx="4" fill="#f59e0b" opacity=".2" stroke="#f59e0b" stroke-width="1"/><text x="275" y="91" text-anchor="middle" font-size="7" fill="#b45309">05</text><rect x="290" y="76" width="22" height="22" rx="4" fill="#22c55e" opacity=".15" stroke="#22c55e" stroke-width="1"/><rect x="316" y="76" width="22" height="22" rx="4" fill="#22c55e" opacity=".15" stroke="#22c55e" stroke-width="1"/><rect x="342" y="76" width="22" height="22" rx="4" fill="#ef4444" opacity=".2" stroke="#ef4444" stroke-width="1"/><text x="353" y="91" text-anchor="middle" font-size="7" fill="#dc2626">08</text><rect x="160" y="102" width="22" height="22" rx="4" fill="#22c55e" opacity=".15" stroke="#22c55e" stroke-width="1"/><rect x="186" y="102" width="22" height="22" rx="4" fill="#22c55e" opacity=".15" stroke="#22c55e" stroke-width="1"/><rect x="212" y="102" width="22" height="22" rx="4" fill="#22c55e" opacity=".15" stroke="#22c55e" stroke-width="1"/><rect x="238" y="102" width="22" height="22" rx="4" fill="#22c55e" opacity=".15" stroke="#22c55e" stroke-width="1"/><rect x="264" y="102" width="22" height="22" rx="4" fill="#22c55e" opacity=".15" stroke="#22c55e" stroke-width="1"/><rect x="290" y="102" width="22" height="22" rx="4" fill="#f59e0b" opacity=".2" stroke="#f59e0b" stroke-width="1"/><rect x="316" y="102" width="22" height="22" rx="4" fill="#22c55e" opacity=".15" stroke="#22c55e" stroke-width="1"/><rect x="342" y="102" width="22" height="22" rx="4" fill="#22c55e" opacity=".15" stroke="#22c55e" stroke-width="1"/><rect x="160" y="128" width="22" height="22" rx="4" fill="#22c55e" opacity=".15" stroke="#22c55e" stroke-width="1"/><rect x="186" y="128" width="22" height="22" rx="4" fill="#22c55e" opacity=".15" stroke="#22c55e" stroke-width="1"/><rect x="212" y="128" width="22" height="22" rx="4" fill="#ef4444" opacity=".2" stroke="#ef4444" stroke-width="1"/><rect x="238" y="128" width="22" height="22" rx="4" fill="#22c55e" opacity=".15" stroke="#22c55e" stroke-width="1"/><rect x="264" y="128" width="22" height="22" rx="4" fill="#22c55e" opacity=".15" stroke="#22c55e" stroke-width="1"/><rect x="290" y="128" width="22" height="22" rx="4" fill="#22c55e" opacity=".15" stroke="#22c55e" stroke-width="1"/><rect x="316" y="128" width="22" height="22" rx="4" fill="#22c55e" opacity=".15" stroke="#22c55e" stroke-width="1"/><rect x="342" y="128" width="22" height="22" rx="4" fill="#22c55e" opacity=".15" stroke="#22c55e" stroke-width="1"/><text x="264" y="192" text-anchor="middle" font-size="9" fill="#aaa">72명 연결 중...</text></g><rect x="404" y="52" width="68" height="210" rx="8" fill="#0d0d14" stroke="#1f1f35" stroke-width="1"/><text x="410" y="64" font-size="6" fill="#444" font-family="monospace">DOT PAD</text><rect x="408" y="68" width="58" height="44" rx="4" fill="#0a0a12" stroke="#1f1f35" stroke-width="1"/><g fill="#1a5cff" opacity=".7"><circle cx="416" cy="76" r="1.8"/><circle cx="422" cy="76" r="1.8"/><circle cx="428" cy="76" r="1.8"/><circle cx="434" cy="76" r="1.8"/><circle cx="440" cy="76" r="1.8"/><circle cx="458" cy="76" r="1.8"/><circle cx="416" cy="82" r="1.8"/><circle cx="458" cy="82" r="1.8"/><circle cx="416" cy="88" r="1.8"/><circle cx="428" cy="88" r="1.8"/><circle cx="434" cy="88" r="1.8"/><circle cx="458" cy="88" r="1.8"/><circle cx="416" cy="94" r="1.8"/><circle cx="458" cy="94" r="1.8"/><circle cx="416" cy="100" r="1.8"/><circle cx="422" cy="100" r="1.8"/><circle cx="428" cy="100" r="1.8"/><circle cx="434" cy="100" r="1.8"/><circle cx="440" cy="100" r="1.8"/><circle cx="458" cy="100" r="1.8"/><circle cx="416" cy="106" r="1.8"/><circle cx="458" cy="106" r="1.8"/></g><rect x="408" y="128" width="58" height="14" rx="4" fill="rgba(34,197,94,.15)" stroke="rgba(34,197,94,.3)" stroke-width="1"/><text x="437" y="139" text-anchor="middle" font-size="7" fill="#22c55e" font-family="monospace">전송 완료</text></svg>`,
+  dotvillage: `<svg viewBox="0 0 480 270" xmlns="http://www.w3.org/2000/svg"><rect width="480" height="270" fill="#0a1a08"/><ellipse cx="80" cy="40" rx="35" ry="12" fill="rgba(255,255,255,.08)"/><ellipse cx="360" cy="30" rx="28" ry="9" fill="rgba(255,255,255,.06)"/><rect x="0" y="0" width="480" height="44" fill="rgba(10,26,8,.88)" stroke="rgba(34,197,94,.15)" stroke-width="1"/><text x="24" y="26" text-anchor="middle" font-size="12">&#x1F33F;</text><text x="46" y="18" font-size="11" fill="#f0eeff" font-family="sans-serif" font-weight="900">닷 빌리지 아케이드</text><text x="46" y="32" font-size="8" fill="#22d68a" font-family="sans-serif">손끝으로 시작되는 촉각 마을</text><rect x="86" y="50" width="308" height="148" rx="8" fill="rgba(10,26,8,.7)" stroke="rgba(34,197,94,.2)" stroke-width="1"/><text x="100" y="90" font-size="16">&#x1F332;</text><text x="120" y="80" font-size="12">&#x1F333;</text><text x="350" y="88" font-size="16">&#x1F332;</text><text x="370" y="78" font-size="12">&#x1F333;</text><rect x="170" y="90" width="40" height="35" rx="4" fill="rgba(139,90,43,.4)" stroke="rgba(139,90,43,.6)" stroke-width="1"/><text x="190" y="114" text-anchor="middle" font-size="14">&#x1F3E1;</text><rect x="240" y="92" width="36" height="32" rx="4" fill="rgba(90,139,43,.3)" stroke="rgba(90,139,43,.5)" stroke-width="1"/><text x="258" y="114" text-anchor="middle" font-size="13">&#x1F33F;</text><rect x="300" y="88" width="40" height="36" rx="4" fill="rgba(43,90,139,.3)" stroke="rgba(43,90,139,.5)" stroke-width="1"/><text x="320" y="112" text-anchor="middle" font-size="13">&#x1F4A7;</text><g fill="rgba(255,255,255,.2)"><circle cx="140" cy="148" r="2"/><circle cx="155" cy="148" r="2"/><circle cx="170" cy="148" r="2"/><circle cx="195" cy="148" r="2"/><circle cx="210" cy="148" r="2"/><circle cx="225" cy="148" r="2"/><circle cx="250" cy="148" r="2"/><circle cx="265" cy="148" r="2"/><circle cx="280" cy="148" r="2"/><circle cx="305" cy="148" r="2"/><circle cx="320" cy="148" r="2"/><circle cx="335" cy="148" r="2"/></g><circle cx="215" cy="138" r="10" fill="#7c6ff7" opacity=".9"/><circle cx="215" cy="133" r="6" fill="#a29bfe"/><text x="215" y="151" text-anchor="middle" font-size="8" fill="#f0eeff" font-weight="700">루미</text><rect x="118" y="52" width="200" height="34" rx="8" fill="rgba(10,26,8,.9)" stroke="rgba(34,197,94,.3)" stroke-width="1"/><text x="128" y="65" font-size="9" fill="#22d68a" font-family="sans-serif" font-weight="700">루미</text><text x="128" y="79" font-size="9" fill="#c8e8c8" font-family="sans-serif">닷 빌리지에 온 걸 환영해!</text><rect x="8" y="54" width="72" height="120" rx="10" fill="rgba(255,255,255,.04)" stroke="rgba(255,255,255,.08)" stroke-width="1"/><text x="44" y="68" text-anchor="middle" font-size="8" fill="#668866">이동</text><rect x="30" y="72" width="26" height="26" rx="6" fill="rgba(255,255,255,.06)" stroke="rgba(255,255,255,.1)" stroke-width="1"/><text x="43" y="89" text-anchor="middle" font-size="13">&#x25B2;</text><rect x="8" y="100" width="26" height="26" rx="6" fill="rgba(255,255,255,.06)" stroke="rgba(255,255,255,.1)" stroke-width="1"/><text x="21" y="117" text-anchor="middle" font-size="13">&#x25C4;</text><rect x="52" y="100" width="26" height="26" rx="6" fill="rgba(255,255,255,.06)" stroke="rgba(255,255,255,.1)" stroke-width="1"/><text x="65" y="117" text-anchor="middle" font-size="13">&#x25BA;</text><rect x="30" y="128" width="26" height="26" rx="6" fill="rgba(255,255,255,.06)" stroke="rgba(255,255,255,.1)" stroke-width="1"/><text x="43" y="145" text-anchor="middle" font-size="13">&#x25BC;</text><rect x="400" y="54" width="72" height="120" rx="10" fill="rgba(255,255,255,.04)" stroke="rgba(255,255,255,.08)" stroke-width="1"/><text x="436" y="68" text-anchor="middle" font-size="8" fill="#668866">탐색</text><rect x="422" y="72" width="26" height="26" rx="6" fill="rgba(255,255,255,.06)" stroke="rgba(255,255,255,.1)" stroke-width="1"/><text x="435" y="89" text-anchor="middle" font-size="13">&#x25B2;</text><rect x="400" y="100" width="26" height="26" rx="6" fill="rgba(255,255,255,.06)" stroke="rgba(255,255,255,.1)" stroke-width="1"/><text x="413" y="117" text-anchor="middle" font-size="13">&#x25C4;</text><rect x="444" y="100" width="26" height="26" rx="6" fill="rgba(255,255,255,.06)" stroke="rgba(255,255,255,.1)" stroke-width="1"/><text x="457" y="117" text-anchor="middle" font-size="13">&#x25BA;</text><rect x="422" y="128" width="26" height="26" rx="6" fill="rgba(255,255,255,.06)" stroke="rgba(255,255,255,.1)" stroke-width="1"/><text x="435" y="145" text-anchor="middle" font-size="13">&#x25BC;</text><rect x="86" y="204" width="308" height="60" rx="8" fill="rgba(255,255,255,.03)" stroke="rgba(255,255,255,.06)" stroke-width="1"/><text x="100" y="218" font-size="8" fill="#668866" font-family="sans-serif">DotPad 핀 출력 미리보기 60x40</text><rect x="94" y="222" width="292" height="34" rx="4" fill="rgba(10,26,8,.6)"/><g fill="#22d68a" opacity=".6"><rect x="98" y="226" width="6" height="6" rx="1"/><rect x="107" y="226" width="6" height="6" rx="1"/><rect x="125" y="226" width="6" height="6" rx="1"/><rect x="134" y="226" width="6" height="6" rx="1"/><rect x="143" y="226" width="6" height="6" rx="1"/><rect x="98" y="235" width="6" height="6" rx="1"/><rect x="116" y="235" width="6" height="6" rx="1"/><rect x="134" y="235" width="6" height="6" rx="1"/><rect x="98" y="244" width="6" height="6" rx="1"/><rect x="107" y="244" width="6" height="6" rx="1"/><rect x="116" y="244" width="6" height="6" rx="1"/><rect x="134" y="244" width="6" height="6" rx="1"/></g><rect x="8" y="196" width="72" height="68" rx="8" fill="rgba(255,255,255,.03)" stroke="rgba(255,255,255,.06)" stroke-width="1"/><text x="44" y="210" text-anchor="middle" font-size="6" fill="#668866">점자 메시지</text><rect x="12" y="214" width="64" height="44" rx="4" fill="rgba(10,26,8,.6)"/><text x="44" y="230" text-anchor="middle" font-size="7" fill="#22d68a" font-family="monospace">루미: 안녕!</text><rect x="400" y="196" width="72" height="68" rx="8" fill="rgba(255,255,255,.03)" stroke="rgba(255,255,255,.06)" stroke-width="1"/><text x="436" y="210" text-anchor="middle" font-size="6" fill="#668866">기능키</text><rect x="404" y="214" width="30" height="22" rx="4" fill="rgba(74,158,255,.15)" stroke="rgba(74,158,255,.3)" stroke-width="1"/><text x="419" y="224" text-anchor="middle" font-size="6" fill="#4a9eff" font-weight="700">F1</text><rect x="438" y="214" width="30" height="22" rx="4" fill="rgba(34,197,94,.15)" stroke="rgba(34,197,94,.3)" stroke-width="1"/><text x="453" y="224" text-anchor="middle" font-size="6" fill="#22d68a" font-weight="700">F2</text><rect x="404" y="238" width="30" height="22" rx="4" fill="rgba(245,158,11,.12)" stroke="rgba(245,158,11,.25)" stroke-width="1"/><text x="419" y="248" text-anchor="middle" font-size="6" fill="#f59e0b" font-weight="700">F3</text><rect x="438" y="238" width="30" height="22" rx="4" fill="rgba(167,139,250,.12)" stroke="rgba(167,139,250,.25)" stroke-width="1"/><text x="453" y="248" text-anchor="middle" font-size="6" fill="#a78bfa" font-weight="700">F4</text></svg>`,
 };
 
-// ── THUMB CONFIGS ──
-const THUMBS={
-  dotbeat:{bg:'#0a050f',glow:'#7c6ff7',dots:'#7c6ff7',
-    pat:[[1,0,0,1,0,0,1,0],[0,0,1,0,0,1,0,0],[1,0,0,0,1,0,0,1],[0,1,0,1,0,0,1,0]]},
-  dotventure:{bg:'#030a05',glow:'#22d68a',dots:'#22d68a',
-    pat:[[1,1,0,0,1,1,0,0],[1,0,0,1,0,1,0,1],[0,0,1,1,0,0,1,1],[0,1,0,1,1,0,0,1]]},
-  election:{bg:'#030508',glow:'#4a9eff',dots:'#4a9eff',
-    pat:[[1,0,1,0,1,0,1,0],[1,1,1,1,1,1,1,1],[0,0,0,0,0,0,0,0],[1,1,0,1,1,0,1,1]]},
-  concert:{bg:'#0a0308',glow:'#f43f5e',dots:'#f43f5e',
-    pat:[[1,0,0,0,1,0,0,0],[0,1,0,1,0,1,0,1],[0,0,1,0,0,0,1,0],[1,0,0,0,1,0,0,0]]},
-  aitactile:{bg:'#060410',glow:'#a29bfe',dots:'#a29bfe',
-    pat:[[0,0,1,1,0,0,1,1],[0,1,1,0,1,1,0,0],[1,1,0,0,1,0,1,0],[1,0,0,1,0,1,1,0]]},
-  edulens:{bg:'#030a09',glow:'#2dd4b0',dots:'#2dd4b0',
-    pat:[[1,1,1,1,0,0,0,0],[1,0,0,1,0,0,0,0],[1,0,0,1,0,0,0,0],[1,1,1,1,0,0,0,0]]},
-  dotnori:{bg:'#040a04',glow:'#22d68a',dots:'#22d68a',
-    pat:[[0,1,0,1,0,1,0,1],[1,0,1,0,1,0,1,0],[0,1,0,1,0,1,0,1],[1,0,1,0,1,0,1,0]]},
-  dotnana:{bg:'#080608',glow:'#f59e0b',dots:'#f59e0b',
-    pat:[[1,1,0,0,0,1,1,0],[1,0,1,0,1,0,1,0],[0,0,1,1,1,0,0,1],[0,1,0,1,0,1,0,1]]},
-  tactilelearning:{bg:'#030510',glow:'#4a9eff',dots:'#4a9eff',
-    pat:[[1,0,1,0,1,0,1,0],[1,1,1,1,1,1,1,1],[0,0,0,0,0,0,0,0],[1,0,1,0,1,0,1,0]]},
-  dotvillage:{bg:'#040804',glow:'#22d68a',dots:'#a3e635',
-    pat:[[1,1,0,1,1,0,1,1],[1,0,0,0,0,0,0,1],[1,0,1,0,1,0,0,1],[1,1,1,1,1,1,1,1]]}
-};
-
-function drawThumb(canvas, cfg, hovered){
-  const W=canvas.width, H=canvas.height;
-  const ctx=canvas.getContext('2d');
-  const cols=30, rows=20;
-  const cw=W/cols, ch=H/rows;
-  ctx.fillStyle=cfg.bg; ctx.fillRect(0,0,W,H);
-  for(let r=0;r<rows;r++){
-    for(let c=0;c<cols;c++){
-      const pr=cfg.pat[r%cfg.pat.length][c%cfg.pat[0].length];
-      const glow=hovered&&pr?0.95:pr?0.8:0.08;
-      ctx.globalAlpha=glow;
-      ctx.fillStyle=pr?cfg.dots:'#444466';
-      if(pr&&hovered){
-        ctx.shadowColor=cfg.glow;
-        ctx.shadowBlur=6;
-      }else{ctx.shadowBlur=0;}
-      const px=c*cw+cw*0.2, py=r*ch+ch*0.2;
-      const pr2=cw*0.28;
-      ctx.beginPath();ctx.arc(px+pr2,py+pr2,pr2,0,Math.PI*2);ctx.fill();
-    }
+const PROJECTS = [
+  {
+    "id": "dotbeat",
+    "title": "Dot Beat",
+    "tagline": "시각장애 아동을 위한 촉각 리듬 게임",
+    "desc": "Dot Pad 핀 배열로 리듬 패턴을 손끝으로 느끼며 음악을 배우는 촉각 리듬 게임.",
+    "tags": [
+      "Dot Pad",
+      "Game",
+      "아동"
+    ],
+    "cat": "게임",
+    "url": "./dot-beat/index.html"
+  },
+  {
+    "id": "dotventure",
+    "title": "Dot Venture",
+    "tagline": "Dot Pad 기반 아동용 촉각 탐험 게임 플랫폼",
+    "desc": "촉각 맵 탐색과 멀티포맷 콘텐츠를 하나로 연결한 Dot Pad 기반 게임 플랫폼.",
+    "tags": [
+      "Dot Pad",
+      "Game",
+      "아동"
+    ],
+    "cat": "게임",
+    "url": "./dot-venture/index.html"
+  },
+  {
+    "id": "election",
+    "title": "Dot Election Reader",
+    "tagline": "시각장애인을 위한 선거 정보 접근성 프로토타입",
+    "desc": "ARIA 재설계와 Dot Pad 점자 출력을 연결한 공공 접근성 프로토타입.",
+    "tags": [
+      "Accessibility",
+      "Public"
+    ],
+    "cat": "접근성",
+    "url": "./dot-election/index.html"
+  },
+  {
+    "id": "concert",
+    "title": "K-pop Barrier-free Concert",
+    "tagline": "시청각 장애인을 위한 공연 접근성 프로토타입",
+    "desc": "실시간 자막, BPM 촉각 진동 동기화, 수어 통역을 하나의 흐름으로 연결.",
+    "tags": [
+      "Accessibility",
+      "Concert"
+    ],
+    "cat": "접근성",
+    "url": "./kpop-concert/index.html"
+  },
+  {
+    "id": "aitactile",
+    "title": "AI Tactile Generator",
+    "tagline": "이미지·프롬프트 → Dot Pad 촉각 그래픽 자동 생성",
+    "desc": "AI가 이미지 윤곽을 분석해 60×40 점형 그래픽으로 변환. DTMS 직접 전송.",
+    "tags": [
+      "AI",
+      "Dot Pad",
+      "Tactile"
+    ],
+    "cat": "AI",
+    "url": "./ai-tactile-gen/index.html"
+  },
+  {
+    "id": "edulens",
+    "title": "Dot Edu-Lens Pro",
+    "tagline": "웹 화면을 실시간 촉각+점자로 변환하는 크롬 확장",
+    "desc": "브라우저 사이드패널에서 웹 화면을 그래픽(60×40)과 점자(20셀)로 실시간 변환.",
+    "tags": [
+      "Extension",
+      "Accessibility"
+    ],
+    "cat": "접근성",
+    "url": "./edu-lens/sidepanel.html"
+  },
+  {
+    "id": "dotnori",
+    "title": "Dot Nori",
+    "tagline": "AI 기반 시각장애 학생 촉각 학습 놀이터",
+    "desc": "AI 캐릭터 피포가 위키백과 이미지를 촉각 그래픽으로 변환하며 학습 안내.",
+    "tags": [
+      "AI",
+      "Education",
+      "MVP"
+    ],
+    "cat": "AI",
+    "url": "https://dotnori.netlify.app/"
+  },
+  {
+    "id": "dotnana",
+    "title": "Dot Nana",
+    "tagline": "AI 페르소나가 들려주는 촉각 구연동화",
+    "desc": "6가지 AI 페르소나가 동화 삽화를 Dot Pad 촉각 그래픽으로 전달하는 구연동화.",
+    "tags": [
+      "AI",
+      "Story",
+      "Dot Pad"
+    ],
+    "cat": "AI",
+    "url": "./dot-nana/index.html"
+  },
+  {
+    "id": "tactilelearning",
+    "title": "Dot Tactile Learning",
+    "tagline": "원격 교실 Dot Pad 실시간 송출·제어 시스템",
+    "desc": "교사가 60~100명 Dot Pad에 촉각 자료를 실시간 송출·제어하는 원격 교육 시스템.",
+    "tags": [
+      "Education",
+      "Remote",
+      "Dot Pad"
+    ],
+    "cat": "교육",
+    "url": "https://dottactilelearning.netlify.app/"
+  },
+  {
+    "id": "dotvillage",
+    "title": "닷 빌리지 아케이드",
+    "tagline": "루미와 함께하는 Dot Pad 촉각 마을 탐험",
+    "desc": "루미와 Dotling 마을 친구들이 등장하는 60×40 촉각 마을 아케이드 게임 아이디에이션.",
+    "tags": [
+      "Game",
+      "Dot Pad",
+      "Ideation"
+    ],
+    "cat": "게임",
+    "url": "https://byeol-coder.github.io/dot-forest/"
   }
-  ctx.globalAlpha=1;ctx.shadowBlur=0;
-}
-
-// ── PROJECTS ──
-const PROJECTS=[
-  {id:'dotbeat',title:'Dot Beat',
-   desc:'시각장애 아동이 Dot Pad로 리듬을 치며 음악을 배우는 촉각 리듬 게임',
-   tags:['Dot Pad','Game','아동'],cat:'게임',
-   url:'./dot-beat/index.html'},
-  {id:'dotventure',title:'Dot Venture',
-   desc:'촉각 맵 탐색과 멀티포맷 콘텐츠를 결합한 Dot Pad 기반 아동용 게임 플랫폼',
-   tags:['Dot Pad','Game','아동'],cat:'게임',
-   url:'./dot-venture/index.html'},
-  {id:'election',title:'Dot Election Reader',
-   desc:'ARIA 재설계와 Dot Pad 점자 출력을 연결한 시각장애인 선거 정보 접근성 프로토타입',
-   tags:['Accessibility','Public'],cat:'접근성',
-   url:'./dot-election/index.html'},
-  {id:'concert',title:'K-pop Barrier-free Concert',
-   desc:'자막·촉각 진동·수어 통역을 하나로 연결한 공연 접근성 프로토타입',
-   tags:['Accessibility','Concert'],cat:'접근성',
-   url:'./kpop-concert/index.html'},
-  {id:'aitactile',title:'AI Tactile Generator',
-   desc:'이미지·프롬프트 입력으로 Dot Pad 60×40 점형 그래픽을 AI가 자동 생성',
-   tags:['AI','Dot Pad','촉각'],cat:'AI',
-   url:'./ai-tactile-gen/index.html'},
-  {id:'edulens',title:'Dot Edu-Lens Pro',
-   desc:'브라우저 사이드패널에서 웹 화면을 그래픽·점자 멀티모달로 실시간 변환하는 크롬 확장',
-   tags:['Extension','Accessibility'],cat:'접근성',
-   url:'./edu-lens/sidepanel.html'},
-  {id:'dotnori',title:'Dot Nori',
-   desc:'AI 캐릭터 피포와 함께 이미지를 촉각 그래픽으로 변환하며 배우는 학습 놀이터',
-   tags:['AI','Education','MVP'],cat:'AI',
-   url:'https://dotnori.netlify.app/'},
-  {id:'dotnana',title:'Dot Nana',
-   desc:'6가지 AI 페르소나가 동화를 읽어주며 Dot Pad 촉각 그래픽으로 삽화를 전달하는 구연동화',
-   tags:['AI','Story','Dot Pad'],cat:'AI',
-   url:'./dot-nana/index.html'},
-  {id:'tactilelearning',title:'Dot Tactile Learning',
-   desc:'교사가 60~100명 Dot Pad 단말에 촉각 자료를 실시간 송출·제어하는 원격 교육 시스템',
-   tags:['Education','Remote','Dot Pad'],cat:'교육',
-   url:'https://dottactilelearning.netlify.app/'},
-  {id:'dotvillage',title:'닷 빌리지 아케이드',
-   desc:'루미와 Dotling 마을 친구들이 등장하는 Dot Pad 촉각 마을 탐험 게임 — 아이디에이션',
-   tags:['Game','Dot Pad','Ideation'],cat:'게임',
-   url:'https://byeol-coder.github.io/dot-forest/'}
 ];
 
-const CATS=['전체','접근성','게임','AI','교육'];
-let activeCat='전체';
+const BC = {"Dot Pad": "#7c6ff7", "Game": "#22d68a", "Accessibility": "#4a9eff", "AI": "#f59e0b", "Concert": "#f43f5e", "Tactile": "#a29bfe", "Extension": "#2dd4b0", "Story": "#f59e0b", "Education": "#4a9eff", "Remote": "#22d68a", "Public": "#4a9eff", "Ideation": "#888", "아동": "#f59e0b", "MVP": "#22d68a"};
+const CATS = ['전체','접근성','게임','AI','교육'];
+let activeCat = '전체';
 
-// ── RENDER FILTERS ──
 function renderFilters(){
-  const wrap=document.getElementById('filterWrap');
-  wrap.innerHTML='';
-  CATS.forEach(cat=>{
-    const btn=document.createElement('button');
-    btn.className='filter-btn'+(cat===activeCat?' active':'');
-    btn.textContent=cat;
+  const wrap = document.getElementById('filterWrap');
+  wrap.innerHTML = '';
+  CATS.forEach(cat => {
+    const btn = document.createElement('button');
+    btn.className = 'filter-btn' + (cat === activeCat ? ' active' : '');
+    btn.textContent = cat;
     btn.setAttribute('role','tab');
-    btn.setAttribute('aria-selected',cat===activeCat?'true':'false');
-    btn.setAttribute('aria-label',cat==='전체'?'전체 프로젝트 보기':cat+' 카테고리');
-    btn.addEventListener('click',()=>{
-      activeCat=cat;
-      renderFilters();
-      renderGrid();
-    });
+    btn.setAttribute('aria-selected', cat === activeCat ? 'true' : 'false');
+    btn.addEventListener('click', () => { activeCat = cat; renderFilters(); renderGrid(); });
     wrap.appendChild(btn);
   });
 }
 
-// ── RENDER GRID ──
 function renderGrid(){
-  const grid=document.getElementById('cardGrid');
-  grid.innerHTML='';
-  const filtered=activeCat==='전체'?PROJECTS:PROJECTS.filter(p=>p.cat===activeCat);
+  const grid = document.getElementById('cardGrid');
+  grid.innerHTML = '';
+  const filtered = activeCat === '전체' ? PROJECTS : PROJECTS.filter(p => p.cat === activeCat);
+  document.getElementById('navCount').textContent = filtered.length + ' projects';
+  document.getElementById('footerCount').textContent = filtered.length + ' / ' + PROJECTS.length + ' 프로젝트';
 
-  document.getElementById('navCount').textContent=filtered.length+' projects';
-  document.getElementById('footerCount').textContent=
-    `${filtered.length} / ${PROJECTS.length} 프로젝트`;
-
-  filtered.forEach(p=>{
-    const a=document.createElement('a');
-    a.className='card';
-    a.href=p.url;
-    a.target='_blank';
-    a.rel='noopener noreferrer';
-    a.setAttribute('aria-label',
-      `${p.title} — ${p.desc} (새 탭에서 열립니다)`);
+  filtered.forEach(p => {
+    const a = document.createElement('a');
+    a.className = 'card';
+    a.href = p.url;
+    a.target = '_blank';
+    a.rel = 'noopener noreferrer';
+    a.setAttribute('aria-label', p.title + ' — ' + p.tagline + ' (새 탭에서 열립니다)');
 
     // Thumb
-    const thumbWrap=document.createElement('div');
-    thumbWrap.className='card-thumb';
+    const thumb = document.createElement('div');
+    thumb.className = 'card-thumb';
+    thumb.innerHTML = (THUMBS[p.id] || '') + '<div class="card-hover-overlay"></div>';
 
-    const cv=document.createElement('canvas');
-    cv.width=480;cv.height=270;
-    cv.setAttribute('aria-hidden','true');
-    const cfg=THUMBS[p.id]||THUMBS.dotbeat;
-    drawThumb(cv,cfg,false);
-    thumbWrap.appendChild(cv);
-
-    const overlay=document.createElement('div');
-    overlay.className='card-thumb-overlay';
-
-    const badges=document.createElement('div');
-    badges.className='card-badges';
-    p.tags.forEach(t=>{
-      const sp=document.createElement('span');
-      sp.className='badge';
-      const c=BC[t]||'#888';
-      sp.style.background=`${c}22`;
-      sp.style.color=c;
-      sp.style.border=`1px solid ${c}44`;
-      sp.textContent=t;
-      badges.appendChild(sp);
+    // Hover overlay
+    const overlay = thumb.querySelector('.card-hover-overlay');
+    const htitle = document.createElement('div'); htitle.className = 'hover-title'; htitle.textContent = p.title;
+    const hdesc = document.createElement('p'); hdesc.className = 'hover-desc'; hdesc.textContent = p.desc;
+    const hmeta = document.createElement('div'); hmeta.className = 'hover-meta';
+    const hopen = document.createElement('span'); hopen.className = 'hover-open'; hopen.textContent = '↗ 열기';
+    const htags = document.createElement('div'); htags.className = 'hover-tags';
+    p.tags.slice(0,2).forEach(t => {
+      const c = BC[t] || '#888';
+      const sp = document.createElement('span');
+      sp.className = 'hover-tag';
+      sp.style.cssText = 'background:' + c + '22;color:' + c + ';border:1px solid ' + c + '44';
+      sp.textContent = t;
+      htags.appendChild(sp);
     });
-    overlay.appendChild(badges);
-    thumbWrap.appendChild(overlay);
+    hmeta.appendChild(htags); hmeta.appendChild(hopen);
+    overlay.appendChild(htitle); overlay.appendChild(hdesc); overlay.appendChild(hmeta);
 
-    const hint=document.createElement('span');
-    hint.className='card-open-hint';
-    hint.setAttribute('aria-hidden','true');
-    hint.textContent='↗';
-    thumbWrap.appendChild(hint);
+    // Card info
+    const info = document.createElement('div'); info.className = 'card-info';
+    const title = document.createElement('div'); title.className = 'card-title'; title.textContent = p.title;
+    const sub = document.createElement('div'); sub.className = 'card-sub'; sub.textContent = p.tagline;
+    info.appendChild(title); info.appendChild(sub);
 
-    // Info
-    const info=document.createElement('div');
-    info.className='card-info';
+    const sr = document.createElement('span'); sr.className = 'sr-only'; sr.textContent = '새 탭에서 열립니다.';
 
-    const title=document.createElement('h2');
-    title.className='card-title';
-    title.textContent=p.title;
-
-    const desc=document.createElement('p');
-    desc.className='card-desc';
-    desc.textContent=p.desc;
-
-    const footer=document.createElement('div');
-    footer.className='card-footer';
-
-    const cat=document.createElement('span');
-    cat.className='card-cat';
-    cat.textContent=p.cat;
-
-    const lhint=document.createElement('span');
-    lhint.className='card-link-hint';
-    lhint.setAttribute('aria-hidden','true');
-    lhint.textContent='↗ 새 탭';
-
-    footer.appendChild(cat);
-    footer.appendChild(lhint);
-    info.appendChild(title);
-    info.appendChild(desc);
-    info.appendChild(footer);
-
-    a.appendChild(thumbWrap);
-    a.appendChild(info);
+    a.appendChild(thumb); a.appendChild(info); a.appendChild(sr);
     grid.appendChild(a);
-
-    // Hover animation
-    a.addEventListener('mouseenter',()=>drawThumb(cv,cfg,true));
-    a.addEventListener('mouseleave',()=>drawThumb(cv,cfg,false));
-    a.addEventListener('focusin',()=>drawThumb(cv,cfg,true));
-    a.addEventListener('focusout',()=>drawThumb(cv,cfg,false));
-
-    // SR: new tab notice
-    const sr=document.createElement('span');
-    sr.className='sr-only';
-    sr.textContent='새 탭에서 열립니다.';
-    a.appendChild(sr);
   });
 }
 
-// ── INIT ──
 renderFilters();
 renderGrid();
 </script>
