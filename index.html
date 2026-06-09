@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>K-pop Barrier-free Concert — 공연 접근성</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#08080f;--panel:#0f0f1a;--card:#151522;--border:#1f1f35;
+  --accent:#ff2d78;--accent2:#cc1a5a;--blue:#4a9eff;--teal:#2dd4b0;
+  --text:#f0eeff;--dim:#7a7899;--dim2:#2a2a45;
+}
+html,body{width:100%;height:100%;overflow:hidden}
+body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text)}
+button{font-family:inherit;cursor:pointer;border:none}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+/* LAYOUT */
+.app{display:grid;grid-template-rows:52px 1fr auto;height:100vh}
+.topbar{background:var(--panel);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 20px}
+.logo{display:flex;align-items:center;gap:10px;font-weight:900;font-size:15px}
+.logo-icon{background:linear-gradient(135deg,var(--accent),#ff8c42);width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px}
+.tb-controls{display:flex;gap:8px;align-items:center}
+.tb-btn{padding:6px 14px;border-radius:8px;font-size:11px;font-weight:700;transition:all .15s}
+.tb-btn-outline{background:transparent;border:1px solid var(--border);color:var(--dim)}
+.tb-btn-outline:hover{border-color:var(--accent);color:var(--accent)}
+.tb-btn-accent{background:var(--accent);color:#fff}
+.tb-btn-accent:hover{background:var(--accent2)}
+.tb-btn-on{background:rgba(255,45,120,.15);border:1px solid rgba(255,45,120,.4);color:var(--accent)}
+.status-pill{font-size:10px;font-weight:700;padding:4px 10px;border-radius:99px;display:flex;align-items:center;gap:5px;border:1px solid var(--border);color:var(--dim)}
+.status-pill.live{background:rgba(255,45,120,.1);border-color:rgba(255,45,120,.3);color:var(--accent)}
+.live-dot{width:6px;height:6px;border-radius:50%;background:var(--accent);animation:pulse 1.2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.2}}
+
+/* STAGE */
+.stage{display:grid;grid-template-columns:1fr 320px;gap:0;overflow:hidden}
+.center{display:flex;flex-direction:column;background:var(--bg);position:relative}
+.concert-screen{flex:1;position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden;background:radial-gradient(ellipse at 50% 120%,rgba(255,45,120,.08) 0%,transparent 60%)}
+.stage-visual{position:relative;width:100%;max-width:640px;aspect-ratio:16/9;background:#000;border-radius:12px;overflow:hidden;border:1px solid var(--border);box-shadow:0 0 60px rgba(255,45,120,.1)}
+.stage-bg{position:absolute;inset:0;background:linear-gradient(180deg,#0a0014 0%,#1a0030 50%,#0a0014 100%)}
+#stageCanvas{position:absolute;inset:0;width:100%;height:100%}
+.stage-overlay{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:flex-end;padding:16px}
+.lyric-sub{background:rgba(0,0,0,.75);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:10px 16px;text-align:center;margin-bottom:8px;display:none}
+.lyric-main{font-size:17px;font-weight:700;color:#fff;line-height:1.5}
+.lyric-eng{font-size:12px;color:rgba(255,255,255,.6);margin-top:4px}
+.sign-overlay{position:absolute;bottom:16px;right:16px;width:110px;height:88px;background:rgba(0,0,0,.85);border:2px solid var(--accent);border-radius:8px;display:none;align-items:center;justify-content:center;flex-direction:column;gap:4px;font-size:20px}
+.sign-label{font-size:9px;color:var(--dim);font-family:'DM Mono',monospace;letter-spacing:.5px}
+
+/* TACTILE BAR */
+.tactile-bar{height:56px;background:var(--panel);border-top:1px solid var(--border);display:flex;align-items:center;padding:0 20px;gap:16px;flex-shrink:0}
+.tb-label{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--dim);white-space:nowrap}
+.beat-vis{display:flex;align-items:flex-end;gap:3px;height:32px}
+.beat-bar{width:6px;border-radius:3px;background:var(--dim2);transition:height .05s}
+.beat-bar.on{background:var(--accent)}
+.dotpad-mini{display:flex;align-items:center;gap:8px;margin-left:auto}
+.dotpad-mini-label{font-size:9px;color:var(--dim);font-family:'DM Mono',monospace}
+#miniCanvas{display:block;border-radius:4px;border:1px solid var(--border);image-rendering:pixelated}
+.intensity-wrap{display:flex;align-items:center;gap:8px}
+.intensity-label{font-size:11px;color:var(--dim)}
+input[type=range]{width:80px;accent-color:var(--accent)}
+
+/* RIGHT PANEL */
+.right-panel{background:var(--panel);border-left:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden}
+.rp-section{padding:14px;border-bottom:1px solid var(--border)}
+.rp-label{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--dim);margin-bottom:10px}
+.setlist{flex:1;overflow-y:auto;padding:12px}
+.song-btn{width:100%;text-align:left;padding:10px 12px;border-radius:8px;border:1px solid transparent;background:transparent;margin-bottom:4px;display:flex;align-items:center;gap:10px;transition:all .15s}
+.song-btn:hover{background:var(--card)}
+.song-btn.on{background:rgba(255,45,120,.08);border-color:rgba(255,45,120,.3)}
+.song-num{font-size:10px;font-family:'DM Mono',monospace;color:var(--dim);width:18px;flex-shrink:0}
+.song-title{font-size:12px;font-weight:700}
+.song-btn.on .song-title{color:var(--accent)}
+.song-meta{font-size:10px;color:var(--dim);margin-top:1px}
+.access-toggles{display:flex;flex-direction:column;gap:7px}
+.toggle-row{display:flex;align-items:center;justify-content:space-between}
+.toggle-label{font-size:12px;font-weight:600}
+.toggle{position:relative;width:40px;height:22px}
+.toggle input{opacity:0;width:0;height:0}
+.toggle-slider{position:absolute;inset:0;background:var(--dim2);border-radius:99px;transition:background .2s;cursor:pointer}
+.toggle-slider::before{content:'';position:absolute;width:16px;height:16px;background:#fff;border-radius:50%;top:3px;left:3px;transition:transform .2s}
+.toggle input:checked+.toggle-slider{background:var(--accent)}
+.toggle input:checked+.toggle-slider::before{transform:translateX(18px)}
+.event-list{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:5px}
+.event-item{font-size:11px;padding:7px 9px;border-radius:7px;border:1px solid var(--border);background:var(--card);line-height:1.5}
+.event-item.caption{border-color:rgba(74,158,255,.3);background:rgba(74,158,255,.06);color:var(--blue)}
+.event-item.tactile{border-color:rgba(255,45,120,.3);background:rgba(255,45,120,.06);color:var(--accent)}
+.event-item.sign{border-color:rgba(45,212,176,.3);background:rgba(45,212,176,.06);color:var(--teal)}
+.event-time{font-family:'DM Mono',monospace;font-size:9px;color:var(--dim);margin-right:5px}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="topbar">
+    <div class="logo">
+      <div class="logo-icon">🎤</div>
+      K-pop Barrier-free Concert
+    </div>
+    <div class="tb-controls">
+      <div class="status-pill" id="statusPill">● 준비 중</div>
+      <button class="tb-btn tb-btn-outline" id="btnBle">Dot Pad 연결</button>
+      <button class="tb-btn tb-btn-accent" id="btnPlayPause">▶ 공연 시작</button>
+    </div>
+  </header>
+
+  <div class="stage">
+    <!-- CENTER -->
+    <div class="center">
+      <div class="concert-screen">
+        <div class="stage-visual">
+          <div class="stage-bg"></div>
+          <canvas id="stageCanvas"></canvas>
+          <div class="stage-overlay">
+            <div class="lyric-sub" id="lyricSub">
+              <div class="lyric-main" id="lyricMain"></div>
+              <div class="lyric-eng" id="lyricEng"></div>
+            </div>
+          </div>
+          <div class="sign-overlay" id="signOverlay">
+            <span id="signEmoji">🤟</span>
+            <span class="sign-label">수어 통역</span>
+          </div>
+        </div>
+      </div>
+      <div class="tactile-bar">
+        <div class="tb-label">촉각 비트</div>
+        <div class="beat-vis" id="beatVis">
+          ${Array(24).fill('<div class="beat-bar"></div>').join('')}
+        </div>
+        <div class="intensity-wrap">
+          <span class="intensity-label">진동 강도</span>
+          <input type="range" id="intensity" min="1" max="5" value="3" aria-label="진동 강도">
+          <span id="intensityVal" style="font-size:11px;color:var(--dim);font-family:'DM Mono',monospace">3</span>
+        </div>
+        <div class="dotpad-mini">
+          <span class="dotpad-mini-label">Dot Pad</span>
+          <canvas id="miniCanvas" width="120" height="80"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT PANEL -->
+    <aside class="right-panel">
+      <div class="rp-section">
+        <div class="rp-label">접근성 설정</div>
+        <div class="access-toggles">
+          <div class="toggle-row">
+            <span class="toggle-label">📝 실시간 자막</span>
+            <label class="toggle"><input type="checkbox" id="togCaption" checked><div class="toggle-slider"></div></label>
+          </div>
+          <div class="toggle-row">
+            <span class="toggle-label">📳 촉각 진동</span>
+            <label class="toggle"><input type="checkbox" id="togTactile" checked><div class="toggle-slider"></div></label>
+          </div>
+          <div class="toggle-row">
+            <span class="toggle-label">🤟 수어 통역</span>
+            <label class="toggle"><input type="checkbox" id="togSign"><div class="toggle-slider"></div></label>
+          </div>
+          <div class="toggle-row">
+            <span class="toggle-label">🔊 음성 해설</span>
+            <label class="toggle"><input type="checkbox" id="togAD"><div class="toggle-slider"></div></label>
+          </div>
+        </div>
+      </div>
+      <div class="rp-section" style="flex-shrink:0">
+        <div class="rp-label">셋리스트</div>
+      </div>
+      <div class="setlist" id="setlist"></div>
+      <div class="event-list" id="eventList"></div>
+    </aside>
+  </div>
+</div>
+
+<script>
+// ── SETLIST DATA ──
+const SONGS=[
+  {id:0,title:'Dynamite',artist:'BTS',bpm:114,duration:'3:19',
+    lyrics:[
+      {t:0,ko:"Cause I, I, I'm in the stars tonight",en:"오늘 밤 나는 별빛 속에 있어"},
+      {t:3,ko:"So watch me bring the fire and set the night alight",en:"불꽃을 피워 밤을 환하게 밝혀"},
+      {t:6,ko:"Shining through the city with a little funk and soul",en:"도시를 빛내며 소울과 펑크를 담아"},
+      {t:9,ko:"So I'ma light it up like dynamite",en:"다이너마이트처럼 불을 밝혀"}
+    ]},
+  {id:1,title:'Butter',artist:'BTS',bpm:110,duration:'2:44',
+    lyrics:[
+      {t:0,ko:"Smooth like butter, like a criminal undercover",en:"버터처럼 부드럽게, 잠복 중인 범인처럼"},
+      {t:3,ko:"Gon' pop like trouble breaking into your heart like that",en:"말썽처럼 터져서 당신의 마음속으로"},
+      {t:6,ko:"Cool shade stunner yeah I owe it all to my mother",en:"쿨한 선글라스 착용자, 이 모든 건 엄마 덕분"},
+      {t:9,ko:"Hotter than a summer gonna make you feel that butter",en:"여름보다 뜨겁게, 버터처럼 느끼게 해줄게"}
+    ]},
+  {id:2,title:'Pink Venom',artist:'BLACKPINK',bpm:124,duration:'3:06',
+    lyrics:[
+      {t:0,ko:"내 독이 네 몸속에 퍼지도록",en:"Let my venom spread through your body"},
+      {t:3,ko:"기억해 이건 내 영역",en:"Remember, this is my territory"},
+      {t:6,ko:"핑크빛 독으로 물들이겠어",en:"I'll dye you with my pink venom"},
+      {t:9,ko:"떨려도 눈을 마주쳐",en:"Even if you tremble, meet my eyes"}
+    ]},
+  {id:3,title:'Hype Boy',artist:'NewJeans',bpm:130,duration:'3:07',
+    lyrics:[
+      {t:0,ko:"너는 나의 하이프보이",en:"You're my hype boy"},
+      {t:3,ko:"내 모든 것을 쏟아부어",en:"I pour everything I have into you"},
+      {t:6,ko:"함께라면 무엇이든 돼",en:"With you, anything is possible"},
+      {t:9,ko:"넌 내 세상이야",en:"You're my whole world"}
+    ]}
+];
+
+const SIGN_EMOJIS=['🤟','✌️','👋','🙌','👐','🤲','🫶','👆','✋','🤙'];
+
+let S={
+  songIdx:0,
+  playing:false,
+  bleConnected:false,
+  intensity:3,
+  caption:true,tactile:true,sign:false,ad:false,
+  tick:0,lyricIdx:0,beatPhase:0
+};
+
+let stageCtx,miniCtx,animId=null,lastBeat=0;
+let events=[];
+
+// ── RENDER SETLIST ──
+function renderSetlist(){
+  const el=document.getElementById('setlist');
+  el.innerHTML=SONGS.map((s,i)=>`
+    <button class="song-btn${S.songIdx===i?' on':''}" data-idx="${i}">
+      <span class="song-num">${String(i+1).padStart(2,'0')}</span>
+      <div>
+        <div class="song-title">${s.title}</div>
+        <div class="song-meta">${s.artist} · ${s.bpm}BPM · ${s.duration}</div>
+      </div>
+    </button>`).join('');
+  el.querySelectorAll('.song-btn').forEach(b=>{
+    b.addEventListener('click',()=>{S.songIdx=parseInt(b.dataset.idx);S.tick=0;S.lyricIdx=0;renderSetlist();});
+  });
+}
+
+// ── STAGE CANVAS ──
+function drawStage(){
+  const cv=document.getElementById('stageCanvas');
+  const W=cv.offsetWidth,H=cv.offsetHeight;
+  cv.width=W;cv.height=H;
+  const ctx=stageCtx;
+  ctx.clearRect(0,0,W,H);
+
+  const song=SONGS[S.songIdx];
+  const beat=S.playing?(Math.sin(S.tick*(song.bpm/60)*0.08)+1)/2:0;
+
+  // background glow
+  const grad=ctx.createRadialGradient(W/2,H,0,W/2,H/2,H);
+  grad.addColorStop(0,`rgba(255,45,120,${0.15+beat*0.15})`);
+  grad.addColorStop(0.5,`rgba(74,0,120,${0.1+beat*0.05})`);
+  grad.addColorStop(1,'rgba(0,0,0,0)');
+  ctx.fillStyle=grad;ctx.fillRect(0,0,W,H);
+
+  if(S.playing){
+    // spotlights
+    [W*0.3,W*0.5,W*0.7].forEach((sx,i)=>{
+      const sg=ctx.createRadialGradient(sx,0,0,sx,0,H*0.8);
+      const c=i===1?'255,45,120':i===0?'74,158,255':'45,212,176';
+      sg.addColorStop(0,`rgba(${c},${0.12+beat*0.08})`);
+      sg.addColorStop(1,'rgba(0,0,0,0)');
+      ctx.fillStyle=sg;ctx.fillRect(0,0,W,H);
+    });
+
+    // stage lights
+    for(let i=0;i<8;i++){
+      const x=W*(i+0.5)/8;
+      const phase=S.tick*0.05+i*0.8;
+      const r=3+Math.sin(phase)*2;
+      ctx.beginPath();ctx.arc(x,12,r,0,Math.PI*2);
+      const hue=((S.tick*2+i*45)%360);
+      ctx.fillStyle=`hsla(${hue},100%,70%,${0.6+Math.sin(phase)*0.3})`;
+      ctx.fill();
+    }
+
+    // performer silhouette
+    const px=W/2,py=H*0.72;
+    ctx.fillStyle=`rgba(0,0,0,${0.6+beat*0.1})`;
+    // body
+    ctx.beginPath();ctx.ellipse(px,py,18,32,0,0,Math.PI*2);ctx.fill();
+    // head
+    ctx.beginPath();ctx.arc(px,py-36,12,0,Math.PI*2);ctx.fill();
+    // arms (animated)
+    const armAngle=Math.sin(S.tick*0.08)*0.5;
+    ctx.save();ctx.translate(px-18,py-10);ctx.rotate(-Math.PI/4+armAngle);
+    ctx.fillRect(-4,-22,8,22);ctx.restore();
+    ctx.save();ctx.translate(px+18,py-10);ctx.rotate(Math.PI/4-armAngle);
+    ctx.fillRect(-4,-22,8,22);ctx.restore();
+
+    // VU meter
+    ctx.fillStyle='rgba(255,45,120,.4)';
+    for(let i=0;i<20;i++){
+      const h=(Math.sin(S.tick*0.1+i*0.5)+1)/2*30*beat;
+      ctx.fillRect(W-28+i*1.2,H-8-h,1,h);
+    }
+  }else{
+    // idle
+    ctx.fillStyle='rgba(255,255,255,.06)';
+    ctx.font=`700 18px 'Noto Sans KR'`;ctx.textAlign='center';
+    ctx.fillText('▶ 공연 시작을 누르세요',W/2,H/2);
+  }
+}
+
+// ── MINI DOTPAD ──
+function drawMini(){
+  if(!miniCtx)return;
+  miniCtx.fillStyle='#0a0a12';miniCtx.fillRect(0,0,120,80);
+  const song=SONGS[S.songIdx];
+  const beat=S.playing?(Math.sin(S.tick*(song.bpm/60)*0.08)+1)/2:0;
+  // visualize beat as dot pattern
+  const intensity=S.intensity;
+  for(let y=0;y<8;y++) for(let x=0;x<12;x++){
+    const dist=Math.sqrt((x-6)**2+(y-4)**2);
+    const on=S.playing&&dist<(2+beat*3*intensity/5);
+    miniCtx.fillStyle=on?'#ff2d78':'#1f1f35';
+    miniCtx.beginPath();miniCtx.arc(x*10+5,y*10+5,2.5,0,Math.PI*2);miniCtx.fill();
+  }
+}
+
+// ── BEAT VISUALIZER ──
+function updateBeatVis(){
+  const bars=document.querySelectorAll('.beat-bar');
+  const song=SONGS[S.songIdx];
+  const beat=(Math.sin(S.tick*(song.bpm/60)*0.08)+1)/2;
+  bars.forEach((b,i)=>{
+    const v=S.playing?Math.max(4,(Math.sin(S.tick*0.15+i*0.3)+1)/2*32*beat):4;
+    b.style.height=v+'px';
+    b.className='beat-bar'+(S.playing&&v>16?' on':'');
+  });
+}
+
+// ── LYRICS ──
+function updateLyrics(){
+  const song=SONGS[S.songIdx];
+  const lyric=song.lyrics[S.lyricIdx%song.lyrics.length];
+  const captionOn=document.getElementById('togCaption').checked;
+  const sub=document.getElementById('lyricSub');
+  if(captionOn&&S.playing){
+    sub.style.display='block';
+    document.getElementById('lyricMain').textContent=lyric.ko;
+    document.getElementById('lyricEng').textContent=lyric.en;
+  }else{
+    sub.style.display='none';
+  }
+  // sign interpreter
+  const signEl=document.getElementById('signOverlay');
+  const signOn=document.getElementById('togSign').checked;
+  signEl.style.display=(signOn&&S.playing)?'flex':'none';
+  if(signOn&&S.playing){
+    document.getElementById('signEmoji').textContent=SIGN_EMOJIS[Math.floor(S.tick/30)%SIGN_EMOJIS.length];
+  }
+}
+
+// ── EVENTS ──
+function addEvent(text,type='info'){
+  const now=new Date();
+  const t=`${String(now.getMinutes()).padStart(2,'0')}:${String(now.getSeconds()).padStart(2,'0')}`;
+  events.unshift({text,type,t});if(events.length>12)events.pop();
+  const el=document.getElementById('eventList');
+  el.innerHTML=events.map(e=>`
+    <div class="event-item ${e.type}">
+      <span class="event-time">${e.t}</span>${e.text}
+    </div>`).join('');
+}
+
+// ── ANIMATION LOOP ──
+function loop(){
+  S.tick++;
+  const song=SONGS[S.songIdx];
+  // lyric advance
+  if(S.tick%90===0){
+    S.lyricIdx=(S.lyricIdx+1)%song.lyrics.length;
+    const lyric=song.lyrics[S.lyricIdx];
+    if(document.getElementById('togCaption').checked)
+      addEvent(`자막: ${lyric.ko}`,'caption');
+    if(document.getElementById('togTactile').checked&&S.tick%180===0)
+      addEvent(`촉각 비트 동기화 · ${song.bpm}BPM`,'tactile');
+    if(document.getElementById('togSign').checked&&S.tick%270===0)
+      addEvent(`수어 통역 갱신`,'sign');
+    if(document.getElementById('togAD').checked&&S.tick%360===0){
+      const u=new SpeechSynthesisUtterance(`${song.artist}의 ${song.title}이 재생 중입니다.`);
+      u.lang='ko-KR';u.rate=1.1;window.speechSynthesis.speak(u);
+    }
+  }
+  drawStage();
+  drawMini();
+  updateBeatVis();
+  updateLyrics();
+  animId=requestAnimationFrame(loop);
+}
+
+// ── CONTROLS ──
+function handlePlayPause(){
+  const btn=document.getElementById('btnPlayPause');
+  const pill=document.getElementById('statusPill');
+  if(S.playing){
+    S.playing=false;
+    cancelAnimationFrame(animId);animId=null;
+    window.speechSynthesis.cancel();
+    btn.textContent='▶ 공연 시작';btn.className='tb-btn tb-btn-accent';
+    pill.className='status-pill';pill.textContent='● 준비 중';
+    document.getElementById('lyricSub').style.display='none';
+    document.getElementById('signOverlay').style.display='none';
+    drawStage();drawMini();updateBeatVis();
+  }else{
+    S.playing=true;S.tick=0;S.lyricIdx=0;
+    btn.textContent='⏹ 공연 중단';btn.className='tb-btn tb-btn-on';
+    pill.className='status-pill live';pill.innerHTML='<div class="live-dot"></div>LIVE';
+    addEvent(`'${SONGS[S.songIdx].title}' 공연 시작`,'tactile');
+    if(document.getElementById('togCaption').checked)addEvent('자막 서비스 활성화','caption');
+    if(document.getElementById('togTactile').checked)addEvent('촉각 진동 동기화 시작','tactile');
+    if(document.getElementById('togSign').checked)addEvent('수어 통역 시작','sign');
+    loop();
+  }
+}
+
+async function handleBle(){
+  const btn=document.getElementById('btnBle');
+  if(S.bleConnected){S.bleConnected=false;btn.textContent='Dot Pad 연결';btn.className='tb-btn tb-btn-outline';return;}
+  try{
+    await navigator.bluetooth.requestDevice({acceptAllDevices:true,optionalServices:['6e400001-b5a3-f393-e0a9-e50e24dcca9e']});
+    S.bleConnected=true;btn.textContent='✓ 연결됨';btn.className='tb-btn tb-btn-on';
+    addEvent('Dot Pad 연결 완료. 촉각 비트 전송 준비.','tactile');
+  }catch(e){if(e.name!=='NotFoundError')addEvent('Dot Pad 연결 실패','caption');}
+}
+
+function init(){
+  stageCtx=document.getElementById('stageCanvas').getContext('2d');
+  miniCtx=document.getElementById('miniCanvas').getContext('2d');
+
+  document.getElementById('btnPlayPause').addEventListener('click',handlePlayPause);
+  document.getElementById('btnBle').addEventListener('click',handleBle);
+  document.getElementById('intensity').addEventListener('input',e=>{
+    S.intensity=parseInt(e.target.value);
+    document.getElementById('intensityVal').textContent=S.intensity;
+  });
+  // resize canvas on load
+  window.addEventListener('resize',()=>{drawStage();});
+
+  renderSetlist();
+  drawStage();drawMini();updateBeatVis();
+  addEvent('시스템 준비 완료. 공연 시작 버튼을 눌러주세요.','caption');
+}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);
+else init();
+</script>
+</body>
+</html>
