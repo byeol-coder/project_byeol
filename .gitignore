@@ -1,2 +1,5 @@
 *.sh
 *.py
+*.sh
+*.py
+.DS_Store
