@@ -123,8 +123,16 @@ input[type=range]{width:80px;accent-color:var(--accent)}
           </div>
         </div>
       </div>
-      <div class="tactile-bar">
+      <div class="progress-bar-wrap" style="height:3px;background:rgba(255,255,255,.08);flex-shrink:0;position:relative">
+    <div id="songProgress" style="height:100%;background:var(--accent);width:0%;transition:width .5s linear;border-radius:0 2px 2px 0"></div>
+  </div>
+  <div class="tactile-bar">
         <div class="tb-label">촉각 비트</div>
+      <div style="display:flex;align-items:center;gap:6px;margin-left:8px">
+        <span id="songTimeEl" style="font-family:'DM Mono',monospace;font-size:10px;color:var(--dim)">0:00</span>
+        <span style="font-size:10px;color:var(--dim2)">/</span>
+        <span id="songDurEl" style="font-family:'DM Mono',monospace;font-size:10px;color:var(--dim)">3:00</span>
+      </div>
         <div class="beat-vis" id="beatVis">
           ${Array(24).fill('<div class="beat-bar"></div>').join('')}
         </div>
@@ -202,9 +210,29 @@ const SONGS=[
       {t:3,ko:"내 모든 것을 쏟아부어",en:"I pour everything I have into you"},
       {t:6,ko:"함께라면 무엇이든 돼",en:"With you, anything is possible"},
       {t:9,ko:"넌 내 세상이야",en:"You're my whole world"}
-    ]}
+    ]},
+  {id:4,title:'Cupid (Twin Ver.)',artist:'FIFTY FIFTY',bpm:110,duration:'3:15',
+    lyrics:[
+      {t:0,ko:"큐피드가 나에게 화살을 쏘지 않아",en:"Cupid doesn't shoot his arrow at me"},
+      {t:3,ko:"사랑은 왜 이렇게 힘든 걸까",en:"Why is love so difficult"},
+      {t:6,ko:"언제쯤 내 사람을 만날 수 있을까",en:"When will I finally meet my person"},
+      {t:9,ko:"기다리고 기다려도 오지 않아",en:"I wait and wait but you don't come"}
+    ]},
+  {id:5,title:'Supernova',artist:'aespa',bpm:128,duration:'3:12',
+    lyrics:[
+      {t:0,ko:"나는 이 세계의 중심에 서 있어",en:"I stand at the center of this world"},
+      {t:3,ko:"별처럼 빛나는 나의 에너지",en:"My energy shines like a star"},
+      {t:6,ko:"초신성처럼 터지는 감정들",en:"Emotions exploding like a supernova"},
+      {t:9,ko:"우주를 가득 채우는 나의 노래",en:"My song fills the entire universe"}
+    ]},
+  {id:6,title:'Love Wins All',artist:'IU',bpm:78,duration:'4:01',
+    lyrics:[
+      {t:0,ko:"너와 나 손을 잡고 걸어가",en:"You and I, walking hand in hand"},
+      {t:3,ko:"이 세상 끝까지 함께라면",en:"If we're together until the end of the world"},
+      {t:6,ko:"어둠도 두렵지 않아",en:"Even darkness doesn't frighten me"},
+      {t:9,ko:"사랑이 결국 이길 거야",en:"Love will win in the end"}
+    ]},
 ];
-
 const SIGN_EMOJIS=['🤟','✌️','👋','🙌','👐','🤲','🫶','👆','✋','🤙'];
 
 let S={
@@ -222,16 +250,25 @@ let events=[];
 // ── RENDER SETLIST ──
 function renderSetlist(){
   const el=document.getElementById('setlist');
-  el.innerHTML=SONGS.map((s,i)=>`
-    <button class="song-btn${S.songIdx===i?' on':''}" data-idx="${i}">
+  el.innerHTML=SONGS.map((s,i)=>{
+    const bpmColor=s.bpm>=128?'#ff2d78':s.bpm>=110?'#4a9eff':'#2dd4b0';
+    return `<button class="song-btn${S.songIdx===i?' on':''}" data-idx="${i}" aria-label="${s.title} by ${s.artist}">
       <span class="song-num">${String(i+1).padStart(2,'0')}</span>
-      <div>
+      <div style="flex:1;min-width:0">
         <div class="song-title">${s.title}</div>
-        <div class="song-meta">${s.artist} · ${s.bpm}BPM · ${s.duration}</div>
+        <div class="song-meta">${s.artist} · ${s.duration}</div>
       </div>
-    </button>`).join('');
+      <span style="font-family:'DM Mono',monospace;font-size:9px;padding:2px 6px;border-radius:4px;background:${bpmColor}22;color:${bpmColor};flex-shrink:0">${s.bpm}</span>
+    </button>`;
+  }).join('');
   el.querySelectorAll('.song-btn').forEach(b=>{
-    b.addEventListener('click',()=>{S.songIdx=parseInt(b.dataset.idx);S.tick=0;S.lyricIdx=0;renderSetlist();});
+    b.addEventListener('click',()=>{S.songIdx=parseInt(b.dataset.idx);S.tick=0;S.lyricIdx=0;renderSetlist();
+      if(window.speechSynthesis){
+        const s=SONGS[S.songIdx];
+        const u=new SpeechSynthesisUtterance(`${s.title}, ${s.artist}`);
+        u.lang='ko-KR';u.rate=1.1;
+        speechSynthesis.cancel();speechSynthesis.speak(u);
+      }});
   });
 }
 
@@ -239,66 +276,188 @@ function renderSetlist(){
 function drawStage(){
   const cv=document.getElementById('stageCanvas');
   const W=cv.offsetWidth,H=cv.offsetHeight;
+  if(W===0||H===0)return;
   cv.width=W;cv.height=H;
   const ctx=stageCtx;
   ctx.clearRect(0,0,W,H);
-
   const song=SONGS[S.songIdx];
-  const beat=S.playing?(Math.sin(S.tick*(song.bpm/60)*0.08)+1)/2:0;
+  const bpmRate=song.bpm/60*0.1;
+  const beat=S.playing?(Math.sin(S.tick*bpmRate)+1)/2:0;
+  const beatSharp=S.playing?Math.pow(beat,3):0;
 
-  // background glow
-  const grad=ctx.createRadialGradient(W/2,H,0,W/2,H/2,H);
-  grad.addColorStop(0,`rgba(255,45,120,${0.15+beat*0.15})`);
-  grad.addColorStop(0.5,`rgba(74,0,120,${0.1+beat*0.05})`);
-  grad.addColorStop(1,'rgba(0,0,0,0)');
-  ctx.fillStyle=grad;ctx.fillRect(0,0,W,H);
+  // ── Background gradient ──
+  const bgGrad=ctx.createLinearGradient(0,0,0,H);
+  bgGrad.addColorStop(0,'#050008');
+  bgGrad.addColorStop(0.5,`rgba(40,0,60,${0.8+beat*0.15})`);
+  bgGrad.addColorStop(1,'#0a0010');
+  ctx.fillStyle=bgGrad;ctx.fillRect(0,0,W,H);
+
+  // ── Stage floor ──
+  const floorY=H*0.75;
+  const floorGrad=ctx.createLinearGradient(0,floorY,0,H);
+  floorGrad.addColorStop(0,`rgba(255,45,120,${0.08+beatSharp*0.12})`);
+  floorGrad.addColorStop(1,'rgba(0,0,0,.95)');
+  ctx.fillStyle=floorGrad;
+  ctx.fillRect(0,floorY,W,H-floorY);
+  // floor line
+  ctx.strokeStyle=`rgba(255,45,120,${0.3+beat*0.3})`;
+  ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(0,floorY);ctx.lineTo(W,floorY);ctx.stroke();
+
+  // ── Lighting rig (top bar) ──
+  ctx.fillStyle='rgba(30,30,40,.95)';
+  ctx.fillRect(0,0,W,18);
+  ctx.fillStyle='rgba(50,50,60,1)';
+  ctx.fillRect(0,18,W,4);
+
+  // Stage lights (on rig)
+  const lightColors=['255,45,120','74,158,255','255,224,51','45,212,176','255,100,30','180,80,255'];
+  const numLights=8;
+  for(let i=0;i<numLights;i++){
+    const lx=W*(i+0.5)/numLights;
+    const phase=S.tick*0.04+i*1.1;
+    const col=lightColors[i%lightColors.length];
+    const bright=S.playing?0.7+Math.sin(phase)*0.25:0.15;
+    // lamp housing
+    ctx.fillStyle='rgba(60,60,70,1)';
+    ctx.fillRect(lx-6,2,12,10);
+    // lamp glow circle
+    ctx.beginPath();ctx.arc(lx,9,4,0,Math.PI*2);
+    ctx.fillStyle=`rgba(${col},${bright})`;ctx.fill();
+    // spotlight cone
+    if(S.playing){
+      const spreadAngle=0.35+Math.sin(phase*0.5)*0.15;
+      const targetX=lx+Math.sin(phase*0.7)*W*0.15;
+      const coneGrad=ctx.createConicalGradient?null:null;
+      const g=ctx.createRadialGradient(lx,9,0,targetX,floorY*0.85,W*0.5);
+      g.addColorStop(0,`rgba(${col},${0.09+beatSharp*0.06})`);
+      g.addColorStop(0.5,`rgba(${col},${0.03+beatSharp*0.02})`);
+      g.addColorStop(1,'transparent');
+      ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
+    }
+  }
 
   if(S.playing){
-    // spotlights
-    [W*0.3,W*0.5,W*0.7].forEach((sx,i)=>{
-      const sg=ctx.createRadialGradient(sx,0,0,sx,0,H*0.8);
-      const c=i===1?'255,45,120':i===0?'74,158,255':'45,212,176';
-      sg.addColorStop(0,`rgba(${c},${0.12+beat*0.08})`);
-      sg.addColorStop(1,'rgba(0,0,0,0)');
-      ctx.fillStyle=sg;ctx.fillRect(0,0,W,H);
+    // ── Performers (4 silhouettes) ──
+    const performers=[
+      {x:W*0.22,size:0.82,phase:0},
+      {x:W*0.38,size:1.0,phase:0.8},
+      {x:W*0.62,size:1.0,phase:1.6},
+      {x:W*0.78,size:0.82,phase:2.4},
+    ];
+    performers.forEach(({x,size,phase})=>{
+      const armSwing=Math.sin(S.tick*bpmRate*2+phase)*0.4;
+      const legSwing=Math.sin(S.tick*bpmRate*2+phase+Math.PI)*0.3;
+      const bounce=Math.abs(Math.sin(S.tick*bpmRate*2+phase))*(-4*size);
+      const py=floorY-10+(1-size)*20;
+      const scale=size;
+      const sh=`rgba(0,0,0,${0.5+beat*0.1})`;
+      ctx.save();ctx.translate(x,py+bounce);ctx.scale(scale,scale);
+      // shadow on floor
+      ctx.fillStyle='rgba(0,0,0,.4)';
+      ctx.beginPath();ctx.ellipse(0,40,14,5,0,0,Math.PI*2);ctx.fill();
+      // legs
+      ctx.save();ctx.translate(-8,30);ctx.rotate(legSwing);
+      ctx.fillStyle=sh;ctx.fillRect(-5,0,10,28);ctx.restore();
+      ctx.save();ctx.translate(8,30);ctx.rotate(-legSwing);
+      ctx.fillStyle=sh;ctx.fillRect(-5,0,10,28);ctx.restore();
+      // body
+      ctx.fillStyle=sh;ctx.beginPath();ctx.ellipse(0,10,13,22,0,0,Math.PI*2);ctx.fill();
+      // arms
+      ctx.save();ctx.translate(-13,5);ctx.rotate(-Math.PI/4+armSwing);
+      ctx.fillStyle=sh;ctx.fillRect(-4,-20,8,20);ctx.restore();
+      ctx.save();ctx.translate(13,5);ctx.rotate(Math.PI/4-armSwing);
+      ctx.fillStyle=sh;ctx.fillRect(-4,-20,8,20);ctx.restore();
+      // head
+      ctx.beginPath();ctx.arc(0,-18,12,0,Math.PI*2);
+      ctx.fillStyle=sh;ctx.fill();
+      ctx.restore();
     });
 
-    // stage lights
-    for(let i=0;i<8;i++){
-      const x=W*(i+0.5)/8;
-      const phase=S.tick*0.05+i*0.8;
-      const r=3+Math.sin(phase)*2;
-      ctx.beginPath();ctx.arc(x,12,r,0,Math.PI*2);
-      const hue=((S.tick*2+i*45)%360);
-      ctx.fillStyle=`hsla(${hue},100%,70%,${0.6+Math.sin(phase)*0.3})`;
-      ctx.fill();
+    // ── Floor reflection ──
+    ctx.save();ctx.translate(0,floorY);ctx.scale(1,-0.25);ctx.translate(0,-floorY);
+    ctx.globalAlpha=0.1+beat*0.05;
+    performers.forEach(({x,size,phase})=>{
+      const bounce=Math.abs(Math.sin(S.tick*bpmRate*2+phase))*(-4*size);
+      ctx.fillStyle='rgba(200,150,255,.6)';
+      ctx.beginPath();ctx.ellipse(x,floorY-5+bounce*size,10*size,30*size,0,0,Math.PI*2);ctx.fill();
+    });
+    ctx.globalAlpha=1;ctx.restore();
+
+    // ── Crowd (back of stage, small dots) ──
+    const crowdStartY=floorY*0.52;
+    const crowdRows=5,crowdCols=Math.floor(W/22);
+    for(let row=0;row<crowdRows;row++){
+      for(let col=0;col<crowdCols;col++){
+        const cx=col*22+11+(row%2)*11;
+        const cy=crowdStartY+row*14;
+        const shimmer=Math.sin(S.tick*0.06+(col+row)*0.8);
+        const headR=3.5-row*0.3;
+        // crowd body
+        ctx.fillStyle=`rgba(80,40,100,${0.4-row*0.06})`;
+        ctx.beginPath();ctx.ellipse(cx,cy+headR*3,headR*1.2,headR*2.5,0,0,Math.PI*2);ctx.fill();
+        // crowd head
+        const armUp=beat>0.6&&Math.random()>0.7;
+        ctx.fillStyle=`rgba(160,120,200,${0.5-row*0.07+shimmer*0.1})`;
+        ctx.beginPath();ctx.arc(cx,cy,headR,0,Math.PI*2);ctx.fill();
+        // occasional raised arm (phone lights)
+        if((col+row*3)%7===0){
+          ctx.strokeStyle=`rgba(255,255,200,${0.4+beat*0.4})`;ctx.lineWidth=1;
+          ctx.beginPath();ctx.moveTo(cx,cy-headR);ctx.lineTo(cx+2*(col%2===0?1:-1),cy-headR-8);ctx.stroke();
+          ctx.fillStyle=`rgba(255,255,100,${0.5+beat*0.4})`;
+          ctx.beginPath();ctx.arc(cx+2*(col%2===0?1:-1),cy-headR-9,1.5,0,Math.PI*2);ctx.fill();
+        }
+      }
     }
 
-    // performer silhouette
-    const px=W/2,py=H*0.72;
-    ctx.fillStyle=`rgba(0,0,0,${0.6+beat*0.1})`;
-    // body
-    ctx.beginPath();ctx.ellipse(px,py,18,32,0,0,Math.PI*2);ctx.fill();
-    // head
-    ctx.beginPath();ctx.arc(px,py-36,12,0,Math.PI*2);ctx.fill();
-    // arms (animated)
-    const armAngle=Math.sin(S.tick*0.08)*0.5;
-    ctx.save();ctx.translate(px-18,py-10);ctx.rotate(-Math.PI/4+armAngle);
-    ctx.fillRect(-4,-22,8,22);ctx.restore();
-    ctx.save();ctx.translate(px+18,py-10);ctx.rotate(Math.PI/4-armAngle);
-    ctx.fillRect(-4,-22,8,22);ctx.restore();
+    // ── Stage speaker columns ──
+    [W*0.04,W*0.96-20].forEach(sx=>{
+      ctx.fillStyle='rgba(20,20,30,.95)';
+      ctx.strokeStyle='rgba(80,80,100,.8)';
+      ctx.lineWidth=1;
+      ctx.beginPath();ctx.roundRect(sx,floorY-90,20,95,4);ctx.fill();ctx.stroke();
+      for(let sy=floorY-82;sy<floorY;sy+=14){
+        ctx.beginPath();ctx.arc(sx+10,sy,5,0,Math.PI*2);
+        ctx.fillStyle='rgba(40,40,50,1)';ctx.fill();
+        ctx.strokeStyle='rgba(100,100,120,.5)';ctx.lineWidth=.5;ctx.stroke();
+        if(beat>0.5){
+          const sg=ctx.createRadialGradient(sx+10,sy,0,sx+10,sy,8);
+          sg.addColorStop(0,'rgba(255,45,120,.3)');sg.addColorStop(1,'transparent');
+          ctx.fillStyle=sg;ctx.beginPath();ctx.arc(sx+10,sy,8,0,Math.PI*2);ctx.fill();
+        }
+      }
+    });
 
-    // VU meter
-    ctx.fillStyle='rgba(255,45,120,.4)';
-    for(let i=0;i<20;i++){
-      const h=(Math.sin(S.tick*0.1+i*0.5)+1)/2*30*beat;
-      ctx.fillRect(W-28+i*1.2,H-8-h,1,h);
+    // ── Beat-sync bottom glow ──
+    if(beatSharp>0.5){
+      const flashGrad=ctx.createLinearGradient(0,H-20,0,H);
+      flashGrad.addColorStop(0,'transparent');
+      flashGrad.addColorStop(1,`rgba(255,45,120,${(beatSharp-0.5)*0.4})`);
+      ctx.fillStyle=flashGrad;ctx.fillRect(0,H-20,W,20);
     }
+
+    // ── Song progress update ──
+    const dur=parseInt(song.duration.split(':')[0])*60+parseInt(song.duration.split(':')[1]);
+    const elapsed=S.tick/60;
+    const pct=Math.min(100,(elapsed/dur*100));
+    document.getElementById('songProgress').style.width=pct+'%';
+    const m=Math.floor(elapsed/60),s=Math.floor(elapsed%60);
+    document.getElementById('songTimeEl').textContent=`${m}:${String(s).padStart(2,'0')}`;
+    document.getElementById('songDurEl').textContent=song.duration;
+
   }else{
-    // idle
-    ctx.fillStyle='rgba(255,255,255,.06)';
-    ctx.font=`700 18px 'Noto Sans KR'`;ctx.textAlign='center';
-    ctx.fillText('▶ 공연 시작을 누르세요',W/2,H/2);
+    // ── Idle screen ──
+    const song2=SONGS[S.songIdx];
+    ctx.fillStyle='rgba(255,255,255,.04)';
+    ctx.font=`600 14px 'Noto Sans KR'`;ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.fillText(song2.title,W/2,H/2-14);
+    ctx.fillStyle='rgba(255,255,255,.02)';
+    ctx.font=`400 11px 'Noto Sans KR'`;
+    ctx.fillText(song2.artist+' · '+song2.duration,W/2,H/2+8);
+    ctx.fillStyle='rgba(255,45,120,.35)';
+    ctx.font='20px serif';ctx.fillText('▶',W/2,H*0.7);
+    // Reset progress
+    document.getElementById('songProgress').style.width='0%';
+    document.getElementById('songTimeEl').textContent='0:00';
   }
 }
 
@@ -404,7 +563,16 @@ function handlePlayPause(){
     document.getElementById('signOverlay').style.display='none';
     drawStage();drawMini();updateBeatVis();
   }else{
-    S.playing=true;S.tick=0;S.lyricIdx=0;
+    S.playing=true;
+  // AD 나레이션
+  if(S.ad&&window.speechSynthesis){
+    const song=SONGS[S.songIdx];
+    const u=new SpeechSynthesisUtterance(
+      `${song.artist}의 ${song.title} 공연을 시작합니다. BPM ${song.bpm}의 리듬으로 Dot Pad에 진동이 전달됩니다.`
+    );
+    u.lang='ko-KR';u.rate=1.0;
+    speechSynthesis.cancel();speechSynthesis.speak(u);
+  }S.tick=0;S.lyricIdx=0;
     btn.textContent='⏹ 공연 중단';btn.className='tb-btn tb-btn-on';
     pill.className='status-pill live';pill.innerHTML='<div class="live-dot"></div>LIVE';
     addEvent(`'${SONGS[S.songIdx].title}' 공연 시작`,'tactile');
