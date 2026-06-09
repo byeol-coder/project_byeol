@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dot Election Reader — 선거 정보 접근성</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f8f8f6;--panel:#ffffff;--border:#e8e8e4;--border2:#d0d0cc;
+  --t1:#111110;--t2:#555552;--t3:#999996;
+  --accent:#1a5cff;--accent-s:#eef2ff;--accent-b:#c7d4ff;
+  --green:#16a34a;--green-s:#f0fdf4;
+  --amber:#b45309;--amber-s:#fffbeb;
+  --r:10px;
+}
+html,body{height:100%;overflow:hidden}
+body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--t1);font-size:15px}
+button{font-family:inherit;cursor:pointer;border:none}
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:4px}
+
+/* SKIP NAV */
+.skip-nav{position:absolute;top:-100px;left:8px;background:var(--accent);color:#fff;padding:8px 16px;border-radius:6px;font-size:13px;font-weight:700;z-index:100}
+.skip-nav:focus{top:8px}
+
+/* LAYOUT */
+.app{display:grid;grid-template-rows:auto 1fr;height:100vh}
+.header{background:var(--panel);border-bottom:2px solid var(--accent);padding:0 24px;height:56px;display:flex;align-items:center;justify-content:space-between}
+.header-logo{display:flex;align-items:center;gap:12px}
+.logo-badge{background:var(--accent);color:#fff;font-size:11px;font-weight:900;padding:4px 10px;border-radius:6px;letter-spacing:.5px}
+.header-title{font-size:16px;font-weight:700}
+.header-right{display:flex;align-items:center;gap:10px}
+.btn-tts{padding:7px 16px;background:var(--accent);color:#fff;border-radius:8px;font-size:12px;font-weight:700;display:flex;align-items:center;gap:6px;transition:background .15s}
+.btn-tts:hover{background:#0040cc}
+.btn-tts.playing{background:#dc2626}
+.btn-dotpad{padding:7px 16px;background:var(--panel);border:1.5px solid var(--accent);color:var(--accent);border-radius:8px;font-size:12px;font-weight:700;transition:all .15s}
+.btn-dotpad:hover{background:var(--accent-s)}
+.btn-dotpad.connected{background:var(--green-s);border-color:var(--green);color:var(--green)}
+.body{display:grid;grid-template-columns:300px 1fr 260px;height:100%;overflow:hidden}
+
+/* LEFT */
+.sidebar{background:var(--panel);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden}
+.sb-section{padding:16px;border-bottom:1px solid var(--border)}
+.sb-label{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--t3);margin-bottom:10px}
+.select-box{width:100%;padding:9px 12px;background:var(--bg);border:1.5px solid var(--border2);border-radius:8px;font-size:13px;font-family:inherit;color:var(--t1);appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23999' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center}
+.select-box:focus{border-color:var(--accent);outline:none}
+.select-box+.select-box{margin-top:6px}
+.candidate-list{flex:1;overflow-y:auto;padding:12px}
+.cand-btn{width:100%;text-align:left;padding:12px;border-radius:8px;border:1.5px solid var(--border);background:transparent;margin-bottom:6px;transition:all .15s;display:flex;align-items:center;gap:12px}
+.cand-btn:hover{background:var(--bg);border-color:var(--border2)}
+.cand-btn.on{border-color:var(--accent);background:var(--accent-s)}
+.cand-num{width:28px;height:28px;border-radius:50%;background:var(--border);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;flex-shrink:0}
+.cand-btn.on .cand-num{background:var(--accent);color:#fff}
+.cand-name{font-size:13px;font-weight:700}
+.cand-party{font-size:11px;color:var(--t3);margin-top:1px}
+
+/* MAIN */
+.main{overflow-y:auto;padding:24px;background:var(--bg)}
+.election-badge{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;background:var(--accent-s);color:var(--accent);border:1px solid var(--accent-b);padding:5px 12px;border-radius:99px;margin-bottom:16px}
+.page-title{font-size:22px;font-weight:900;margin-bottom:6px;letter-spacing:-.3px}
+.page-sub{font-size:14px;color:var(--t2);margin-bottom:24px}
+
+/* COMPARE TABLE */
+.compare-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.compare-title{font-size:13px;font-weight:700}
+.compare-toggle{font-size:11px;font-weight:700;padding:5px 12px;border-radius:6px;border:1.5px solid var(--border2);background:transparent;color:var(--t2);transition:all .15s}
+.compare-toggle.on{background:var(--accent);border-color:var(--accent);color:#fff}
+
+.compare-table{width:100%;border-collapse:collapse;border:1px solid var(--border);border-radius:var(--r);overflow:hidden;margin-bottom:20px;table-layout:fixed}
+.compare-table th{background:var(--t1);color:#fff;padding:11px 14px;text-align:left;font-size:12px;font-weight:700;letter-spacing:.3px}
+.compare-table th.cand-col{background:var(--accent);text-align:center}
+.compare-table td{padding:11px 14px;font-size:13px;border-bottom:1px solid var(--border);vertical-align:top;line-height:1.6}
+.compare-table td.cand-col{text-align:center;font-weight:600}
+.compare-table tr:last-child td{border-bottom:none}
+.compare-table tr:nth-child(even) td{background:var(--bg)}
+.tag-agree{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;background:var(--green-s);color:var(--green);padding:2px 8px;border-radius:4px}
+.tag-oppose{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;background:#fef2f2;color:#dc2626;padding:2px 8px;border-radius:4px}
+.tag-neutral{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;background:var(--amber-s);color:var(--amber);padding:2px 8px;border-radius:4px}
+
+/* DETAIL CARD */
+.detail-card{background:var(--panel);border:1px solid var(--border);border-radius:var(--r);padding:20px;margin-bottom:16px}
+.detail-card h3{font-size:14px;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.detail-section{margin-bottom:14px}
+.detail-section:last-child{margin-bottom:0}
+.detail-label{font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--t3);margin-bottom:5px}
+.detail-text{font-size:13px;line-height:1.75;color:var(--t2)}
+.pledge-list{list-style:none;display:flex;flex-direction:column;gap:6px}
+.pledge-item{display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--t2);line-height:1.6}
+.pledge-dot{width:6px;height:6px;border-radius:50%;background:var(--accent);margin-top:7px;flex-shrink:0}
+
+/* RIGHT — DOTPAD */
+.dotpad-panel{background:var(--panel);border-left:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden}
+.dp-head{padding:14px;border-bottom:1px solid var(--border)}
+.dp-label{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--t3);margin-bottom:10px}
+.dotpad-frame{background:#111;border:2px solid #2a2a2a;border-radius:10px;padding:8px;margin-bottom:12px}
+.dp-inner-label{font-size:7px;letter-spacing:4px;color:#555;text-align:center;margin-bottom:4px;font-family:'DM Mono',monospace;text-transform:uppercase}
+#dotCanvas{display:block;width:100%;border-radius:5px;image-rendering:pixelated}
+.dp-footer{font-size:7px;letter-spacing:3px;color:#333;text-align:center;margin-top:4px;font-family:'DM Mono',monospace}
+.braille-preview{padding:10px;background:#111;border-radius:8px;margin-bottom:10px}
+.braille-label{font-size:9px;color:#555;margin-bottom:6px;font-family:'DM Mono',monospace}
+.braille-cells{display:flex;flex-wrap:wrap;gap:2px}
+.braille-cell{width:16px;height:22px;background:#1a1a1a;border-radius:2px;display:grid;grid-template-columns:repeat(2,1fr);grid-template-rows:repeat(3,1fr);gap:2px;padding:2px}
+.b-dot{border-radius:50%;background:#2a2a2a}
+.b-dot.on{background:#f97316}
+.dp-info{padding:10px 14px;flex:1;overflow-y:auto}
+.dp-info-row{display:flex;justify-content:space-between;font-size:11px;margin-bottom:7px}
+.dp-info-label{color:var(--t3)}
+.dp-info-val{font-weight:700;font-family:'DM Mono',monospace}
+
+/* TOAST */
+.toast{position:fixed;top:64px;left:50%;transform:translateX(-50%);background:var(--t1);color:#fff;padding:8px 18px;border-radius:99px;font-size:12px;font-weight:700;opacity:0;transition:opacity .2s;pointer-events:none;z-index:999}
+.toast.show{opacity:1}
+</style>
+</head>
+<body>
+<a href="#main-content" class="skip-nav">본문으로 건너뛰기</a>
+<div class="toast" id="toast"></div>
+
+<div class="app">
+  <header class="header" role="banner">
+    <div class="header-logo">
+      <span class="logo-badge" aria-label="닷 일렉션 리더">DOT</span>
+      <span class="header-title">Election Reader</span>
+    </div>
+    <div class="header-right">
+      <button class="btn-tts" id="btnTTS" aria-label="현재 페이지 읽기">
+        🔊 읽어주기
+      </button>
+      <button class="btn-dotpad" id="btnDotPad" aria-label="Dot Pad 연결">
+        📡 Dot Pad
+      </button>
+    </div>
+  </header>
+
+  <div class="body">
+    <!-- LEFT -->
+    <nav class="sidebar" aria-label="선거 정보 탐색">
+      <div class="sb-section">
+        <div class="sb-label">선거 선택</div>
+        <select class="select-box" id="selElection" aria-label="선거 종류 선택">
+          <option value="president">제21대 대통령 선거</option>
+          <option value="local">제9회 전국동시지방선거</option>
+          <option value="nation">제23대 국회의원 선거</option>
+        </select>
+        <select class="select-box" id="selRegion" aria-label="지역 선택">
+          <option value="seoul">서울특별시</option>
+          <option value="busan">부산광역시</option>
+          <option value="daegu">대구광역시</option>
+        </select>
+      </div>
+      <div class="sb-section" style="flex-shrink:0">
+        <div class="sb-label">후보자</div>
+      </div>
+      <div class="candidate-list" id="candidateList" role="list"></div>
+    </nav>
+
+    <!-- MAIN -->
+    <main class="main" id="main-content" aria-label="후보자 정보">
+      <div id="mainContent"></div>
+    </main>
+
+    <!-- RIGHT -->
+    <aside class="dotpad-panel" aria-label="Dot Pad 출력 미리보기">
+      <div class="dp-head">
+        <div class="dp-label">Dot Pad 미리보기</div>
+        <div class="dotpad-frame">
+          <div class="dp-inner-label">Graphic Area</div>
+          <canvas id="dotCanvas" width="192" height="128"></canvas>
+          <div class="dp-footer">DOT PAD 320</div>
+        </div>
+        <div class="braille-preview">
+          <div class="braille-label">Braille Text Bar (20 cells)</div>
+          <div class="braille-cells" id="brailleCells"></div>
+        </div>
+      </div>
+      <div class="dp-info">
+        <div class="dp-info-row">
+          <span class="dp-info-label">현재 후보</span>
+          <span class="dp-info-val" id="dpCand">—</span>
+        </div>
+        <div class="dp-info-row">
+          <span class="dp-info-label">출력 형식</span>
+          <span class="dp-info-val" id="dpType">대기 중</span>
+        </div>
+        <div class="dp-info-row">
+          <span class="dp-info-label">점자 내용</span>
+          <span class="dp-info-val" id="dpText" style="font-size:9px;word-break:break-all;max-width:120px">—</span>
+        </div>
+      </div>
+    </aside>
+  </div>
+</div>
+
+<script>
+// ── DATA ──
+const CANDIDATES = [
+  {
+    id:'c1',num:1,name:'김민준',party:'미래연합당',color:'#1a5cff',
+    age:58,career:'전 국무총리 / 서울시장',
+    intro:'30년 공직 경험을 바탕으로 안정적인 국가 운영을 약속합니다.',
+    pledges:['청년 주거 지원 50만 호 공급','AI 산업 육성 100조 투자','의료비 본인부담 30% 인하','탄소중립 2045 달성'],
+    policies:{
+      교육:'대학 등록금 50% 인하, 직업훈련 의무화',
+      복지:'기본소득 월 30만원 단계적 도입',
+      경제:'중소기업 세금 감면 확대',
+      안보:'한미동맹 강화 및 북핵 대화 병행',
+      환경:'2045 탄소중립 법제화'
+    },
+    positions:{
+      '기본소득 도입':'agree',
+      '대학 무상교육':'neutral',
+      '의료 국유화':'oppose',
+      '법인세 인상':'oppose',
+      '재생에너지 전환':'agree'
+    }
+  },
+  {
+    id:'c2',num:2,name:'이수현',party:'국민혁신당',color:'#dc2626',
+    age:54,career:'전 경제부총리 / 국회의원 3선',
+    intro:'경제 전문가로서 성장과 복지의 균형을 실현하겠습니다.',
+    pledges:['GDP 4% 성장률 달성','청년 창업 지원 2조원','국민건강보험 강화','그린뉴딜 200조 투자'],
+    policies:{
+      교육:'고교 무상교육 완성, 직업교육 내실화',
+      복지:'맞춤형 복지 강화, 저소득층 지원 확대',
+      경제:'규제 혁신으로 투자 활성화',
+      안보:'자주국방력 강화',
+      환경:'그린뉴딜로 일자리 50만 창출'
+    },
+    positions:{
+      '기본소득 도입':'oppose',
+      '대학 무상교육':'agree',
+      '의료 국유화':'neutral',
+      '법인세 인상':'neutral',
+      '재생에너지 전환':'agree'
+    }
+  },
+  {
+    id:'c3',num:3,name:'박지영',party:'녹색시민당',color:'#16a34a',
+    age:47,career:'전 환경부 장관 / 시민단체 대표',
+    intro:'기후위기 대응과 사회 불평등 해소를 최우선 과제로 삼겠습니다.',
+    pledges:['2040 탄소중립 조기 달성','기본소득 월 50만원 즉시 시행','공공의대 설립','청년 빚 탕감 프로그램'],
+    policies:{
+      교육:'대학 완전 무상교육',
+      복지:'기본소득 50만원 즉시 도입',
+      경제:'재벌 해체 및 중소기업 생태계 구축',
+      안보:'평화협정 체결 추진',
+      환경:'2040 탄소중립, 원전 즉각 폐지'
+    },
+    positions:{
+      '기본소득 도입':'agree',
+      '대학 무상교육':'agree',
+      '의료 국유화':'agree',
+      '법인세 인상':'agree',
+      '재생에너지 전환':'agree'
+    }
+  }
+];
+
+const BRAILLE_MAP={
+  'a':0b000001,'b':0b000011,'c':0b001001,'d':0b011001,'e':0b010001,
+  'f':0b001011,'g':0b011011,'h':0b010011,'i':0b001010,'j':0b011010,
+  'k':0b000101,'l':0b000111,'m':0b001101,'n':0b011101,'o':0b010101,
+  'p':0b001111,'q':0b011111,'r':0b010111,'s':0b001110,'t':0b011110,
+  'u':0b100101,'v':0b100111,'w':0b111010,'x':0b101101,'y':0b111101,'z':0b110101,
+  '1':0b000001,'2':0b000011,'3':0b001001,'4':0b011001,'5':0b010001,
+  ' ':0b000000,'가':0b010001,'나':0b001001,'다':0b000001,'라':0b011001
+};
+
+let S={
+  selected:'c1',
+  compareMode:false,
+  isPlaying:false,
+  bleConnected:false
+};
+
+let canvas,ctx,ttsObj=null;
+
+// ── RENDER ──
+function renderCandidates(){
+  const el=document.getElementById('candidateList');
+  el.innerHTML=CANDIDATES.map(c=>`
+    <div class="cand-btn${S.selected===c.id?' on':''}" data-cid="${c.id}" role="listitem" tabindex="0"
+      aria-selected="${S.selected===c.id}" aria-label="${c.num}번 ${c.name} ${c.party}">
+      <div class="cand-num" style="${S.selected===c.id?'':'background:'+c.color+'22;color:'+c.color}">${c.num}</div>
+      <div>
+        <div class="cand-name">${c.name}</div>
+        <div class="cand-party">${c.party}</div>
+      </div>
+    </div>`).join('');
+  el.querySelectorAll('.cand-btn').forEach(b=>{
+    b.addEventListener('click',()=>selectCandidate(b.dataset.cid));
+    b.addEventListener('keydown',e=>{if(e.key==='Enter')selectCandidate(b.dataset.cid);});
+  });
+}
+
+function selectCandidate(id){
+  S.selected=id;
+  stopTTS();
+  renderCandidates();
+  renderMain();
+  renderDotPad();
+}
+
+function renderMain(){
+  const el=document.getElementById('mainContent');
+  const c=CANDIDATES.find(x=>x.id===S.selected);
+  el.innerHTML=`
+    <div class="election-badge" aria-label="제21대 대통령 선거">🗳️ 제21대 대통령 선거 · 서울특별시</div>
+    <h1 class="page-title">${c.num}번 ${c.name}</h1>
+    <p class="page-sub">${c.party} · 만 ${c.age}세 · ${c.career}</p>
+
+    <div class="compare-header">
+      <h2 class="compare-title">후보 비교</h2>
+      <button class="compare-toggle${S.compareMode?' on':''}" id="btnCompare">
+        ${S.compareMode?'비교 닫기':'전체 후보 비교'}
+      </button>
+    </div>
+
+    ${S.compareMode?renderCompareTable(c):''}
+
+    <div class="detail-card" role="region" aria-label="${c.name} 기본 정보">
+      <h3>👤 기본 정보</h3>
+      <div class="detail-section">
+        <div class="detail-label">소개</div>
+        <div class="detail-text">${c.intro}</div>
+      </div>
+      <div class="detail-section">
+        <div class="detail-label">주요 공약</div>
+        <ul class="pledge-list" aria-label="주요 공약 목록">
+          ${c.pledges.map(p=>`<li class="pledge-item"><span class="pledge-dot" aria-hidden="true"></span>${p}</li>`).join('')}
+        </ul>
+      </div>
+    </div>
+
+    <div class="detail-card" role="region" aria-label="${c.name} 분야별 정책">
+      <h3>📋 분야별 정책</h3>
+      ${Object.entries(c.policies).map(([k,v])=>`
+        <div class="detail-section">
+          <div class="detail-label">${k}</div>
+          <div class="detail-text">${v}</div>
+        </div>`).join('')}
+    </div>`;
+
+  document.getElementById('btnCompare')?.addEventListener('click',()=>{
+    S.compareMode=!S.compareMode;renderMain();
+  });
+}
+
+function renderCompareTable(active){
+  const issues=['기본소득 도입','대학 무상교육','의료 국유화','법인세 인상','재생에너지 전환'];
+  const posLabel={agree:'<span class="tag-agree">✓ 찬성</span>',oppose:'<span class="tag-oppose">✗ 반대</span>',neutral:'<span class="tag-neutral">△ 중립</span>'};
+  return `
+    <table class="compare-table" role="table" aria-label="후보자 정책 비교표">
+      <caption style="clip:rect(0,0,0,0);position:absolute">후보자 정책 비교 표</caption>
+      <thead>
+        <tr>
+          <th scope="col" style="width:28%">정책 이슈</th>
+          ${CANDIDATES.map(c=>`<th class="cand-col" scope="col" style="background:${c.color}">${c.num}번 ${c.name}</th>`).join('')}
+        </tr>
+      </thead>
+      <tbody>
+        ${issues.map(issue=>`
+          <tr>
+            <td>${issue}</td>
+            ${CANDIDATES.map(c=>`<td class="cand-col">${posLabel[c.positions[issue]]||'—'}</td>`).join('')}
+          </tr>`).join('')}
+      </tbody>
+    </table>`;
+}
+
+// ── DOT PAD ──
+function renderDotPad(){
+  const c=CANDIDATES.find(x=>x.id===S.selected);
+  if(!ctx)return;
+  ctx.fillStyle='#111';ctx.fillRect(0,0,192,128);
+
+  // 후보 번호를 큰 점자 패턴으로
+  const num=c.num;
+  const dotSize=4,gap=6;
+  const patterns=[[1],[1,2],[1,2,3]]; // 1,2,3번 패턴
+  const pat=patterns[num-1]||[1];
+  ctx.fillStyle='#f97316';
+  pat.forEach((r,i)=>{
+    const cx=24+(i%2)*20,cy=24+Math.floor(i/2)*20;
+    ctx.beginPath();ctx.arc(cx,cy,dotSize,0,Math.PI*2);ctx.fill();
+  });
+
+  // 이름 점형
+  ctx.fillStyle='rgba(255,255,255,.7)';
+  const name=c.name;
+  for(let i=0;i<Math.min(name.length,8);i++){
+    const baseX=48+i*18,baseY=16;
+    for(let row=0;row<3;row++) for(let col=0;col<2;col++){
+      const on=Math.random()>.4;
+      if(on){ctx.beginPath();ctx.arc(baseX+col*8,baseY+row*10,2.5,0,Math.PI*2);ctx.fill();}
+    }
+  }
+
+  // 정당 색상 바
+  ctx.fillStyle=c.color+'44';
+  ctx.fillRect(0,105,192,23);
+  ctx.fillStyle=c.color;
+  ctx.fillRect(0,105,4,23);
+
+  // 점자 텍스트 바
+  renderBraille(c.name+' '+c.party);
+  document.getElementById('dpCand').textContent=c.name;
+  document.getElementById('dpType').textContent='촉각 그래픽 + 점자';
+  document.getElementById('dpText').textContent=c.name+' ('+c.party+')';
+}
+
+function renderBraille(text){
+  const el=document.getElementById('brailleCells');
+  const clean=text.toLowerCase().replace(/[^a-z0-9\s가나다라]/g,'').substring(0,20);
+  const dotMap=[0,2,4,1,3,5];
+  el.innerHTML=Array.from({length:20},(_, i)=>{
+    const ch=clean[i]||' ';
+    const pat=BRAILLE_MAP[ch]||(ch.charCodeAt(0)%63);
+    const dots=Array.from({length:6},(_,j)=>{
+      const bit=dotMap.indexOf(j);
+      const on=(pat>>bit)&1;
+      return `<div class="b-dot${on?' on':''}"></div>`;
+    }).join('');
+    return `<div class="braille-cell" aria-label="${ch}">${dots}</div>`;
+  }).join('');
+}
+
+// ── TTS ──
+function handleTTS(){
+  if(S.isPlaying){stopTTS();return;}
+  const c=CANDIDATES.find(x=>x.id===S.selected);
+  const text=`${c.num}번 후보 ${c.name}. ${c.party}. ${c.intro} 주요 공약: ${c.pledges.join(', ')}.`;
+  const u=new SpeechSynthesisUtterance(text);
+  u.lang='ko-KR';u.rate=0.9;
+  u.onstart=()=>{S.isPlaying=true;document.getElementById('btnTTS').className='btn-tts playing';document.getElementById('btnTTS').textContent='⏹ 멈추기';};
+  u.onend=u.onerror=()=>{S.isPlaying=false;document.getElementById('btnTTS').className='btn-tts';document.getElementById('btnTTS').textContent='🔊 읽어주기';};
+  ttsObj=u;window.speechSynthesis.speak(u);
+}
+function stopTTS(){
+  window.speechSynthesis.cancel();S.isPlaying=false;
+  document.getElementById('btnTTS').className='btn-tts';
+  document.getElementById('btnTTS').textContent='🔊 읽어주기';
+}
+
+// ── BLE ──
+async function handleDotPad(){
+  const btn=document.getElementById('btnDotPad');
+  if(S.bleConnected){S.bleConnected=false;btn.className='btn-dotpad';btn.textContent='📡 Dot Pad';showToast('연결 해제됨');return;}
+  try{
+    await navigator.bluetooth.requestDevice({acceptAllDevices:true,optionalServices:['6e400001-b5a3-f393-e0a9-e50e24dcca9e']});
+    S.bleConnected=true;btn.className='btn-dotpad connected';btn.textContent='✓ 연결됨';
+    showToast('Dot Pad 연결 성공! 선거 정보를 출력합니다.');
+    renderDotPad();
+  }catch(e){
+    if(e.name!=='NotFoundError')showToast('연결 실패');
+  }
+}
+
+// ── TOAST ──
+let toastTimer;
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>t.classList.remove('show'),2500);
+}
+
+// ── INIT ──
+function init(){
+  canvas=document.getElementById('dotCanvas');
+  ctx=canvas.getContext('2d');
+  document.getElementById('btnTTS').addEventListener('click',handleTTS);
+  document.getElementById('btnDotPad').addEventListener('click',handleDotPad);
+  renderCandidates();
+  renderMain();
+  renderDotPad();
+}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);
+else init();
+</script>
+</body>
+</html>

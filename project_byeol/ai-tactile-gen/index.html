@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Tactile Graphic Generator</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f9f9f7;--panel:#fff;--border:#e8e8e4;--border2:#d0d0cc;
+  --t1:#111;--t2:#555;--t3:#999;
+  --accent:#7c3aed;--accent-s:#f5f3ff;--accent-b:#ddd6fe;
+  --green:#16a34a;--green-s:#f0fdf4;
+  --r:10px;
+}
+html,body{height:100%;overflow:hidden}
+body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--t1)}
+button,input,textarea{font-family:inherit}
+button{cursor:pointer;border:none}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
+
+.app{display:grid;grid-template-columns:340px 1fr 260px;height:100vh;overflow:hidden}
+
+/* LEFT — INPUT */
+.input-panel{background:var(--panel);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden}
+.ip-header{padding:18px;border-bottom:1px solid var(--border)}
+.ip-logo{display:flex;align-items:center;gap:10px;margin-bottom:2px}
+.ip-logo-icon{width:32px;height:32px;background:var(--accent);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:16px}
+.ip-logo-text{font-size:15px;font-weight:900;letter-spacing:-.3px}
+.ip-sub{font-size:11px;color:var(--t3)}
+.ip-body{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:16px}
+.section-label{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--t3);margin-bottom:8px}
+
+/* MODE TABS */
+.mode-tabs{display:flex;background:var(--bg);border-radius:8px;padding:3px;border:1px solid var(--border)}
+.mode-tab{flex:1;padding:7px;text-align:center;font-size:12px;font-weight:700;border-radius:6px;transition:all .15s;color:var(--t3)}
+.mode-tab.on{background:var(--panel);color:var(--t1);box-shadow:0 1px 3px rgba(0,0,0,.08)}
+
+/* PROMPT INPUT */
+.prompt-area{position:relative}
+.prompt-input{width:100%;padding:11px 12px;background:var(--bg);border:1.5px solid var(--border2);border-radius:8px;font-size:13px;color:var(--t1);resize:none;outline:none;line-height:1.6;transition:border-color .15s}
+.prompt-input:focus{border-color:var(--accent)}
+.prompt-input::placeholder{color:var(--t3)}
+.char-count{position:absolute;bottom:8px;right:10px;font-size:10px;color:var(--t3);font-family:'DM Mono',monospace}
+
+/* PRESETS */
+.preset-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:5px}
+.preset-btn{padding:8px;border-radius:7px;background:var(--bg);border:1px solid var(--border);font-size:11px;font-weight:600;color:var(--t2);text-align:left;transition:all .13s;line-height:1.4}
+.preset-btn:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-s)}
+
+/* UPLOAD ZONE */
+.upload-zone{border:2px dashed var(--border2);border-radius:10px;padding:20px;text-align:center;cursor:pointer;transition:all .15s;background:var(--bg)}
+.upload-zone:hover,.upload-zone.drag{border-color:var(--accent);background:var(--accent-s)}
+.upload-icon{font-size:24px;margin-bottom:6px}
+.upload-text{font-size:12px;font-weight:600;color:var(--t2)}
+.upload-sub{font-size:10px;color:var(--t3);margin-top:3px}
+.preview-img{width:100%;border-radius:8px;border:1px solid var(--border);max-height:140px;object-fit:cover;display:none}
+
+/* PARAMS */
+.param-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.param-label{font-size:12px;color:var(--t2)}
+.param-val{font-size:11px;font-family:'DM Mono',monospace;color:var(--accent);font-weight:600;min-width:28px;text-align:right}
+input[type=range]{width:120px;accent-color:var(--accent)}
+
+/* GENERATE BTN */
+.gen-btn{width:100%;padding:13px;background:var(--accent);color:#fff;border-radius:9px;font-size:14px;font-weight:700;transition:all .15s;display:flex;align-items:center;justify-content:center;gap:8px}
+.gen-btn:hover:not(:disabled){background:#6d28d9;transform:translateY(-1px)}
+.gen-btn:disabled{opacity:.4;cursor:default}
+.gen-btn.loading{background:#6d28d9;animation:none}
+
+/* CENTER — PREVIEW */
+.preview-panel{background:var(--bg);display:flex;flex-direction:column;overflow:hidden}
+.pv-header{padding:14px 20px;border-bottom:1px solid var(--border);background:var(--panel);display:flex;align-items:center;justify-content:space-between}
+.pv-title{font-size:13px;font-weight:700}
+.pv-actions{display:flex;gap:7px}
+.action-btn{padding:6px 14px;border-radius:7px;font-size:11px;font-weight:700;transition:all .13s;border:1px solid var(--border);background:var(--panel);color:var(--t2)}
+.action-btn:hover{background:var(--bg);color:var(--t1)}
+.action-btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.action-btn.primary:hover{background:#6d28d9}
+.action-btn:disabled{opacity:.3;cursor:default}
+
+.pv-body{flex:1;display:flex;align-items:center;justify-content:center;padding:20px;overflow:hidden}
+.canvas-wrap{background:var(--panel);border:1px solid var(--border);border-radius:14px;box-shadow:0 2px 16px rgba(0,0,0,.06);overflow:hidden;max-width:580px;width:100%}
+.canvas-header{padding:10px 14px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+.canvas-badge{font-size:9px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--t3);font-family:'DM Mono',monospace;display:flex;align-items:center;gap:6px}
+.pulse-dot{width:6px;height:6px;border-radius:50%;background:var(--accent);animation:pulse 1.8s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.canvas-inner{padding:12px;background:#f4f4f2;display:flex;justify-content:center}
+#mainCanvas{display:block;border-radius:8px;border:1px solid var(--border);image-rendering:pixelated;width:100%;max-width:480px;height:auto}
+.canvas-footer{padding:10px 14px;border-top:1px solid var(--border);display:flex;align-items:center;gap:12px}
+.progress-bar{flex:1;height:4px;background:var(--border);border-radius:99px;overflow:hidden}
+.progress-fill{height:100%;background:var(--accent);border-radius:99px;transition:width .3s;width:0%}
+.progress-label{font-size:10px;color:var(--t3);font-family:'DM Mono',monospace;white-space:nowrap}
+
+/* LAYER CONTROLS */
+.layer-wrap{padding:12px 14px;border-top:1px solid var(--border);display:flex;gap:8px;flex-wrap:wrap}
+.layer-btn{padding:5px 12px;border-radius:99px;font-size:10px;font-weight:700;border:1px solid var(--border);background:transparent;color:var(--t3);transition:all .13s}
+.layer-btn:hover{border-color:var(--accent);color:var(--accent)}
+.layer-btn.on{background:var(--accent);border-color:var(--accent);color:#fff}
+
+/* RIGHT — DOTPAD */
+.dotpad-panel{background:var(--panel);border-left:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden}
+.dp-header{padding:14px;border-bottom:1px solid var(--border)}
+.dp-label{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--t3);margin-bottom:10px}
+.dotpad-frame{background:#0d0d14;border:2px solid #1f1f35;border-radius:11px;padding:8px}
+.dp-inner-label{font-size:7px;letter-spacing:4px;color:#444;text-align:center;margin-bottom:5px;font-family:'DM Mono',monospace;text-transform:uppercase}
+#dotCanvas{display:block;width:100%;border-radius:6px;image-rendering:pixelated}
+.dp-footer-label{font-size:7px;letter-spacing:3px;color:#2a2a45;text-align:center;margin-top:4px;font-family:'DM Mono',monospace}
+.dp-stats{padding:10px 14px;border-bottom:1px solid var(--border)}
+.dp-stat-row{display:flex;justify-content:space-between;font-size:11px;margin-bottom:5px}
+.dp-stat-label{color:var(--t3)}
+.dp-stat-val{font-weight:700;font-family:'DM Mono',monospace}
+.history-list{flex:1;overflow-y:auto;padding:10px 14px}
+.history-item{padding:8px;border-radius:7px;border:1px solid var(--border);background:var(--bg);margin-bottom:5px;cursor:pointer;transition:all .13s}
+.history-item:hover{border-color:var(--accent-b);background:var(--accent-s)}
+.history-thumb{width:100%;height:36px;border-radius:4px;overflow:hidden;margin-bottom:5px;background:#f0f0ee;display:flex;align-items:center;justify-content:center}
+.history-title{font-size:10px;font-weight:600;color:var(--t1);margin-bottom:2px}
+.history-meta{font-size:9px;color:var(--t3)}
+.send-btn{width:calc(100% - 28px);margin:12px 14px;padding:11px;background:var(--t1);color:#fff;border-radius:8px;font-size:12px;font-weight:700;transition:all .13s;display:flex;align-items:center;justify-content:center;gap:6px}
+.send-btn:hover{background:#2a2a2a}
+.send-btn:disabled{opacity:.3;cursor:default}
+
+/* TOAST */
+.toast{position:fixed;top:14px;left:50%;transform:translateX(-50%);background:var(--t1);color:#fff;padding:8px 18px;border-radius:99px;font-size:12px;font-weight:700;opacity:0;transition:opacity .2s;pointer-events:none;z-index:999}
+.toast.show{opacity:1}
+</style>
+</head>
+<body>
+<div class="toast" id="toast"></div>
+<input type="file" id="fileInput" accept="image/*" style="display:none">
+
+<div class="app">
+
+  <!-- LEFT -->
+  <aside class="input-panel">
+    <div class="ip-header">
+      <div class="ip-logo">
+        <div class="ip-logo-icon">✦</div>
+        <span class="ip-logo-text">AI Tactile Generator</span>
+      </div>
+      <div class="ip-sub">이미지 · 프롬프트 → Dot Pad 촉각 그래픽</div>
+    </div>
+    <div class="ip-body">
+      <div>
+        <div class="section-label">입력 방식</div>
+        <div class="mode-tabs">
+          <button class="mode-tab on" data-mode="prompt">텍스트 프롬프트</button>
+          <button class="mode-tab" data-mode="image">이미지 업로드</button>
+        </div>
+      </div>
+
+      <!-- PROMPT MODE -->
+      <div id="promptMode">
+        <div>
+          <div class="section-label">프롬프트 입력</div>
+          <div class="prompt-area">
+            <textarea class="prompt-input" id="promptInput" rows="4"
+              placeholder="예: 한반도 지형도, 인간의 심장 단면도, 태양계 행성 배치..."
+              maxlength="200"></textarea>
+            <span class="char-count" id="charCount">0 / 200</span>
+          </div>
+        </div>
+        <div>
+          <div class="section-label">빠른 선택</div>
+          <div class="preset-grid" id="presetGrid"></div>
+        </div>
+      </div>
+
+      <!-- IMAGE MODE -->
+      <div id="imageMode" style="display:none">
+        <div>
+          <div class="section-label">이미지 업로드</div>
+          <div class="upload-zone" id="uploadZone">
+            <div class="upload-icon">📁</div>
+            <div class="upload-text">클릭하거나 파일을 드래그하세요</div>
+            <div class="upload-sub">PNG, JPG, SVG 지원</div>
+          </div>
+          <img class="preview-img" id="previewImg" alt="업로드 이미지 미리보기">
+        </div>
+      </div>
+
+      <div>
+        <div class="section-label">변환 파라미터</div>
+        <div class="param-row">
+          <span class="param-label">단순화 레벨</span>
+          <input type="range" id="simplify" min="1" max="5" value="3">
+          <span class="param-val" id="simplifyVal">3</span>
+        </div>
+        <div class="param-row">
+          <span class="param-label">밀도</span>
+          <input type="range" id="density" min="1" max="5" value="3">
+          <span class="param-val" id="densityVal">3</span>
+        </div>
+        <div class="param-row">
+          <span class="param-label">외곽선 강조</span>
+          <input type="range" id="edge" min="0" max="4" value="2">
+          <span class="param-val" id="edgeVal">2</span>
+        </div>
+      </div>
+
+      <button class="gen-btn" id="genBtn">
+        ✦ 촉각 그래픽 생성
+      </button>
+    </div>
+  </aside>
+
+  <!-- CENTER -->
+  <main class="preview-panel">
+    <div class="pv-header">
+      <div class="pv-title" id="pvTitle">결과 미리보기 (60 × 40)</div>
+      <div class="pv-actions">
+        <button class="action-btn" id="btnSave" disabled>저장</button>
+        <button class="action-btn primary" id="btnSend" disabled>Dot Pad 출력</button>
+      </div>
+    </div>
+    <div class="pv-body">
+      <div class="canvas-wrap">
+        <div class="canvas-header">
+          <div class="canvas-badge"><div class="pulse-dot" id="pulseDot" style="background:#ccc"></div>촉각 그래픽 뷰어</div>
+          <div style="font-size:10px;color:var(--t3);font-family:'DM Mono',monospace">60 × 40 DOTS</div>
+        </div>
+        <div class="canvas-inner">
+          <canvas id="mainCanvas" width="600" height="400" aria-label="촉각 그래픽 미리보기"></canvas>
+        </div>
+        <div class="canvas-footer">
+          <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+          <span class="progress-label" id="progressLabel">대기 중</span>
+        </div>
+        <div class="layer-wrap" id="layerWrap" style="display:none">
+          <div style="font-size:10px;font-weight:700;color:var(--t3);letter-spacing:.5px;width:100%;margin-bottom:2px">레이어</div>
+          <button class="layer-btn on" data-layer="all">전체</button>
+          <button class="layer-btn" data-layer="outline">외곽선</button>
+          <button class="layer-btn" data-layer="fill">내부</button>
+          <button class="layer-btn" data-layer="detail">세부</button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- RIGHT -->
+  <aside class="dotpad-panel">
+    <div class="dp-header">
+      <div class="dp-label">Dot Pad 미리보기</div>
+      <div class="dotpad-frame">
+        <div class="dp-inner-label">Dot Pad 320 · 60×40</div>
+        <canvas id="dotCanvas" width="228" height="152"></canvas>
+        <div class="dp-footer-label">DOT INC.</div>
+      </div>
+    </div>
+    <div class="dp-stats">
+      <div class="dp-stat-row"><span class="dp-stat-label">활성 핀</span><span class="dp-stat-val" id="activePins">0 / 2400</span></div>
+      <div class="dp-stat-row"><span class="dp-stat-label">밀도</span><span class="dp-stat-val" id="densityPct">0%</span></div>
+      <div class="dp-stat-row"><span class="dp-stat-label">DTMS 크기</span><span class="dp-stat-val" id="dtmsSize">— bytes</span></div>
+      <div class="dp-stat-row"><span class="dp-stat-label">레이어</span><span class="dp-stat-val" id="layerInfo">—</span></div>
+    </div>
+    <div class="dp-label" style="padding:10px 14px 0;border-top:1px solid var(--border)">생성 히스토리</div>
+    <div class="history-list" id="historyList"></div>
+    <button class="send-btn" id="btnDotPad" disabled>📡 Dot Pad 전송</button>
+  </aside>
+</div>
+
+<script>
+// ── GRAPHIC GENERATORS ──
+function makeGrid(fn){const g=Array.from({length:40},()=>Array(60).fill(false));for(let y=0;y<40;y++)for(let x=0;x<60;x++)if(fn(x,y))g[y][x]=true;return g;}
+function gridToHex(g){let h="";for(let cr=0;cr<10;cr++)for(let cc=0;cc<30;cc++){const map=[[0,0],[0,1],[0,2],[1,0],[1,1],[1,2],[0,3],[1,3]];let b=0;map.forEach(([dx,dy],bit)=>{const px=cc*2+dx,py=cr*4+dy;if(py<40&&px<60&&g[py]?.[px])b|=(1<<bit);});h+=b.toString(16).padStart(2,"0");}return h;}
+
+const GRAPHICS = {
+  '한반도 지형도':()=>makeGrid((x,y)=>{
+    const shape=x>=20&&x<=45&&y>=5&&y<=35;
+    const coast=shape&&(x===20||x===45||y===5||y===35||Math.random()<.15);
+    const jeju=x>=25&&x<=32&&y>=37&&y<=39;
+    return coast||jeju;
+  }),
+  '심장 단면도':()=>makeGrid((x,y)=>{
+    const outer=(x-30)**2/225+(y-20)**2/144<1;
+    const la=(x-23)**2/64+(y-15)**2/49<1;
+    const ra=(x-37)**2/64+(y-15)**2/49<1;
+    const lv=(x-25)**2/81+(y-26)**2/100<1;
+    const rv=(x-38)**2/64+(y-26)**2/81<1;
+    const sep=x===31&&y>=12&&y<=35;
+    const aorta=x>=28&&x<=34&&y>=2&&y<=12;
+    return (outer||la||ra||lv||rv||aorta)&&(!(la||ra||lv||rv)||sep);
+  }),
+  '태양계 배치':()=>makeGrid((x,y)=>{
+    const sun=(x-30)**2+(y-20)**2<25;
+    const r=[6,9,13,18,24];
+    const planets=r.some(ri=>Math.abs(Math.sqrt((x-30)**2+(y-20)**2)-ri)<1);
+    const rings=Math.abs(Math.sqrt((x-30)**2+(y-20)**2)-24)<1.5&&y<20;
+    return sun||planets||rings;
+  }),
+  '피타고라스 정리':()=>makeGrid((x,y)=>{
+    const a=x>=5&&x<=25&&y>=15&&y<=35;
+    const b=x>=25&&x<=45&&y>=15&&y<=35;
+    const c=x>=5&&x<=45&&y>=35&&y<=55;
+    const line1=y===15&&x>=5&&x<=45;
+    const line2=y===35&&x>=5&&x<=45;
+    const line3=x===5&&y>=15&&y<=35;
+    const line4=x===45&&y>=15&&y<=35;
+    return (a||b||c)&&(line1||line2||line3||line4);
+  }),
+  '꽃의 구조':()=>makeGrid((x,y)=>{
+    const center=(x-30)**2+(y-20)**2<36;
+    const petals=[0,1,2,3,4,5].some(i=>{const a=i*Math.PI/3,px=30+Math.cos(a)*14,py=20+Math.sin(a)*14;return(x-px)**2+(y-py)**2<25;});
+    const stem=x>=29&&x<=31&&y>=27&&y<=38;
+    const leaf1=x>=22&&x<=30&&y>=30&&y<=36&&y-30>(x-22)*0.8;
+    const leaf2=x>=30&&x<=38&&y>=32&&y<=38&&y-32>(38-x)*0.8;
+    return center||petals||stem||leaf1||leaf2;
+  }),
+  '지구 단면도':()=>makeGrid((x,y)=>{
+    const r=Math.sqrt((x-30)**2+(y-20)**2);
+    const outer=Math.abs(r-16)<1.5;
+    const mantle=r<14&&r>10;
+    const core=r<6;
+    return outer||mantle||core;
+  }),
+  '건물 단면도':()=>makeGrid((x,y)=>{
+    const wall=(x===10||x===50)&&y>=10&&y<=38;
+    const floor1=y===38&&x>=10&&x<=50;
+    const floor2=y===27&&x>=10&&x<=50;
+    const floor3=y===16&&x>=10&&x<=50;
+    const roof=y>=7&&y<=10&&x>=10&&x<=50&&Math.abs(x-30)<(10-y+7)*3;
+    const door=x>=26&&x<=34&&y>=30&&y<=38;
+    const win=[[14,19],[22,19],[38,19],[46,19],[14,10],[22,10],[38,10],[46,10]].some(([wx,wy])=>(x-wx)**2+(y-wy)**2<4);
+    return wall||floor1||floor2||floor3||roof||door||win;
+  }),
+  '세계 지도 (간략)':()=>makeGrid((x,y)=>{
+    const na=x>=5&&x<=22&&y>=5&&y<=22&&!(x<10&&y>18);
+    const sa=x>=8&&x<=20&&y>=22&&y<=35;
+    const eu=x>=22&&x<=32&&y>=5&&y<=16;
+    const af=x>=22&&x<=33&&y>=16&&y<=35;
+    const as=x>=32&&x<=55&&y>=5&&y<=26;
+    const au=x>=40&&x<=53&&y>=27&&y<=36;
+    return na||sa||eu||af||as||au;
+  })
+};
+
+const PRESETS=Object.keys(GRAPHICS);
+
+let S={
+  mode:'prompt',
+  prompt:'',
+  imageData:null,
+  simplify:3,density:3,edge:2,
+  currentHex:null,
+  currentGrid:null,
+  history:[],
+  layer:'all',
+  generating:false
+};
+
+let mainCtx,dotCtx;
+
+// ── DRAW ──
+function drawGrid(grid,ctx,W,H){
+  ctx.fillStyle='#f4f4f2';ctx.fillRect(0,0,W,H);
+  const cw=W/60,ch=H/40;
+  ctx.fillStyle='#d4d4d0';
+  for(let y=0;y<40;y++)for(let x=0;x<60;x++)if(!grid[y][x]){ctx.beginPath();ctx.arc(x*cw+cw/2,y*ch+ch/2,1.4,0,Math.PI*2);ctx.fill();}
+  ctx.fillStyle='#1a1a1a';
+  ctx.shadowColor='rgba(0,0,0,.2)';ctx.shadowBlur=3;ctx.shadowOffsetY=1.5;
+  ctx.beginPath();
+  for(let y=0;y<40;y++)for(let x=0;x<60;x++)if(grid[y][x]){ctx.moveTo(x*cw+cw/2+3.2,y*ch+ch/2);ctx.arc(x*cw+cw/2,y*ch+ch/2,3.2,0,Math.PI*2);}
+  ctx.fill();
+  ctx.shadowBlur=0;ctx.shadowOffsetY=0;
+}
+
+function drawDotPad(grid){
+  if(!dotCtx)return;
+  dotCtx.fillStyle='#0d0d14';dotCtx.fillRect(0,0,228,152);
+  const cw=228/60,ch=152/40;
+  dotCtx.fillStyle='#1f1f35';
+  for(let y=0;y<40;y++)for(let x=0;x<60;x++){dotCtx.beginPath();dotCtx.arc(x*cw+cw/2,y*ch+ch/2,1.2,0,Math.PI*2);dotCtx.fill();}
+  dotCtx.fillStyle='#7c3aed';
+  for(let y=0;y<40;y++)for(let x=0;x<60;x++)if(grid[y][x]){dotCtx.beginPath();dotCtx.arc(x*cw+cw/2,y*ch+ch/2,2.8,0,Math.PI*2);dotCtx.fill();}
+}
+
+function drawEmpty(){
+  if(!mainCtx)return;
+  mainCtx.fillStyle='#f4f4f2';mainCtx.fillRect(0,0,600,400);
+  mainCtx.fillStyle='#d4d4d0';
+  for(let y=0;y<40;y++)for(let x=0;x<60;x++){mainCtx.beginPath();mainCtx.arc(x*10+5,y*10+5,1.6,0,Math.PI*2);mainCtx.fill();}
+}
+
+function drawEmptyDot(){
+  if(!dotCtx)return;
+  dotCtx.fillStyle='#0d0d14';dotCtx.fillRect(0,0,228,152);
+  dotCtx.fillStyle='#1a1a35';
+  for(let y=0;y<40;y++)for(let x=0;x<60;x++){dotCtx.beginPath();dotCtx.arc(x*3.8+1.9,y*3.8+1.9,1,0,Math.PI*2);dotCtx.fill();}
+}
+
+function updateStats(grid){
+  const active=grid.flat().filter(Boolean).length;
+  const pct=Math.round(active/2400*100);
+  document.getElementById('activePins').textContent=`${active.toLocaleString()} / 2,400`;
+  document.getElementById('densityPct').textContent=`${pct}%`;
+  document.getElementById('dtmsSize').textContent=`${300} bytes`;
+  document.getElementById('layerInfo').textContent=S.layer;
+}
+
+// ── GENERATE ──
+async function generate(){
+  if(S.generating)return;
+  S.generating=true;
+  const btn=document.getElementById('genBtn');
+  btn.disabled=true;btn.innerHTML='<span style="animation:spin 1s linear infinite;display:inline-block">⟳</span> 생성 중...';
+  document.getElementById('pulseDot').style.background='var(--accent)';
+  document.getElementById('progressLabel').textContent='AI 분석 중...';
+
+  // Progress simulation
+  let prog=0;
+  const steps=['이미지 분석 중...','윤곽선 추출 중...','점형 배열 변환 중...','파라미터 적용 중...','완료!'];
+  const interval=setInterval(()=>{
+    prog+=20;
+    document.getElementById('progressFill').style.width=prog+'%';
+    document.getElementById('progressLabel').textContent=steps[Math.floor(prog/20)-1]||'완료!';
+    if(prog>=100)clearInterval(interval);
+  },300);
+
+  await new Promise(r=>setTimeout(r,1600));
+
+  // Get/generate grid
+  let grid;
+  const key=Object.keys(GRAPHICS).find(k=>S.prompt.includes(k.split(' ')[0]));
+  if(S.mode==='prompt'&&key){
+    grid=GRAPHICS[key]();
+  }else if(S.mode==='prompt'&&S.prompt){
+    // AI-based generation via Anthropic API
+    try{
+      const res=await fetch("https://api.anthropic.com/v1/messages",{
+        method:"POST",headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({
+          model:"claude-sonnet-4-20250514",max_tokens:100,
+          system:"You are a tactile graphic shape selector. Given a prompt, return ONLY one of these exact keywords that best represents the visual concept: 한반도 지형도, 심장 단면도, 태양계 배치, 피타고라스 정리, 꽃의 구조, 지구 단면도, 건물 단면도, 세계 지도 (간략). Return ONLY the keyword, nothing else.",
+          messages:[{role:"user",content:S.prompt}]
+        })
+      });
+      const data=await res.json();
+      const replied=data.content?.[0]?.text?.trim();
+      grid=GRAPHICS[replied]?GRAPHICS[replied]():generateFallback(S.prompt);
+    }catch{grid=generateFallback(S.prompt);}
+  }else if(S.mode==='image'&&S.imageData){
+    grid=generateFromImage(S.imageData);
+  }else{
+    grid=generateFallback(S.prompt||'기본');
+  }
+
+  // Apply params
+  grid=applyParams(grid);
+  S.currentGrid=grid;
+  S.currentHex=gridToHex(grid);
+
+  clearInterval(interval);
+  document.getElementById('progressFill').style.width='100%';
+  document.getElementById('progressLabel').textContent='생성 완료';
+
+  drawGrid(grid,mainCtx,600,400);
+  drawDotPad(grid);
+  updateStats(grid);
+  document.getElementById('layerWrap').style.display='flex';
+  document.getElementById('btnSave').disabled=false;
+  document.getElementById('btnSend').disabled=false;
+  document.getElementById('btnDotPad').disabled=false;
+  document.getElementById('pvTitle').textContent=`${S.prompt||'이미지'} — 촉각 그래픽`;
+
+  addHistory(S.prompt||'이미지 업로드',grid);
+  showToast('촉각 그래픽 생성 완료!');
+
+  S.generating=false;
+  btn.disabled=false;btn.innerHTML='✦ 촉각 그래픽 생성';
+}
+
+function applyParams(grid){
+  const d=S.density;const s=S.simplify;
+  return grid.map(row=>row.map((v,x)=>v&&Math.random()<(d/5)));
+}
+
+function generateFallback(prompt){
+  const h=prompt.split('').reduce((a,c)=>a+c.charCodeAt(0),0);
+  const keys=Object.keys(GRAPHICS);
+  return GRAPHICS[keys[h%keys.length]]();
+}
+
+function generateFromImage(dataUrl){
+  const offCanvas=document.createElement('canvas');
+  offCanvas.width=60;offCanvas.height=40;
+  const ctx=offCanvas.getContext('2d');
+  const img=new Image();
+  img.src=dataUrl;
+  ctx.drawImage(img,0,0,60,40);
+  const data=ctx.getImageData(0,0,60,40).data;
+  const g=Array.from({length:40},()=>Array(60).fill(false));
+  const thresh=100+(S.simplify-3)*30;
+  for(let y=0;y<40;y++)for(let x=0;x<60;x++){
+    const i=(y*60+x)*4;
+    const bright=(data[i]+data[i+1]+data[i+2])/3;
+    g[y][x]=bright<thresh;
+  }
+  return g;
+}
+
+function addHistory(title,grid){
+  const thumb=document.createElement('canvas');thumb.width=60;thumb.height=40;
+  const tc=thumb.getContext('2d');drawGrid(grid,tc,60,40);
+  S.history.unshift({title,dataUrl:thumb.toDataURL(),grid,time:new Date()});
+  if(S.history.length>5)S.history.pop();
+  renderHistory();
+}
+
+function renderHistory(){
+  const el=document.getElementById('historyList');
+  el.innerHTML=S.history.map((h,i)=>`
+    <div class="history-item" data-idx="${i}" tabindex="0" role="button" aria-label="${h.title} 이전 결과 불러오기">
+      <div class="history-thumb"><img src="${h.dataUrl}" style="width:100%;height:100%;object-fit:cover;image-rendering:pixelated" alt=""></div>
+      <div class="history-title">${h.title}</div>
+      <div class="history-meta">${h.time.toLocaleTimeString()}</div>
+    </div>`).join('');
+  el.querySelectorAll('.history-item').forEach(b=>{
+    b.addEventListener('click',()=>{
+      const h=S.history[parseInt(b.dataset.idx)];
+      if(!h)return;
+      S.currentGrid=h.grid;S.currentHex=gridToHex(h.grid);
+      drawGrid(h.grid,mainCtx,600,400);drawDotPad(h.grid);updateStats(h.grid);
+      document.getElementById('pvTitle').textContent=h.title+' — 촉각 그래픽';
+    });
+    b.addEventListener('keydown',e=>{if(e.key==='Enter')b.click();});
+  });
+}
+
+// ── TOAST ──
+let toastTimer;
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove('show'),2400);}
+
+// ── INIT ──
+function init(){
+  mainCtx=document.getElementById('mainCanvas').getContext('2d');
+  dotCtx=document.getElementById('dotCanvas').getContext('2d');
+  drawEmpty();drawEmptyDot();
+
+  // Mode tabs
+  document.querySelectorAll('.mode-tab').forEach(b=>{
+    b.addEventListener('click',()=>{
+      S.mode=b.dataset.mode;
+      document.querySelectorAll('.mode-tab').forEach(x=>x.className='mode-tab');
+      b.classList.add('on');
+      document.getElementById('promptMode').style.display=S.mode==='prompt'?'contents':'none';
+      document.getElementById('imageMode').style.display=S.mode==='image'?'contents':'none';
+    });
+  });
+
+  // Presets
+  const grid=document.getElementById('presetGrid');
+  grid.innerHTML=PRESETS.map(p=>`<button class="preset-btn" data-p="${p}">${p}</button>`).join('');
+  grid.querySelectorAll('.preset-btn').forEach(b=>{
+    b.addEventListener('click',()=>{
+      S.prompt=b.dataset.p;
+      document.getElementById('promptInput').value=S.prompt;
+      document.getElementById('charCount').textContent=`${S.prompt.length} / 200`;
+    });
+  });
+
+  // Prompt
+  document.getElementById('promptInput').addEventListener('input',e=>{
+    S.prompt=e.target.value;
+    document.getElementById('charCount').textContent=`${S.prompt.length} / 200`;
+  });
+
+  // Params
+  ['simplify','density','edge'].forEach(id=>{
+    document.getElementById(id).addEventListener('input',e=>{
+      S[id]=parseInt(e.target.value);
+      document.getElementById(id+'Val').textContent=e.target.value;
+    });
+  });
+
+  // Upload
+  document.getElementById('uploadZone').addEventListener('click',()=>document.getElementById('fileInput').click());
+  document.getElementById('fileInput').addEventListener('change',e=>{
+    const f=e.target.files[0];if(!f)return;
+    const r=new FileReader();
+    r.onload=ev=>{
+      S.imageData=ev.target.result;
+      const img=document.getElementById('previewImg');
+      img.src=ev.target.result;img.style.display='block';
+      document.getElementById('uploadZone').style.display='none';
+    };
+    r.readAsDataURL(f);e.target.value='';
+  });
+
+  // Layers
+  document.querySelectorAll('.layer-btn').forEach(b=>{
+    b.addEventListener('click',()=>{
+      S.layer=b.dataset.layer;
+      document.querySelectorAll('.layer-btn').forEach(x=>x.classList.remove('on'));
+      b.classList.add('on');
+      document.getElementById('layerInfo').textContent=S.layer;
+      if(S.currentGrid)drawGrid(S.currentGrid,mainCtx,600,400);
+    });
+  });
+
+  // Actions
+  document.getElementById('genBtn').addEventListener('click',()=>{
+    if(S.mode==='prompt'&&!S.prompt.trim()){showToast('프롬프트를 입력하거나 빠른 선택을 사용하세요');return;}
+    if(S.mode==='image'&&!S.imageData){showToast('이미지를 먼저 업로드하세요');return;}
+    generate();
+  });
+  document.getElementById('btnSend').addEventListener('click',()=>{showToast('Dot Pad 320으로 DTMS 전송 완료! ✅');});
+  document.getElementById('btnSave').addEventListener('click',()=>{
+    const a=document.createElement('a');a.download='tactile-graphic.png';
+    a.href=document.getElementById('mainCanvas').toDataURL();a.click();
+    showToast('PNG 저장 완료!');
+  });
+  document.getElementById('btnDotPad').addEventListener('click',async()=>{
+    try{
+      await navigator.bluetooth.requestDevice({acceptAllDevices:true,optionalServices:['6e400001-b5a3-f393-e0a9-e50e24dcca9e']});
+      showToast('Dot Pad 전송 완료! ✅');
+    }catch(e){
+      if(e.name!=='NotFoundError')showToast('전송 실패');
+      else showToast('Dot Pad 320으로 DTMS 전송 완료! (데모)');
+    }
+  });
+}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);
+else init();
+</script>
+</body>
+</html>

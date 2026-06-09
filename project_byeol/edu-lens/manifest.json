@@ -1,0 +1,27 @@
+{
+  "manifest_version": 3,
+  "name": "Dot Edu-Lens Pro 0.4",
+  "version": "0.4",
+  "description": "실시간 그래픽 및 점자 텍스트 멀티모달 플러그인",
+  "permissions": [
+    "sidePanel",
+    "activeTab",
+    "tabs",
+    "scripting"
+  ],
+  "side_panel": {
+    "default_path": "sidepanel.html"
+  },
+  "action": {
+    "default_title": "Dot Edu-Lens 열기"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"]
+    }
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ]
+}

@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dot Venture — 촉각 탐험 게임 플랫폼</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0d0d14;--panel:#13131f;--card:#1a1a2e;--border:#252540;
+  --accent:#7c6ff7;--accent2:#5a52d5;--green:#22d68a;--amber:#f59e0b;
+  --red:#ef4444;--text:#e8e6ff;--dim:#6b6898;--dim2:#3d3b5e;
+}
+html,body{width:100%;height:100%;overflow:hidden}
+body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text)}
+button{font-family:inherit;cursor:pointer;border:none}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+/* LAYOUT */
+.app{display:grid;grid-template-columns:260px 1fr 280px;grid-template-rows:52px 1fr;height:100vh;gap:0}
+.topbar{grid-column:1/-1;background:var(--panel);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 20px}
+.logo{display:flex;align-items:center;gap:10px;font-weight:900;font-size:15px;letter-spacing:-.3px}
+.logo-icon{width:28px;height:28px;background:var(--accent);border-radius:8px;display:grid;grid-template-columns:repeat(3,1fr);gap:2px;padding:5px}
+.logo-dot{background:rgba(255,255,255,.9);border-radius:50%}
+.tb-right{display:flex;align-items:center;gap:10px}
+.status-pill{font-size:11px;font-weight:700;padding:4px 12px;border-radius:99px;background:rgba(34,214,138,.1);color:var(--green);border:1px solid rgba(34,214,138,.2);display:flex;align-items:center;gap:6px}
+.dot-live{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.btn-connect{padding:6px 16px;background:var(--accent);color:#fff;border-radius:8px;font-size:12px;font-weight:700;transition:background .15s}
+.btn-connect:hover{background:var(--accent2)}
+.btn-connect.connected{background:rgba(34,214,138,.2);color:var(--green);border:1px solid rgba(34,214,138,.3)}
+
+/* LEFT — LIBRARY */
+.sidebar-left{background:var(--panel);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden}
+.sl-head{padding:16px;border-bottom:1px solid var(--border)}
+.sl-title{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--dim);margin-bottom:10px}
+.cat-row{display:flex;gap:4px;flex-wrap:wrap}
+.cat-btn{font-size:10px;font-weight:700;padding:4px 10px;border-radius:99px;background:var(--dim2);color:var(--dim);transition:all .15s}
+.cat-btn:hover,.cat-btn.on{background:var(--accent);color:#fff}
+.content-list{flex:1;overflow-y:auto;padding:12px}
+.content-card{padding:11px;border-radius:10px;border:1px solid var(--border);background:var(--card);margin-bottom:6px;cursor:pointer;transition:all .15s}
+.content-card:hover,.content-card.on{border-color:var(--accent);background:rgba(124,111,247,.08)}
+.content-card-title{font-size:12px;font-weight:700;margin-bottom:3px}
+.content-card-meta{display:flex;gap:6px;align-items:center}
+.tag{font-size:9px;font-weight:700;padding:2px 7px;border-radius:99px}
+.tag-adventure{background:rgba(124,111,247,.15);color:var(--accent)}
+.tag-puzzle{background:rgba(245,158,11,.15);color:var(--amber)}
+.tag-explore{background:rgba(34,214,138,.15);color:var(--green)}
+.diff{font-size:9px;color:var(--dim)}
+
+/* CENTER — GAME */
+.main{display:flex;flex-direction:column;background:var(--bg);overflow:hidden}
+.game-header{padding:12px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.game-title{font-size:14px;font-weight:700}
+.game-stats{display:flex;gap:16px}
+.stat{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:700}
+.stat-val{font-family:'DM Mono',monospace;color:var(--accent)}
+.game-area{flex:1;display:flex;align-items:center;justify-content:center;padding:16px;position:relative}
+.map-container{position:relative}
+.map-grid{display:grid;gap:2px}
+.cell{width:32px;height:32px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:14px;transition:all .15s;position:relative}
+.cell-floor{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06)}
+.cell-wall{background:rgba(124,111,247,.15);border:1px solid rgba(124,111,247,.25)}
+.cell-item{background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.2);cursor:pointer}
+.cell-item:hover{background:rgba(245,158,11,.2)}
+.cell-exit{background:rgba(34,214,138,.1);border:1px solid rgba(34,214,138,.3)}
+.cell-player{background:var(--accent);border:2px solid rgba(255,255,255,.4);box-shadow:0 0 12px rgba(124,111,247,.6)}
+.cell-npc{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3)}
+.hint-bar{position:absolute;bottom:16px;left:50%;transform:translateX(-50%);background:rgba(13,13,20,.9);border:1px solid var(--border);border-radius:8px;padding:8px 16px;font-size:12px;text-align:center;min-width:200px;backdrop-filter:blur(8px)}
+.controls-bar{padding:12px 20px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:center;gap:8px;flex-shrink:0}
+.ctrl-btn{width:44px;height:44px;background:var(--card);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:18px;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.ctrl-btn:hover,.ctrl-btn:active{background:var(--accent);border-color:var(--accent);transform:scale(.95)}
+.ctrl-center{display:flex;flex-direction:column;align-items:center;gap:4px}
+
+/* RIGHT — DOT PAD */
+.sidebar-right{background:var(--panel);border-left:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden}
+.sr-head{padding:14px;border-bottom:1px solid var(--border)}
+.sr-title{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--dim);margin-bottom:10px}
+.dotpad-frame{background:#0a0a12;border:2px solid var(--border);border-radius:12px;padding:8px;margin-bottom:12px}
+.dotpad-label{font-size:8px;letter-spacing:4px;text-transform:uppercase;color:var(--dim);text-align:center;margin-bottom:5px;font-family:'DM Mono',monospace}
+#dotCanvas{display:block;border-radius:6px;width:100%;image-rendering:pixelated}
+.dotpad-brand{font-size:7px;letter-spacing:3px;color:var(--dim2);text-align:center;margin-top:4px;font-family:'DM Mono',monospace}
+.info-section{padding:12px 14px;border-bottom:1px solid var(--border)}
+.info-row{display:flex;justify-content:space-between;align-items:center;font-size:11px;margin-bottom:7px}
+.info-label{color:var(--dim)}
+.info-val{font-weight:700;color:var(--text);font-family:'DM Mono',monospace;font-size:11px}
+.event-log{flex:1;overflow-y:auto;padding:12px 14px}
+.event-item{font-size:11px;padding:7px 10px;border-radius:7px;background:var(--card);border:1px solid var(--border);margin-bottom:5px;line-height:1.5}
+.event-item.info{border-color:rgba(124,111,247,.3);background:rgba(124,111,247,.06)}
+.event-item.success{border-color:rgba(34,214,138,.3);background:rgba(34,214,138,.06)}
+.event-item.warn{border-color:rgba(245,158,11,.3);background:rgba(245,158,11,.06)}
+.event-time{font-family:'DM Mono',monospace;font-size:9px;color:var(--dim);margin-right:6px}
+
+/* TOAST */
+.toast{position:fixed;top:64px;left:50%;transform:translateX(-50%);background:var(--accent);color:#fff;padding:8px 18px;border-radius:99px;font-size:12px;font-weight:700;opacity:0;transition:opacity .2s;pointer-events:none;z-index:999}
+.toast.show{opacity:1}
+</style>
+</head>
+<body>
+<div class="toast" id="toast"></div>
+<div class="app">
+
+  <!-- TOPBAR -->
+  <header class="topbar">
+    <div class="logo">
+      <div class="logo-icon">
+        <div class="logo-dot"></div><div class="logo-dot"></div><div class="logo-dot"></div>
+        <div class="logo-dot"></div><div class="logo-dot"></div><div class="logo-dot"></div>
+        <div class="logo-dot"></div><div class="logo-dot"></div><div class="logo-dot"></div>
+      </div>
+      Dot Venture
+    </div>
+    <div class="tb-right">
+      <div class="status-pill"><div class="dot-live"></div>Demo Mode</div>
+      <button class="btn-connect" id="btnConnect">Dot Pad 연결</button>
+    </div>
+  </header>
+
+  <!-- LEFT SIDEBAR -->
+  <aside class="sidebar-left">
+    <div class="sl-head">
+      <div class="sl-title">콘텐츠 라이브러리</div>
+      <div class="cat-row">
+        <button class="cat-btn on" data-cat="전체">전체</button>
+        <button class="cat-btn" data-cat="탐험">탐험</button>
+        <button class="cat-btn" data-cat="퍼즐">퍼즐</button>
+        <button class="cat-btn" data-cat="어드벤처">어드벤처</button>
+      </div>
+    </div>
+    <div class="content-list" id="contentList"></div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+    <div class="game-header">
+      <div class="game-title" id="gameTitle">고대 신전의 비밀</div>
+      <div class="game-stats">
+        <div class="stat">🏆 <span class="stat-val" id="score">0</span></div>
+        <div class="stat">❤️ <span class="stat-val" id="hp">3</span></div>
+        <div class="stat">🗝️ <span class="stat-val" id="keys">0</span>/3</div>
+        <div class="stat">📍 <span class="stat-val" id="pos">5,5</span></div>
+      </div>
+    </div>
+    <div class="game-area">
+      <div class="map-container">
+        <div class="map-grid" id="mapGrid"></div>
+        <div class="hint-bar" id="hintBar">방향키 또는 아래 버튼으로 이동하세요</div>
+      </div>
+    </div>
+    <div class="controls-bar">
+      <div></div>
+      <div style="display:grid;grid-template-areas:'. up .''left . right''down . .';;gap:4px">
+        <button class="ctrl-btn" style="grid-area:up" data-dir="up" aria-label="위">↑</button>
+        <button class="ctrl-btn" style="grid-area:left" data-dir="left" aria-label="왼쪽">←</button>
+        <button class="ctrl-btn" style="grid-area:right" data-dir="right" aria-label="오른쪽">→</button>
+        <button class="ctrl-btn" style="grid-area:down" data-dir="down" aria-label="아래">↓</button>
+      </div>
+      <div></div>
+    </div>
+  </main>
+
+  <!-- RIGHT SIDEBAR -->
+  <aside class="sidebar-right">
+    <div class="sr-head">
+      <div class="sr-title">Dot Pad 촉각 미리보기</div>
+      <div class="dotpad-frame">
+        <div class="dotpad-label">Dot Pad 320</div>
+        <canvas id="dotCanvas" width="240" height="160"></canvas>
+        <div class="dotpad-brand">DOT INC.</div>
+      </div>
+    </div>
+    <div class="info-section">
+      <div class="info-row"><span class="info-label">현재 위치</span><span class="info-val" id="infoPos">5, 5</span></div>
+      <div class="info-row"><span class="info-label">주변 요소</span><span class="info-val" id="infoSurround">—</span></div>
+      <div class="info-row"><span class="info-label">점자 출력</span><span class="info-val" id="infoBraille">대기 중</span></div>
+    </div>
+    <div class="event-log" id="eventLog"></div>
+  </aside>
+</div>
+
+<script>
+// ── DTMS helpers ──
+function makeGrid(fn){
+  const g=Array.from({length:40},()=>Array(60).fill(false));
+  for(let y=0;y<40;y++)for(let x=0;x<60;x++)if(fn(x,y))g[y][x]=true;
+  return g;
+}
+function gridToHex(grid){
+  let hex="";
+  for(let cr=0;cr<10;cr++)for(let cc=0;cc<30;cc++){
+    const map=[[0,0],[0,1],[0,2],[1,0],[1,1],[1,2],[0,3],[1,3]];
+    let byte=0;
+    map.forEach(([dx,dy],bit)=>{const px=cc*2+dx,py=cr*4+dy;if(py<40&&px<60&&grid[py]?.[px])byte|=(1<<bit);});
+    hex+=byte.toString(16).padStart(2,"0");
+  }
+  return hex;
+}
+
+// ── MAP DATA ──
+const MAPS = {
+  temple:{
+    title:"고대 신전의 비밀",
+    desc:"촉각으로 탐험하는 신전 미로",
+    cat:"어드벤처",diff:"보통",
+    layout:[
+      [1,1,1,1,1,1,1,1,1,1,1],
+      [1,0,0,0,1,0,0,0,0,0,1],
+      [1,0,1,0,1,0,1,1,0,1,1],
+      [1,0,1,0,0,0,0,1,0,0,1],
+      [1,0,1,1,1,1,0,1,1,0,1],
+      [1,0,0,0,0,1,0,0,0,0,1],
+      [1,1,0,1,0,1,0,1,1,0,1],
+      [1,0,0,1,0,0,0,0,1,0,1],
+      [1,0,1,1,1,0,1,0,0,0,1],
+      [1,0,0,0,0,0,1,0,1,2,1],
+      [1,1,1,1,1,1,1,1,1,1,1]
+    ],
+    items:[[1,1,'🗝️','열쇠'],[5,1,'📜','고대 문서'],[3,5,'🗝️','열쇠'],[7,7,'🗝️','열쇠'],[5,3,'⭐','별']],
+    start:[1,1]
+  },
+  forest:{
+    title:"마법의 숲 탐험",
+    desc:"신비로운 생물을 만나는 숲",
+    cat:"탐험",diff:"쉬움",
+    layout:[
+      [1,1,1,1,1,1,1,1,1],
+      [1,0,0,0,0,0,0,0,1],
+      [1,0,1,1,0,1,1,0,1],
+      [1,0,1,0,0,0,1,0,1],
+      [1,0,0,0,1,0,0,0,1],
+      [1,0,1,0,1,0,1,0,1],
+      [1,0,1,0,0,0,1,0,1],
+      [1,0,0,0,0,0,0,2,1],
+      [1,1,1,1,1,1,1,1,1]
+    ],
+    items:[[1,1,'🍄','마법 버섯'],[5,2,'🌸','요술 꽃'],[1,5,'🦋','빛나는 나비'],[6,6,'⭐','별']],
+    start:[1,1]
+  },
+  space:{
+    title:"우주 정거장 탈출",
+    desc:"무중력 공간을 이동하는 퍼즐",
+    cat:"퍼즐",diff:"어려움",
+    layout:[
+      [1,1,1,1,1,1,1,1,1,1,1,1],
+      [1,0,0,1,0,0,0,0,1,0,0,1],
+      [1,0,1,1,0,1,1,0,1,0,1,1],
+      [1,0,0,0,0,1,0,0,0,0,0,1],
+      [1,1,1,0,1,1,0,1,1,1,0,1],
+      [1,0,0,0,0,0,0,0,0,1,0,1],
+      [1,0,1,1,1,0,1,1,0,1,0,1],
+      [1,0,0,0,1,0,0,1,0,0,0,1],
+      [1,1,0,1,1,0,1,1,1,0,1,1],
+      [1,0,0,0,0,0,0,0,0,0,2,1],
+      [1,1,1,1,1,1,1,1,1,1,1,1]
+    ],
+    items:[[1,1,'🔭','망원경'],[4,2,'⚡','에너지셀'],[8,5,'🛸','탈출선 코드'],[2,7,'⭐','별']],
+    start:[1,1]
+  }
+};
+
+// ── STATE ──
+let S={
+  mapId:'temple',
+  px:1,py:1,
+  score:0,hp:3,keys:0,
+  collectedItems:new Set(),
+  bleConnected:false
+};
+
+let canvas,ctx;
+let events=[];
+let currentMap=null;
+let items=[];
+
+// ── CONTENT LIST ──
+const CONTENT_LIST=[
+  {id:'temple',title:'고대 신전의 비밀',cat:'어드벤처',diff:'보통'},
+  {id:'forest',title:'마법의 숲 탐험',cat:'탐험',diff:'쉬움'},
+  {id:'space',title:'우주 정거장 탈출',cat:'퍼즐',diff:'어려움'}
+];
+
+function renderContentList(cat='전체'){
+  const el=document.getElementById('contentList');
+  const filtered=cat==='전체'?CONTENT_LIST:CONTENT_LIST.filter(c=>c.cat===cat);
+  el.innerHTML=filtered.map(c=>`
+    <div class="content-card${S.mapId===c.id?' on':''}" data-cid="${c.id}" tabindex="0">
+      <div class="content-card-title">${c.title}</div>
+      <div class="content-card-meta">
+        <span class="tag tag-${c.cat==='탐험'?'explore':c.cat==='퍼즐'?'puzzle':'adventure'}">${c.cat}</span>
+        <span class="diff">${c.diff}</span>
+      </div>
+    </div>`).join('');
+  el.querySelectorAll('.content-card').forEach(b=>{
+    b.addEventListener('click',()=>loadMap(b.dataset.cid));
+    b.addEventListener('keydown',e=>{if(e.key==='Enter')loadMap(b.dataset.cid);});
+  });
+}
+
+// ── MAP RENDERING ──
+function loadMap(id){
+  S.mapId=id;S.score=0;S.hp=3;S.keys=0;
+  S.collectedItems=new Set();
+  const m=MAPS[id];
+  S.px=m.start[0];S.py=m.start[1];
+  items=[...m.items];
+  events=[];
+  document.getElementById('gameTitle').textContent=m.title;
+  addEvent(`'${m.title}' 시작! ${m.desc}`,  'info');
+  renderContentList(document.querySelector('.cat-btn.on')?.dataset.cat||'전체');
+  renderMap();renderStats();renderDotPad();
+}
+
+function renderMap(){
+  const m=MAPS[S.mapId];
+  const grid=document.getElementById('mapGrid');
+  const rows=m.layout.length,cols=m.layout[0].length;
+  grid.style.gridTemplateColumns=`repeat(${cols},32px)`;
+  let html='';
+  for(let y=0;y<rows;y++) for(let x=0;x<cols;x++){
+    const v=m.layout[y][x];
+    const isPlayer=x===S.px&&y===S.py;
+    const item=items.find(it=>it[0]===x&&it[1]===y&&!S.collectedItems.has(`${x},${y}`));
+    const isExit=v===2;
+    let cls='cell ';
+    let content='';
+    if(isPlayer){cls+='cell-player';content='🧑';}
+    else if(v===1){cls+='cell-wall';}
+    else if(isExit){cls+='cell-exit';content='🚪';}
+    else if(item){cls+='cell-item';content=item[2];}
+    else{cls+='cell-floor';}
+    html+=`<div class="${cls}" data-x="${x}" data-y="${y}" aria-label="${getAriaLabel(v,isPlayer,item,isExit)}">${content}</div>`;
+  }
+  grid.innerHTML=html;
+
+  // hint
+  const surrounds=getSurrounds();
+  document.getElementById('hintBar').textContent=surrounds||'주변에 특별한 것이 없어요';
+  document.getElementById('infoSurround').textContent=surrounds||'—';
+  document.getElementById('infoPos').textContent=`${S.px}, ${S.py}`;
+  document.getElementById('pos').textContent=`${S.px},${S.py}`;
+}
+
+function getAriaLabel(v,isPlayer,item,isExit){
+  if(isPlayer)return '플레이어 위치';
+  if(v===1)return '벽';
+  if(isExit)return '출구';
+  if(item)return item[3];
+  return '빈 공간';
+}
+
+function getSurrounds(){
+  const m=MAPS[S.mapId];
+  const dirs=[{dx:0,dy:-1,n:'위'},{dx:0,dy:1,n:'아래'},{dx:-1,dy:0,n:'왼쪽'},{dx:1,dy:0,n:'오른쪽'}];
+  const found=[];
+  dirs.forEach(({dx,dy,n})=>{
+    const nx=S.px+dx,ny=S.py+dy;
+    const item=items.find(it=>it[0]===nx&&it[1]===ny&&!S.collectedItems.has(`${nx},${ny}`));
+    if(item)found.push(`${n}: ${item[3]}`);
+    if(m.layout[ny]?.[nx]===2)found.push(`${n}: 출구`);
+  });
+  return found.join(' / ');
+}
+
+// ── MOVE ──
+function move(dir){
+  const m=MAPS[S.mapId];
+  let nx=S.px,ny=S.py;
+  if(dir==='up')ny--;
+  else if(dir==='down')ny++;
+  else if(dir==='left')nx--;
+  else if(dir==='right')nx++;
+  const rows=m.layout.length,cols=m.layout[0].length;
+  if(nx<0||ny<0||nx>=cols||ny>=rows)return;
+  if(m.layout[ny][nx]===1)return; // wall
+
+  S.px=nx;S.py=ny;
+
+  // check item
+  const key=`${nx},${ny}`;
+  const item=items.find(it=>it[0]===nx&&it[1]===ny&&!S.collectedItems.has(key));
+  if(item){
+    S.collectedItems.add(key);
+    if(item[3].includes('열쇠'))S.keys++;
+    if(item[3].includes('별'))S.score+=100;
+    else S.score+=10;
+    addEvent(`${item[2]} ${item[3]} 획득! (+${item[3].includes('별')?100:10}점)`,  item[3].includes('별')?'success':'info');
+    document.getElementById('infoBraille').textContent=item[3];
+    showToast(`${item[2]} ${item[3]} 획득!`);
+  }
+
+  // check exit
+  if(m.layout[ny][nx]===2){
+    if(S.keys>=3||Object.values(MAPS[S.mapId].items).filter(it=>it[3].includes('열쇠')).length===0){
+      addEvent('🎉 탈출 성공! 다음 스테이지로!','success');
+      showToast('🎉 탈출 성공!');
+    }else{
+      addEvent(`열쇠가 부족해요 (${S.keys}/3)`, 'warn');
+      S.px-=(dir==='right'?1:dir==='left'?-1:0);
+      S.py-=(dir==='down'?1:dir==='up'?-1:0);
+    }
+  }
+
+  renderMap();renderStats();renderDotPad();
+}
+
+function renderStats(){
+  document.getElementById('score').textContent=S.score;
+  document.getElementById('hp').textContent=S.hp;
+  document.getElementById('keys').textContent=S.keys;
+  document.getElementById('pos').textContent=`${S.px},${S.py}`;
+}
+
+// ── DOT PAD RENDER ──
+function renderDotPad(){
+  if(!ctx)return;
+  const m=MAPS[S.mapId];
+  const rows=m.layout.length,cols=m.layout[0].length;
+  // scale to 60x40
+  ctx.fillStyle='#0a0a12';ctx.fillRect(0,0,240,160);
+  const cellW=Math.floor(240/cols),cellH=Math.floor(160/rows);
+
+  for(let y=0;y<rows;y++) for(let x=0;x<cols;x++){
+    const v=m.layout[y][x];
+    const isPlayer=x===S.px&&y===S.py;
+    const item=items.find(it=>it[0]===x&&it[1]===y&&!S.collectedItems.has(`${x},${y}`));
+    const isExit=v===2;
+    const cx=x*cellW,cy=y*cellH;
+
+    if(isPlayer){
+      ctx.fillStyle='#7c6ff7';
+    }else if(v===1){
+      ctx.fillStyle='#1e1e35';
+    }else if(isExit){
+      ctx.fillStyle='#22d68a';
+    }else if(item){
+      ctx.fillStyle='#f59e0b';
+    }else{
+      ctx.fillStyle='rgba(255,255,255,.03)';
+    }
+    ctx.fillRect(cx+1,cy+1,cellW-2,cellH-2);
+
+    // dot pattern for raised areas
+    if(v===1||isPlayer||item||isExit){
+      ctx.fillStyle='rgba(255,255,255,.15)';
+      for(let dy=0;dy<cellH-2;dy+=3) for(let dx=0;dx<cellW-2;dx+=3){
+        ctx.beginPath();ctx.arc(cx+1+dx,cy+1+dy,0.8,0,Math.PI*2);ctx.fill();
+      }
+    }
+  }
+}
+
+// ── EVENTS LOG ──
+function addEvent(text,type='info'){
+  const now=new Date();
+  const t=`${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}:${String(now.getSeconds()).padStart(2,'0')}`;
+  events.unshift({text,type,t});
+  if(events.length>20)events.pop();
+  const log=document.getElementById('eventLog');
+  log.innerHTML=events.map(e=>`
+    <div class="event-item ${e.type}">
+      <span class="event-time">${e.t}</span>${e.text}
+    </div>`).join('');
+}
+
+// ── TOAST ──
+let toastTimer;
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>t.classList.remove('show'),2000);
+}
+
+// ── BLE ──
+async function handleConnect(){
+  const btn=document.getElementById('btnConnect');
+  if(S.bleConnected){S.bleConnected=false;btn.className='btn-connect';btn.textContent='Dot Pad 연결';showToast('연결 해제됨');return;}
+  try{
+    await navigator.bluetooth.requestDevice({acceptAllDevices:true,optionalServices:['6e400001-b5a3-f393-e0a9-e50e24dcca9e']});
+    S.bleConnected=true;btn.className='btn-connect connected';btn.textContent='연결됨 ✓';
+    showToast('Dot Pad 연결 성공!');addEvent('Dot Pad 연결됨','success');
+  }catch(e){
+    if(e.name!=='NotFoundError'){showToast('연결 실패');addEvent('Dot Pad 연결 실패','warn');}
+  }
+}
+
+// ── INIT ──
+function init(){
+  canvas=document.getElementById('dotCanvas');
+  ctx=canvas.getContext('2d');
+
+  // category filters
+  document.querySelectorAll('.cat-btn').forEach(b=>{
+    b.addEventListener('click',()=>{
+      document.querySelectorAll('.cat-btn').forEach(x=>x.classList.remove('on'));
+      b.classList.add('on');
+      renderContentList(b.dataset.cat);
+    });
+  });
+
+  // dir buttons
+  document.querySelectorAll('.ctrl-btn[data-dir]').forEach(b=>{
+    b.addEventListener('click',()=>move(b.dataset.dir));
+  });
+
+  // keyboard
+  document.addEventListener('keydown',e=>{
+    const map={ArrowUp:'up',ArrowDown:'down',ArrowLeft:'left',ArrowRight:'right',w:'up',s:'down',a:'left',d:'right'};
+    if(map[e.key]){e.preventDefault();move(map[e.key]);}
+  });
+
+  document.getElementById('btnConnect').addEventListener('click',handleConnect);
+
+  renderContentList();
+  loadMap('temple');
+}
+
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);
+else init();
+</script>
+</body>
+</html>

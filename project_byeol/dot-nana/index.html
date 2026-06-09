@@ -1,0 +1,1117 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dot-Nana : AI 촉각 구연동화</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{width:100%;height:100%;overflow:hidden}
+body{font-family:'Noto Sans KR',sans-serif;background:#fff;color:#1f1f1f;-webkit-font-smoothing:antialiased}
+button,input{font-family:inherit;cursor:pointer}
+input{cursor:text}
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-thumb{background:#d4d4d8;border-radius:99px}
+::-webkit-scrollbar-track{background:transparent}
+:root{
+  --bg:#ffffff;--s1:#f7f7f8;--s2:#f0f0f2;
+  --border:#e8e8eb;--border2:#d4d4d8;
+  --t1:#0f0f10;--t2:#52525b;--t3:#a1a1aa;
+  --orange:#f97316;--ora-s:#fff7f2;--ora-b:#fde8d4;
+  --r:12px;--r2:18px;
+  --sh:0 1px 2px rgba(0,0,0,.05),0 4px 16px rgba(0,0,0,.04);
+  --sh2:0 2px 8px rgba(0,0,0,.06),0 8px 32px rgba(0,0,0,.06);
+}
+
+/* ── INTRO ── */
+#introView{width:100%;height:100%;overflow-y:auto;background:#fff;position:relative;z-index:30;transition:opacity .5s}
+.blob{position:absolute;border-radius:50%;pointer-events:none}
+.blob-1{top:-80px;right:-80px;width:600px;height:600px;background:radial-gradient(circle,rgba(249,115,22,.12) 0%,transparent 70%);filter:blur(60px)}
+.blob-2{top:300px;left:-120px;width:500px;height:500px;background:radial-gradient(circle,rgba(249,115,22,.08) 0%,transparent 70%);filter:blur(80px)}
+.intro-inner{position:relative;z-index:10;max-width:1100px;margin:0 auto;padding:0 40px;display:flex;flex-direction:column;min-height:100%}
+.intro-nav{display:flex;align-items:center;justify-content:space-between;padding:16px 0;border-bottom:1px solid var(--border);position:sticky;top:0;background:rgba(255,255,255,.92);backdrop-filter:blur(8px);z-index:20}
+.nav-logo{display:flex;align-items:center;gap:10px}
+.nav-logo-icon{width:30px;height:30px;background:var(--t1);border-radius:8px;display:flex;align-items:center;justify-content:center}
+.nav-dots{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;padding:5px}
+.nav-dot{width:4px;height:4px;border-radius:50%;background:#fff;opacity:.8}
+.nav-logo-text{font-size:15px;font-weight:900;letter-spacing:-.3px}
+.intro-main{flex:1;display:flex;flex-direction:column;align-items:center;text-align:center;padding:72px 0 40px}
+.hero-kicker{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--orange);border:1px solid var(--ora-b);background:var(--ora-s);padding:5px 14px;border-radius:99px;margin-bottom:24px}
+.hero-title{font-size:clamp(36px,4.5vw,60px);font-weight:900;line-height:1.18;letter-spacing:-.02em;margin-bottom:24px}
+.hero-title span{color:var(--orange)}
+.hero-sub{font-size:17px;font-weight:400;color:var(--t2);line-height:1.8;max-width:640px;margin-bottom:36px}
+.hero-btns{display:flex;gap:14px;flex-wrap:wrap;justify-content:center;margin-bottom:72px}
+.btn-primary{background:var(--t1);color:#fff;border-radius:99px;padding:14px 32px;font-weight:700;font-size:15px;border:none;transition:all .2s}
+.btn-primary:hover{background:#2a2a2a;transform:translateY(-1px)}
+.btn-outline{background:transparent;color:var(--t2);border-radius:99px;padding:14px 32px;font-weight:600;font-size:15px;border:1.5px solid var(--border2);transition:all .2s}
+.btn-outline:hover{border-color:var(--t1);color:var(--t1)}
+.feature-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1px;background:var(--border);border:1px solid var(--border);border-radius:16px;overflow:hidden;width:100%;text-align:left;margin-bottom:80px}
+.feature-card{padding:28px;background:#fff;transition:background .2s}
+.feature-card:hover{background:var(--s1)}
+.feature-icon{width:36px;height:36px;border-radius:10px;background:var(--s2);display:flex;align-items:center;justify-content:center;margin-bottom:14px;font-size:18px}
+.feature-card h3{font-size:15px;font-weight:700;margin-bottom:8px}
+.feature-card p{font-size:13px;color:var(--t2);line-height:1.7}
+.intro-footer{padding:64px 0;text-align:center;display:flex;flex-direction:column;align-items:center;border-top:1px solid var(--border)}
+.intro-footer h2{font-size:28px;font-weight:800;margin-bottom:16px}
+.intro-footer p{font-size:14px;color:var(--t2);max-width:480px;line-height:1.75;margin-bottom:32px}
+
+/* ── SERVICE VIEW ── */
+#serviceView{display:none;width:100%;height:100%;opacity:0;transition:opacity .5s}
+.app{display:flex;height:100vh;overflow:hidden;background:var(--bg)}
+
+/* LEFT SIDEBAR */
+.sl{width:220px;flex-shrink:0;background:var(--bg);border-right:1px solid var(--border);display:flex;flex-direction:column}
+.sl-logo{padding:16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;cursor:pointer;transition:background .15s}
+.sl-logo:hover{background:var(--s1)}
+.sl-icon{width:32px;height:32px;border-radius:9px;background:var(--t1);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.sl-dots{display:grid;grid-template-columns:repeat(3,1fr);gap:2.5px;padding:6px}
+.sl-dot{width:4.5px;height:4.5px;border-radius:50%;background:#fff;opacity:.8}
+.sl-name{font-size:14px;font-weight:900;letter-spacing:-.4px;color:var(--t1)}
+.sl-sub{font-size:9px;color:var(--t3);letter-spacing:.3px;margin-top:2px}
+.sl-body{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:18px}
+.sec-lbl{font-size:9px;font-weight:700;letter-spacing:1.1px;text-transform:uppercase;color:var(--t3);margin-bottom:7px}
+.mode-list{display:flex;flex-direction:column;gap:3px}
+.mode-btn{width:100%;text-align:left;padding:9px 11px;border-radius:9px;border:1px solid transparent;background:transparent;transition:all .13s}
+.mode-btn:hover{background:var(--s1)}
+.mode-btn.on{background:var(--s2);border-color:var(--border)}
+.mode-lbl{font-size:11px;font-weight:700;color:var(--t1)}
+.mode-desc{font-size:10px;color:var(--t3);margin-top:1.5px}
+.book-list{display:flex;flex-direction:column;gap:4px}
+.book-btn{width:100%;text-align:left;padding:8px 10px;border-radius:8px;border:1px solid transparent;background:transparent;transition:all .13s}
+.book-btn:hover{background:var(--s1)}
+.book-btn.on{background:var(--s2);border-color:var(--border)}
+.book-title{font-size:11px;font-weight:600;color:var(--t1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.book-meta{font-size:9px;color:var(--t3);margin-top:1px}
+.cat-wrap{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px}
+.cat-btn{font-size:9px;font-weight:700;padding:3px 8px;border-radius:99px;border:1px solid var(--border);background:transparent;color:var(--t3);transition:all .13s}
+.cat-btn:hover{border-color:var(--orange);color:var(--orange)}
+.cat-btn.on{background:var(--ora-s);border-color:var(--ora-b);color:var(--orange)}
+.upload-btn{width:100%;padding:12px;border:1.5px dashed var(--border2);border-radius:var(--r);background:var(--s1);color:var(--t3);font-size:11px;font-weight:600;display:flex;flex-direction:column;align-items:center;gap:5px;transition:all .13s}
+.upload-btn:hover{border-color:var(--orange);color:var(--orange);background:var(--ora-s)}
+.file-card{padding:9px 11px;background:var(--s1);border-radius:9px;border:1px solid var(--border);margin-top:6px}
+.file-card-t{font-size:11px;font-weight:700;color:var(--t1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.file-card-s{font-size:9px;color:var(--t3);margin-top:2px}
+
+/* MAIN */
+.main{flex:1;min-width:0;display:flex;flex-direction:column;background:var(--bg)}
+.topbar{height:52px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 20px;flex-shrink:0}
+.tb-left{display:flex;align-items:center;gap:8px}
+.tb-badge{font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;background:var(--s2);color:var(--t3);padding:3px 7px;border-radius:5px;font-family:'DM Mono',monospace}
+.tb-title{font-size:13px;font-weight:700;color:var(--t1);max-width:220px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tb-pin{font-size:9px;color:var(--t3);border:1px solid var(--border);padding:3px 7px;border-radius:5px;font-family:'DM Mono',monospace}
+.tb-right{display:flex;gap:7px}
+.btn-s{padding:6px 14px;border-radius:8px;border:1px solid var(--border);background:var(--bg);font-size:11px;font-weight:600;color:var(--t2);transition:all .13s;display:flex;align-items:center;gap:5px}
+.btn-s:hover{background:var(--s1);color:var(--t1)}
+.btn-p{padding:6px 14px;border-radius:8px;border:none;background:var(--t1);color:#fff;font-size:11px;font-weight:700;transition:all .13s;display:flex;align-items:center;gap:5px}
+.btn-p:hover{background:#2a2a2a}
+.btn-ble{padding:6px 14px;border-radius:8px;border:1px solid var(--border);background:var(--bg);font-size:11px;font-weight:600;color:var(--t2);transition:all .13s;display:flex;align-items:center;gap:5px}
+.btn-ble.connected{border-color:#22c55e;color:#16a34a;background:#f0fdf4}
+.canvas-area{flex:1;display:flex;align-items:center;justify-content:center;padding:20px;background:var(--s1)}
+.canvas-card{width:100%;max-width:640px;background:var(--bg);border:1px solid var(--border);border-radius:var(--r2);box-shadow:var(--sh2);overflow:hidden}
+.cv-head{padding:11px 15px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+.cv-lbl{font-size:9px;font-weight:700;color:var(--t3);letter-spacing:.9px;text-transform:uppercase;display:flex;align-items:center;gap:7px}
+.pulse-dot{width:6px;height:6px;border-radius:50%;background:var(--orange);animation:pdot 1.8s ease-in-out infinite}
+@keyframes pdot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.7)}}
+.pg-badge{font-size:10px;font-weight:700;background:var(--s2);border:1px solid var(--border);color:var(--t2);padding:3px 10px;border-radius:99px;font-family:'DM Mono',monospace}
+.cv-wrap{background:var(--s1);display:flex;justify-content:center;padding:12px}
+#dotCanvas{display:block;border-radius:8px;border:1px solid var(--border);width:100%;max-width:528px;height:auto;image-rendering:pixelated}
+.controls{padding:12px 15px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:center;gap:12px}
+.nav-btn{width:36px;height:36px;border-radius:50%;border:1px solid var(--border);background:var(--bg);color:var(--t2);font-size:18px;display:flex;align-items:center;justify-content:center;transition:all .13s}
+.nav-btn:hover:not(:disabled){background:var(--s2);color:var(--t1)}
+.nav-btn:disabled{opacity:.22;cursor:default}
+.play-btn{width:48px;height:48px;border-radius:50%;border:none;display:flex;align-items:center;justify-content:center;font-size:17px;transition:all .15s;box-shadow:var(--sh)}
+.play-btn.idle{background:var(--t1);color:#fff}
+.play-btn.idle:hover{background:#2a2a2a;transform:scale(1.05)}
+.play-btn.on{background:#ef4444;color:#fff}
+.play-btn.on:hover{transform:scale(1.05)}
+.play-btn.loading{background:#d1d5db;color:var(--t2);cursor:default}
+.audio-bar{padding:9px 15px;border-top:1px solid var(--border);background:var(--s1);display:flex;align-items:center;justify-content:space-between}
+.abars{display:flex;align-items:flex-end;gap:2px;height:14px}
+.abar{width:3px;border-radius:3px;background:var(--border2);transition:height .15s}
+.abar.on{background:var(--orange)}
+@keyframes barUp{0%,100%{transform:scaleY(.3)}50%{transform:scaleY(1)}}
+.audio-lbl{font-size:10px;font-weight:600;color:var(--t3);margin-left:8px}
+.subtitle-bar{padding:8px 15px;background:rgba(15,15,16,.05);border-top:1px solid var(--border);font-size:12px;color:var(--t2);line-height:1.55;display:none}
+
+/* RIGHT SIDEBAR */
+.sr{width:288px;flex-shrink:0;border-left:1px solid var(--border);background:var(--bg);display:flex;flex-direction:column}
+.sr-head{padding:13px;border-bottom:1px solid var(--border);flex-shrink:0}
+.persona-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin-top:8px}
+.p-btn{padding:8px 4px;border-radius:10px;border:1px solid var(--border);background:var(--bg);display:flex;flex-direction:column;align-items:center;gap:3px;transition:all .13s}
+.p-btn:hover{background:var(--s2);border-color:var(--border2)}
+.p-btn.on{border-color:var(--t1);background:var(--s2)}
+.p-emoji{font-size:18px;line-height:1}
+.p-name{font-size:9px;font-weight:700;color:var(--t3);text-align:center;line-height:1.2}
+.p-btn.on .p-name{color:var(--t1)}
+.cmd-wrap{padding:9px 13px;border-bottom:1px solid var(--border);flex-shrink:0}
+.cmd-chips{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}
+.cmd-chip{font-size:10px;font-weight:600;padding:4px 9px;border-radius:99px;border:1px solid var(--border);background:var(--s1);color:var(--t2);transition:all .13s}
+.cmd-chip:hover{border-color:var(--orange);color:var(--orange);background:var(--ora-s)}
+.chat{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:8px;background:var(--s1)}
+.msg-w{display:flex;flex-direction:column}
+.msg-w.u{align-items:flex-end}
+.msg-w.a{align-items:flex-start}
+.msg-sndr{font-size:9px;font-weight:600;color:var(--t3);margin-bottom:3px;padding:0 3px}
+.bubble{padding:9px 13px;border-radius:14px;max-width:90%;font-size:12px;line-height:1.6;font-weight:500}
+.bubble.u{background:var(--t1);color:#fff;border-bottom-right-radius:4px}
+.bubble.a{background:var(--bg);color:var(--t1);border:1px solid var(--border);border-bottom-left-radius:4px}
+.typing-dots{display:flex;gap:4px;padding:2px}
+.tdot{width:5px;height:5px;border-radius:50%;background:var(--border2);animation:td .7s ease-in-out infinite}
+@keyframes td{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-5px)}}
+.inp-area{padding:11px 12px;border-top:1px solid var(--border);background:var(--bg);flex-shrink:0}
+.inp-hint{font-size:9px;color:var(--t3);margin-bottom:6px;font-weight:500}
+.inp-row{display:flex;align-items:center;gap:5px;background:var(--s1);border:1px solid var(--border);border-radius:99px;padding:4px;transition:border-color .13s}
+.inp-row:focus-within{border-color:var(--border2)}
+.mic-btn{width:32px;height:32px;border-radius:50%;border:none;background:var(--bg);color:var(--t2);display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;box-shadow:0 1px 3px rgba(0,0,0,.07);transition:all .13s}
+.mic-btn:hover{background:var(--s2)}
+.mic-btn.on{background:#ef4444;color:#fff;animation:pdot .8s ease-in-out infinite}
+.cin{flex:1;border:none;background:transparent;font-size:12px;font-weight:500;color:var(--t1);outline:none;min-width:0}
+.cin::placeholder{color:var(--t3)}
+.send-btn{width:32px;height:32px;border-radius:50%;border:none;background:var(--t1);color:#fff;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;transition:all .13s}
+.send-btn:hover:not(:disabled){background:#2a2a2a}
+.send-btn:disabled{opacity:.25;cursor:default}
+
+/* TOAST */
+.toast{position:fixed;top:18px;left:50%;transform:translateX(-50%);background:var(--t1);color:#fff;padding:8px 18px;border-radius:99px;font-size:11px;font-weight:700;box-shadow:var(--sh2);z-index:9999;opacity:0;transition:opacity .2s;pointer-events:none}
+.toast.show{opacity:1}
+
+/* FOCUS */
+:focus-visible{outline:2px solid var(--orange);outline-offset:2px;border-radius:4px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.spin{animation:spin 1s linear infinite;display:inline-block}
+</style>
+</head>
+<body>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- INTRO VIEW -->
+<div id="introView">
+  <div class="blob blob-1"></div>
+  <div class="blob blob-2"></div>
+  <div class="intro-inner">
+    <nav class="intro-nav">
+      <div class="nav-logo">
+        <div class="nav-logo-icon">
+          <div class="nav-dots" id="navDots"></div>
+        </div>
+        <span class="nav-logo-text">Dot Nana</span>
+      </div>
+      <button class="btn-outline" style="padding:8px 18px;font-size:13px;" id="btnTryNav">시연 시작</button>
+    </nav>
+    <main class="intro-main">
+      <div class="hero-kicker">✦ AI 촉각 구연동화 플랫폼</div>
+      <h1 class="hero-title">시각장애 아동을 위한<br>이야기 친구, <span>Dot Nana</span></h1>
+      <p class="hero-sub">AI 캐릭터 Kanana가 동화를 읽어주고, 삽화가 Dot Pad 촉각 그래픽으로 손끝에 전달됩니다. 말 한마디로 그림을 그리고, 페이지를 넘기고, 이야기를 함께 만들어요.</p>
+      <div class="hero-btns">
+        <button class="btn-primary" id="btnStart1">지금 체험하기 →</button>
+        <button class="btn-outline" id="btnLearnMore">더 알아보기</button>
+      </div>
+      <div class="feature-grid">
+        <div class="feature-card">
+          <div class="feature-icon">🎭</div>
+          <h3>6가지 AI 페르소나</h3>
+          <p>선생님, 용감한 사자, 요정, 탐험가, 할머니, Omni 성우 — 아이가 좋아하는 목소리로 이야기를 들을 수 있어요.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">📡</div>
+          <h3>실시간 Dot Pad 촉각 출력</h3>
+          <p>동화 페이지마다 삽화가 DTMS 형식으로 변환되어 Dot Pad 320에 실시간 전송됩니다.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">✨</div>
+          <h3>AI 즉석 창작</h3>
+          <p>"우주 여행 동화 만들어줘" 한마디로 Kanana가 즉석에서 이야기와 촉각 그래픽을 생성합니다.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🎤</div>
+          <h3>음성으로 조작</h3>
+          <p>"다음 페이지", "다시 읽어줘", "고래 그려줘" — 키보드 없이 목소리만으로 모든 기능을 사용할 수 있어요.</p>
+        </div>
+      </div>
+    </main>
+    <footer class="intro-footer">
+      <h2>Kanana와 함께하는 특별한 이야기</h2>
+      <p>동화책의 삽화가 손끝에 닿는 순간, 이야기는 더 생생해집니다. 지금 바로 "별을 삼킨 고래"를 체험해보세요.</p>
+      <div class="hero-btns">
+        <button class="btn-primary" id="btnStart2">체험 시작하기</button>
+      </div>
+    </footer>
+  </div>
+</div>
+
+<!-- SERVICE VIEW -->
+<div id="serviceView">
+  <div class="app">
+
+    <!-- LEFT SIDEBAR -->
+    <aside class="sl">
+      <div class="sl-logo" id="btnGoIntro" role="button" tabindex="0" aria-label="인트로로 돌아가기">
+        <div class="sl-icon">
+          <div class="sl-dots" id="svcDots"></div>
+        </div>
+        <div>
+          <div class="sl-name">Dot-Nana</div>
+          <div class="sl-sub">촉각 구연동화 플랫폼</div>
+        </div>
+      </div>
+      <div class="sl-body">
+        <div>
+          <div class="sec-lbl">서비스 모드</div>
+          <div class="mode-list" id="modeList"></div>
+        </div>
+        <div id="sidebarContent"></div>
+      </div>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="main">
+      <div class="topbar">
+        <div class="tb-left">
+          <span class="tb-badge">VIEWER</span>
+          <span class="tb-title" id="tbTitle">별을 삼킨 고래</span>
+          <span class="tb-pin">60 × 40</span>
+        </div>
+        <div class="tb-right">
+          <button class="btn-ble" id="btnBle" aria-label="Dot Pad 블루투스 연결">
+            <i data-lucide="bluetooth" style="width:13px;height:13px;"></i> Dot Pad
+          </button>
+          <button class="btn-s" id="btnSave" style="display:none">
+            <i data-lucide="save" style="width:13px;height:13px;"></i> 저장
+          </button>
+          <button class="btn-p" id="btnOutput">
+            <i data-lucide="send" style="width:13px;height:13px;"></i> 출력
+          </button>
+        </div>
+      </div>
+
+      <div class="canvas-area">
+        <div class="canvas-card">
+          <div class="cv-head">
+            <div class="cv-lbl">
+              <div class="pulse-dot"></div>
+              실시간 촉각 그래픽 뷰어
+            </div>
+            <div class="pg-badge" id="pgBadge" style="display:none"></div>
+          </div>
+          <div class="cv-wrap">
+            <canvas id="dotCanvas" width="600" height="400" aria-label="Dot Pad 촉각 그래픽 미리보기"></canvas>
+          </div>
+          <div class="controls">
+            <button class="nav-btn" id="btnPrev" aria-label="이전 페이지">‹</button>
+            <button class="play-btn idle" id="btnPlay" aria-label="재생">▶</button>
+            <button class="nav-btn" id="btnNext" aria-label="다음 페이지">›</button>
+          </div>
+          <div class="audio-bar" id="audioBar">
+            <div style="display:flex;align-items:center">
+              <div class="abars" id="abars">
+                <div class="abar" style="height:8px"></div>
+                <div class="abar" style="height:5px"></div>
+                <div class="abar" style="height:11px"></div>
+                <div class="abar" style="height:7px"></div>
+                <div class="abar" style="height:10px"></div>
+              </div>
+              <span class="audio-lbl" id="audioLbl">오디오 대기 중</span>
+            </div>
+          </div>
+          <div class="subtitle-bar" id="subtitleBar"></div>
+        </div>
+      </div>
+    </main>
+
+    <!-- RIGHT SIDEBAR -->
+    <aside class="sr">
+      <div class="sr-head">
+        <div class="sec-lbl" style="margin-bottom:0">Kanana 보이스</div>
+        <div class="persona-grid" id="personaGrid"></div>
+      </div>
+      <div class="cmd-wrap">
+        <div class="sec-lbl" style="margin-bottom:0">빠른 명령</div>
+        <div class="cmd-chips" id="cmdChips"></div>
+      </div>
+      <div class="chat" id="chat" role="log" aria-live="polite"></div>
+      <div class="inp-area">
+        <div class="inp-hint" id="inpHint">"다음 페이지"라고 말해봐!</div>
+        <div class="inp-row">
+          <button class="mic-btn" id="btnMic" aria-label="음성 입력">🎤</button>
+          <input class="cin" id="chatInput" placeholder="Kanana에게 말해봐!" aria-label="Kanana에게 메시지 입력">
+          <button class="send-btn" id="btnSend" aria-label="전송">→</button>
+        </div>
+      </div>
+    </aside>
+
+  </div>
+</div>
+
+<input type="file" id="fileInput" accept=".dtms,.json" style="display:none">
+
+<script>
+// ══════════════════════════════════════════════
+// DTMS HEX GRAPHIC GENERATORS
+// ══════════════════════════════════════════════
+function makeGrid(fn){
+  const g=Array.from({length:40},()=>Array(60).fill(false));
+  for(let y=0;y<40;y++) for(let x=0;x<60;x++) if(fn(x,y)) g[y][x]=true;
+  return g;
+}
+function gridToHex(grid){
+  let hex="";
+  for(let cr=0;cr<10;cr++) for(let cc=0;cc<30;cc++){
+    const map=[[0,0],[0,1],[0,2],[1,0],[1,1],[1,2],[0,3],[1,3]];
+    let byte=0;
+    map.forEach(([dx,dy],bit)=>{const px=cc*2+dx,py=cr*4+dy;if(py<40&&px<60&&grid[py]?.[px])byte|=(1<<bit);});
+    hex+=byte.toString(16).padStart(2,"0");
+  }
+  return hex;
+}
+
+const GFX = {
+  whale:()=>gridToHex(makeGrid((x,y)=>{
+    const body=(x-28)**2/196+(y-21)**2/36<1;
+    const tail=x>43&&x<55&&Math.abs(y-21)<(x-43)*0.55;
+    const fin=x>26&&x<32&&y>26&&y<32&&y-26>x-26;
+    const eye=(x===19||x===20)&&(y===18||y===19);
+    return body||tail||fin||eye;
+  })),
+  star:()=>{
+    const g=makeGrid(()=>false);
+    const cx=30,cy=20,R=13,r=5,n=5;
+    for(let y=0;y<40;y++) for(let x=0;x<60;x++){
+      const a=Math.atan2(y-cy,x-cx),d=Math.sqrt((x-cx)**2+(y-cy)**2);
+      const sector=Math.round(a/(Math.PI/n));
+      if(d<(sector%2===0?R:r)*0.9)g[y][x]=true;
+    }
+    [[7,7],[53,7],[4,31],[56,31],[14,36],[46,36]].forEach(([sx,sy])=>{
+      [[-1,0],[1,0],[0,-1],[0,1],[0,0]].forEach(([dx,dy])=>{if(sy+dy>=0&&sy+dy<40&&sx+dx>=0&&sx+dx<60)g[sy+dy][sx+dx]=true;});
+    });
+    return gridToHex(g);
+  },
+  wave:()=>gridToHex(makeGrid((x,y)=>{
+    const w1=Math.round(17+Math.sin(x/7)*4);
+    const w2=Math.round(25+Math.sin(x/7+2)*4);
+    const boat=(x>=25&&x<=35&&y===13)||(x>=27&&x<=33&&y===14);
+    const mast=x===30&&y>=9&&y<=12;
+    return Math.abs(y-w1)<2||Math.abs(y-w2)<2||boat||mast;
+  })),
+  heart:()=>gridToHex(makeGrid((x,y)=>{
+    const nx=(x-30)/20,ny=(y-21)/16;
+    return nx**2+(ny-Math.sqrt(Math.abs(nx)))**2<1.05;
+  })),
+  space:()=>gridToHex(makeGrid((x,y)=>{
+    const cx=30,cy=20;
+    const ring1=Math.abs(Math.sqrt((x-cx)**2+(y-cy)**2)-10)<1.5;
+    const ring2=Math.abs(Math.sqrt((x-cx)**2+(y-cy)**2)-16)<1;
+    const planet=(x-cx)**2+(y-cy)**2<25;
+    return ring1||ring2||planet;
+  })),
+  tree:()=>gridToHex(makeGrid((x,y)=>{
+    const trunk=x>=28&&x<=32&&y>=30&&y<=39;
+    const t1=x>=22&&x<=38&&y>=22&&y<=30&&Math.abs(x-30)<(30-y+8);
+    const t2=x>=19&&x<=41&&y>=14&&y<=24&&Math.abs(x-30)<(24-y+12);
+    const t3=x>=16&&x<=44&&y>=6&&y<=16&&Math.abs(x-30)<(16-y+15);
+    return trunk||t1||t2||t3;
+  })),
+  house:()=>gridToHex(makeGrid((x,y)=>{
+    const wall=x>=12&&x<=48&&y>=20&&y<=38;
+    const roof=y>=6&&y<=22&&Math.abs(x-30)<(22-y+2)*1.4&&Math.abs(x-30)>=(22-y+2)*1.4-2;
+    const door=x>=26&&x<=34&&y>=28&&y<=38;
+    const win1=x>=15&&x<=22&&y>=22&&y<=29;
+    const win2=x>=38&&x<=45&&y>=22&&y<=29;
+    return (wall&&!door)||roof||(door&&y>28)||(win1||win2);
+  })),
+  rabbit:()=>gridToHex(makeGrid((x,y)=>{
+    const body=(x-30)**2/100+(y-28)**2/64<1;
+    const head=(x-30)**2/49+(y-16)**2/36<1;
+    const earL=(x-24)**2/9+(y-6)**2/49<1;
+    const earR=(x-36)**2/9+(y-6)**2/49<1;
+    const eye1=(x===26||x===27)&&(y===14||y===15);
+    const eye2=(x===33||x===34)&&(y===14||y===15);
+    return body||head||earL||earR||eye1||eye2;
+  }))
+};
+
+// ══════════════════════════════════════════════
+// DATA
+// ══════════════════════════════════════════════
+const DEMO_STORY = {
+  id:'demo',title:'별을 삼킨 고래',category:'시연',
+  items:[
+    {text:{plain:'깊고 깊은 밤하늘 바다에, 커다란 고래 루미가 살고 있었어요. 루미는 별빛을 먹고 사는 특별한 고래랍니다.'},graphic:{data:GFX.whale()}},
+    {text:{plain:'어느 날 밤, 루미는 유난히 반짝이는 황금 별 하나를 발견했어요. 그 별은 다른 어떤 별보다도 훨씬 크게 빛났어요.'},graphic:{data:GFX.star()}},
+    {text:{plain:'루미는 천천히 별에 다가갔어요. 별이 속삭였어요. "나는 길을 잃은 별이에요. 집으로 돌아가고 싶어요." 루미는 고개를 끄덕였어요.'},graphic:{data:GFX.wave()}},
+    {text:{plain:'루미는 별을 등에 태우고 하늘 높이 올라갔어요. 마침내 별은 제자리를 찾았답니다. 둘은 영원한 친구가 되었어요.'},graphic:{data:GFX.heart()}}
+  ]
+};
+
+const LIBRARY = [
+  {id:'os-1',title:'토끼와 거북이',category:'이솝우화',items:[
+    {text:{plain:'옛날 옛적에 아주 빠른 토끼와 느릿느릿 거북이가 살았어요.'},graphic:{data:GFX.rabbit()}},
+    {text:{plain:'경주가 시작됐어요! 토끼는 앞서 달리다 낮잠을 자고, 거북이는 쉬지 않고 기어갔답니다.'},graphic:{data:GFX.tree()}},
+    {text:{plain:'꿈에서 깨어난 토끼가 달려갔지만, 거북이는 이미 결승선에 도착해 있었어요!'},graphic:{data:GFX.house()}}
+  ]},
+  {id:'os-2',title:'해님달님',category:'전래동화',items:[
+    {text:{plain:'어머니가 고개를 넘다가 무서운 호랑이를 만났어요.'},graphic:{data:GFX.tree()}},
+    {text:{plain:'오누이는 하늘에서 내려온 동아줄을 타고 올라갔어요.'},graphic:{data:GFX.star()}},
+    {text:{plain:'하늘에 올라간 오누이는 해님과 달님이 되었답니다.'},graphic:{data:GFX.space()}}
+  ]},
+  {id:'os-3',title:'우주 탐험대',category:'과학동화',items:[
+    {text:{plain:'우주선이 지구를 떠나 끝없는 우주로 여행을 시작했어요.'},graphic:{data:GFX.space()}},
+    {text:{plain:'저 멀리 아름다운 고리를 가진 토성이 보이네요. 정말 신기하죠?'},graphic:{data:GFX.star()}},
+    {text:{plain:'탐험대는 새로운 행성을 발견하고 지구로 돌아왔답니다.'},graphic:{data:GFX.heart()}}
+  ]}
+];
+
+const PERSONAS = [
+  {id:'teacher', name:'선생님',    emoji:'👩‍🏫', pitch:1.0,  rate:0.88, hint:'따뜻하고 친절하게'},
+  {id:'lion',    name:'용감한 사자',emoji:'🦁',  pitch:0.72, rate:0.93, hint:'씩씩하고 활기차게'},
+  {id:'fairy',   name:'요정',      emoji:'🧚',  pitch:1.45, rate:1.0,  hint:'통통 튀고 유쾌하게'},
+  {id:'explorer',name:'탐험가',    emoji:'👨‍🚀', pitch:1.0,  rate:0.85, hint:'신비롭고 호기심 가득하게'},
+  {id:'grandma', name:'할머니',    emoji:'👵',  pitch:0.82, rate:0.78, hint:'포근하고 구수하게'},
+  {id:'omni',    name:'Omni 성우', emoji:'🎙️', pitch:1.0,  rate:1.0,  hint:'전문 성우처럼 감성적으로'}
+];
+
+const CMDS = ['다음 페이지','이전 페이지','다시 읽어줘','고래 그려줘','별 그려줘','우주 그려줘','하트 그려줘','집 그려줘'];
+
+// ══════════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════════
+let S = {
+  mode:'demo',
+  persona:PERSONAS[0],
+  story:DEMO_STORY,
+  page:0,
+  messages:[{from:'ai',text:'안녕! 나는 Kanana야 ✨  "별을 삼킨 고래" 동화가 열려 있어. ▶ 버튼을 눌러 이야기를 들어봐!'}],
+  isPlaying:false,
+  isLoading:false,
+  isRecording:false,
+  bleConnected:false,
+  keyword:'',
+  savedStories:[],
+  libCategory:'전체',
+  loadedFile:null
+};
+
+let canvas, ctx, offCanvas, offCtx, speechObj=null, recObj=null, dotPadChar=null;
+
+// ══════════════════════════════════════════════
+// CANVAS
+// ══════════════════════════════════════════════
+function drawEmpty(){
+  if(!ctx)return;
+  ctx.fillStyle='#f4f4f5';ctx.fillRect(0,0,600,400);
+  ctx.fillStyle='#d4d4d8';
+  for(let y=0;y<40;y++) for(let x=0;x<60;x++){
+    ctx.beginPath();ctx.arc(x*10+5,y*10+5,1.6,0,Math.PI*2);ctx.fill();
+  }
+}
+
+function drawHex(hex){
+  if(!hex||!ctx){drawEmpty();return;}
+  ctx.fillStyle='#f4f4f5';ctx.fillRect(0,0,600,400);
+  ctx.fillStyle='#d4d4d8';
+  for(let y=0;y<40;y++) for(let x=0;x<60;x++){
+    ctx.beginPath();ctx.arc(x*10+5,y*10+5,1.4,0,Math.PI*2);ctx.fill();
+  }
+  for(let i=0;i<300;i++){
+    const hb=hex.slice(i*2,i*2+2);if(!hb)continue;
+    const byte=parseInt(hb,16);
+    const cc=i%30,cr=Math.floor(i/30);
+    [[0,0,1],[0,1,2],[0,2,4],[1,0,8],[1,1,16],[1,2,32],[0,3,64],[1,3,128]].forEach(([dx,dy,m])=>{
+      if(!(byte&m))return;
+      const px=cc*2+dx,py=cr*4+dy;
+      ctx.beginPath();ctx.arc(px*10+5,py*10+5,3.4,0,Math.PI*2);
+      ctx.fillStyle='#1a1a1a';
+      ctx.shadowColor='rgba(0,0,0,0.18)';ctx.shadowBlur=4;ctx.shadowOffsetY=1.5;
+      ctx.fill();ctx.shadowBlur=0;ctx.shadowOffsetY=0;
+    });
+  }
+}
+
+function drawKeyword(kw){
+  const k=kw.toLowerCase();
+  if(k.includes('고래')||k.includes('whale'))drawHex(GFX.whale());
+  else if(k.includes('별')||k.includes('star'))drawHex(GFX.star());
+  else if(k.includes('바다')||k.includes('파도')||k.includes('wave'))drawHex(GFX.wave());
+  else if(k.includes('하트')||k.includes('사랑')||k.includes('heart'))drawHex(GFX.heart());
+  else if(k.includes('우주')||k.includes('space'))drawHex(GFX.space());
+  else if(k.includes('나무')||k.includes('숲')||k.includes('tree'))drawHex(GFX.tree());
+  else if(k.includes('집')||k.includes('house')||k.includes('마을'))drawHex(GFX.house());
+  else if(k.includes('토끼')||k.includes('rabbit'))drawHex(GFX.rabbit());
+  else drawHex(GFX.heart());
+}
+
+function refreshCanvas(){
+  if(!canvas)return;
+  if((S.mode==='demo'||S.mode==='premium')&&S.story?.items){
+    const p=S.story.items[S.page];
+    p?.graphic?.data?drawHex(p.graphic.data):drawEmpty();
+  } else if(S.mode==='basic'&&S.keyword){
+    drawKeyword(S.keyword);
+  } else drawEmpty();
+}
+
+// ══════════════════════════════════════════════
+// TOAST
+// ══════════════════════════════════════════════
+let toastTimer=null;
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>t.classList.remove('show'),2400);
+}
+
+// ══════════════════════════════════════════════
+// CHAT
+// ══════════════════════════════════════════════
+function addMsg(from,text){
+  S.messages.push({from,text});
+  renderChat();
+}
+
+function renderChat(){
+  const chat=document.getElementById('chat');if(!chat)return;
+  chat.innerHTML=S.messages.map(m=>`
+    <div class="msg-w ${m.from==='user'?'u':'a'}">
+      <div class="msg-sndr">${m.from==='user'?'나':`Kanana ${S.persona.emoji}`}</div>
+      <div class="bubble ${m.from==='user'?'u':'a'}">${m.text}</div>
+    </div>`).join('');
+  if(S.isLoading) chat.innerHTML+=`
+    <div class="msg-w a">
+      <div class="msg-sndr">Kanana ${S.persona.emoji}</div>
+      <div class="bubble a"><div class="typing-dots">
+        <div class="tdot" style="animation-delay:0s"></div>
+        <div class="tdot" style="animation-delay:.17s"></div>
+        <div class="tdot" style="animation-delay:.34s"></div>
+      </div></div>
+    </div>`;
+  chat.scrollTop=chat.scrollHeight;
+}
+
+// ══════════════════════════════════════════════
+// AI API (Anthropic)
+// ══════════════════════════════════════════════
+async function callAI(userText){
+  S.isLoading=true;renderChat();
+  const storyCtx=(S.mode==='demo'||S.mode==='premium')&&S.story
+    ?`동화: "${S.story.title}" ${S.page+1}/${S.story.items.length}페이지. 내용: "${S.story.items[S.page]?.text?.plain||""}"`
+    :S.mode==='basic'&&S.keyword?`AI 창작 모드, 키워드: "${S.keyword}"`:"이야기 없음";
+  try{
+    const res=await fetch("https://api.anthropic.com/v1/messages",{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({
+        model:"claude-sonnet-4-20250514",max_tokens:300,
+        system:`당신은 시각장애 아동을 위한 촉각 구연동화 AI 에이전트 'Kanana'입니다.
+스타일: ${S.persona.hint}. 현재 상태: ${storyCtx}
+규칙: 아이 눈높이로 친근하게, 80자 이내. 이모지 1~2개.
+명령 감지: "다음"/"넘겨" → [NEXT], "이전"/"뒤로" → [PREV], "다시"/"반복" → [REPLAY], 그림/이미지 요청 → [DRAW:키워드].
+명령 태그는 텍스트 앞에 추가하고 자연스러운 응답도 함께 작성하세요.`,
+        messages:[{role:"user",content:userText}]
+      })
+    });
+    const data=await res.json();
+    const reply=data.content?.[0]?.text||"잠깐만, 다시 말해줄래?";
+    // 명령 파싱
+    if(reply.includes('[NEXT]')){
+      if(S.story&&S.page<S.story.items.length-1){S.page++;refreshCanvas();updateUI();}
+      else showToast('마지막 페이지예요!');
+    }
+    if(reply.includes('[PREV]')){
+      if(S.page>0){S.page--;refreshCanvas();updateUI();}
+      else showToast('첫 번째 페이지예요!');
+    }
+    if(reply.includes('[REPLAY]')){handlePlay();}
+    const dm=reply.match(/\[DRAW:(.+?)\]/);
+    if(dm){S.keyword=dm[1];S.mode='basic';setMode('basic',true);}
+    const clean=reply.replace(/\[(NEXT|PREV|REPLAY|DRAW:[^\]]+)\]/g,'').trim();
+    addMsg('ai',clean);
+  }catch(e){
+    console.error(e);
+    addMsg('ai','앗, 잠깐 연결이 안 됐어. 다시 말해줄래? 😅');
+  }
+  S.isLoading=false;renderChat();
+}
+
+function handleSend(){
+  const input=document.getElementById('chatInput');
+  const t=input.value.trim();if(!t||S.isLoading)return;
+  addMsg('user',t);input.value='';
+  document.getElementById('btnSend').disabled=true;
+  callAI(t).finally(()=>document.getElementById('btnSend').disabled=false);
+}
+
+// ══════════════════════════════════════════════
+// TTS
+// ══════════════════════════════════════════════
+function stopAudio(){
+  window.speechSynthesis?.cancel();
+  if(speechObj){speechObj=null;}
+  S.isPlaying=false;
+  updateAudioUI();
+}
+
+function handlePlay(){
+  if(S.isPlaying){stopAudio();return;}
+  let text='';
+  if((S.mode==='demo'||S.mode==='premium')&&S.story)
+    text=S.story.items[S.page]?.text?.plain||'';
+  else if(S.mode==='basic'&&S.keyword)
+    text=`닷패드에 ${S.keyword} 그림이 점자로 표현되어 있어요. 손끝으로 천천히 만져보세요!`;
+  if(!text){showToast('읽어줄 내용이 없어요!');return;}
+  const u=new SpeechSynthesisUtterance(text);
+  u.lang='ko-KR';u.pitch=S.persona.pitch;u.rate=S.persona.rate;
+  u.onstart=()=>{S.isPlaying=true;updateAudioUI();};
+  u.onend=()=>{S.isPlaying=false;updateAudioUI();};
+  u.onerror=()=>{S.isPlaying=false;updateAudioUI();};
+  speechObj=u;
+  window.speechSynthesis.speak(u);
+}
+
+function updateAudioUI(){
+  const btn=document.getElementById('btnPlay');
+  if(!btn)return;
+  btn.className='play-btn '+(S.isPlaying?'on':'idle');
+  btn.textContent=S.isPlaying?'■':'▶';
+  const lbl=document.getElementById('audioLbl');
+  if(lbl)lbl.textContent=S.isPlaying?`${S.persona.name} 구연 중…`:'오디오 대기 중';
+  const bars=document.querySelectorAll('.abar');
+  const heights=[8,5,11,7,10];
+  bars.forEach((b,i)=>{
+    if(S.isPlaying){
+      b.classList.add('on');
+      b.style.height=heights[i]+'px';
+      b.style.animation=`barUp ${0.38+i*0.09}s ease-in-out infinite alternate`;
+    }else{
+      b.classList.remove('on');
+      b.style.height='4px';
+      b.style.animation='none';
+    }
+  });
+}
+
+// ══════════════════════════════════════════════
+// STT (Web Speech Recognition)
+// ══════════════════════════════════════════════
+function handleMic(){
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR){showToast('이 브라우저는 음성인식을 지원하지 않아요');return;}
+  if(S.isRecording){
+    recObj?.stop();S.isRecording=false;updateMicUI();return;
+  }
+  const r=new SR();r.lang='ko-KR';r.interimResults=false;
+  r.onstart=()=>{S.isRecording=true;updateMicUI();};
+  r.onresult=(e)=>{
+    const t=e.results[0][0].transcript;
+    document.getElementById('chatInput').value=t;
+  };
+  r.onend=()=>{S.isRecording=false;updateMicUI();};
+  r.onerror=()=>{S.isRecording=false;updateMicUI();showToast('음성 인식 오류가 발생했어요');};
+  recObj=r;r.start();
+}
+
+function updateMicUI(){
+  const btn=document.getElementById('btnMic');if(!btn)return;
+  btn.className='mic-btn'+(S.isRecording?' on':'');
+  btn.textContent=S.isRecording?'⏹':'🎤';
+}
+
+// ══════════════════════════════════════════════
+// BLE (Dot Pad)
+// ══════════════════════════════════════════════
+async function handleBle(){
+  if(S.bleConnected){
+    dotPadChar=null;S.bleConnected=false;
+    updateBleUI();showToast('Dot Pad 연결이 해제됐어요');return;
+  }
+  try{
+    const SERVICE='6e400001-b5a3-f393-e0a9-e50e24dcca9e';
+    const CHAR='6e400002-b5a3-f393-e0a9-e50e24dcca9e';
+    const dev=await navigator.bluetooth.requestDevice({acceptAllDevices:true,optionalServices:[SERVICE]});
+    const srv=await dev.gatt.connect();
+    const svc=await srv.getPrimaryService(SERVICE);
+    dotPadChar=await svc.getCharacteristic(CHAR);
+    S.bleConnected=true;updateBleUI();
+    showToast(`Dot Pad "${dev.name}" 연결 성공! ✅`);
+    addMsg('ai',`Dot Pad가 연결됐어! 이제 그림을 손으로 느낄 수 있어 🎉`);
+  }catch(e){
+    if(e.name!=='NotFoundError')showToast('연결 실패: 블루투스를 확인해주세요');
+  }
+}
+
+function updateBleUI(){
+  const btn=document.getElementById('btnBle');if(!btn)return;
+  btn.className='btn-ble'+(S.bleConnected?' connected':'');
+  btn.innerHTML=`<i data-lucide="${S.bleConnected?'bluetooth-connected':'bluetooth'}" style="width:13px;height:13px;"></i> ${S.bleConnected?'연결됨':'Dot Pad'}`;
+  lucide.createIcons();
+}
+
+function sendToDotPad(){
+  // DTMS hex → 300byte binary payload
+  const page=((S.mode==='demo'||S.mode==='premium')&&S.story?.items)
+    ?S.story.items[S.page]?.graphic?.data:null;
+  const hex=page||GFX.heart();
+  if(dotPadChar){
+    const payload=new Uint8Array(300);
+    for(let i=0;i<300;i++){
+      const h=hex.slice(i*2,i*2+2);if(!h)continue;
+      payload[i]=parseInt(h,16);
+    }
+    const packet=new Uint8Array([0x02,0x47,0x01,0x2C,...payload,0x00,0x03]);
+    dotPadChar.writeValue(packet)
+      .then(()=>showToast('Dot Pad로 전송 완료! ✅'))
+      .catch(()=>showToast('전송 실패: 연결을 확인해주세요'));
+  }else{
+    showToast('Dot Pad 320으로 DTMS 전송 완료! (데모 모드)');
+    console.log('[DotPad DTMS]',hex.substring(0,40)+'...');
+  }
+}
+
+// ══════════════════════════════════════════════
+// FILE UPLOAD
+// ══════════════════════════════════════════════
+function handleFileUpload(e){
+  const f=e.target.files[0];if(!f)return;
+  const r=new FileReader();
+  r.onload=(ev)=>{
+    try{
+      const j=JSON.parse(ev.target.result);
+      if(j?.items){
+        S.loadedFile=j;S.story=j;S.page=0;S.mode='premium';
+        addMsg('ai',`'${j.title||f.name}' 동화책을 열었어! ${S.persona.name} 목소리로 읽어줄게 ▶`);
+        updateUI();showToast('파일 로드 완료!');
+      }else showToast('올바른 DTMS 형식이 아닙니다');
+    }catch{showToast('파일 파싱 오류!');}
+  };
+  r.readAsText(f);e.target.value='';
+}
+
+// ══════════════════════════════════════════════
+// AI STORY GENERATION
+// ══════════════════════════════════════════════
+async function generateAIStory(topic){
+  if(!topic){showToast('주제를 입력해주세요');return;}
+  addMsg('user',`${topic} 주제로 동화 만들어줘.`);
+  S.isLoading=true;renderChat();
+  try{
+    const res=await fetch("https://api.anthropic.com/v1/messages",{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({
+        model:"claude-sonnet-4-20250514",max_tokens:600,
+        system:`시각장애 아동을 위한 촉각 구연동화 작가입니다. 주어진 주제로 3페이지 동화를 만드세요.
+반드시 다음 JSON 형식만 출력하세요 (마크다운 없이):
+{"title":"제목","items":[{"text":{"plain":"페이지 내용 (50자 이내)"},"graphic":{"data":"KEYWORD:키워드"}},{"text":{"plain":"..."},"graphic":{"data":"KEYWORD:키워드"}},{"text":{"plain":"..."},"graphic":{"data":"KEYWORD:키워드"}}]}
+키워드는 고래/별/파도/하트/우주/나무/집/토끼 중 선택하세요.`,
+        messages:[{role:"user",content:topic}]
+      })
+    });
+    const data=await res.json();
+    const raw=data.content?.[0]?.text||'{}';
+    let json;
+    try{json=JSON.parse(raw.replace(/```json|```/g,'').trim());}
+    catch{json=null;}
+    if(json?.items){
+      // KEYWORD: 를 실제 hex로 변환
+      json.items=json.items.map(item=>{
+        const kw=(item.graphic?.data||'').replace('KEYWORD:','').toLowerCase();
+        return {...item,graphic:{data:drawKeywordToHex(kw)}};
+      });
+      json.id='ai-'+Date.now();json.category='AI 창작';
+      S.story=json;S.page=0;S.mode='premium';
+      LIBRARY.unshift(json);
+      addMsg('ai',`✨ "${json.title}" 완성! ▶ 버튼을 눌러서 들어봐!`);
+      updateUI();
+    }else{
+      addMsg('ai',`주제는 받았어! 지금은 데모 모드로 만들어줄게 ✨`);
+      const demo={id:'ai-'+Date.now(),title:`${topic} (AI 창작)`,category:'AI 창작',items:[
+        {text:{plain:`${topic}에 관한 신비로운 이야기가 시작됩니다.`},graphic:{data:GFX.star()}},
+        {text:{plain:'주인공은 용감하게 모험을 떠났어요.'},graphic:{data:GFX.wave()}},
+        {text:{plain:'마침내 꿈을 이루고 집으로 돌아왔답니다.'},graphic:{data:GFX.heart()}}
+      ]};
+      S.story=demo;S.page=0;S.mode='premium';
+      LIBRARY.unshift(demo);
+      addMsg('ai',`✨ "${demo.title}" 완성! ▶ 버튼을 눌러서 들어봐!`);
+      updateUI();
+    }
+  }catch(e){
+    console.error(e);
+    addMsg('ai','앗, 창작 중에 오류가 났어. 다시 시도해줄래? 😅');
+  }
+  S.isLoading=false;renderChat();
+}
+
+function drawKeywordToHex(kw){
+  if(kw.includes('고래'))return GFX.whale();
+  if(kw.includes('별')||kw.includes('star'))return GFX.star();
+  if(kw.includes('파도')||kw.includes('바다'))return GFX.wave();
+  if(kw.includes('하트')||kw.includes('사랑'))return GFX.heart();
+  if(kw.includes('우주')||kw.includes('space'))return GFX.space();
+  if(kw.includes('나무')||kw.includes('숲'))return GFX.tree();
+  if(kw.includes('집')||kw.includes('마을'))return GFX.house();
+  if(kw.includes('토끼'))return GFX.rabbit();
+  return GFX.heart();
+}
+
+// ══════════════════════════════════════════════
+// PAGE NAV
+// ══════════════════════════════════════════════
+function changePage(dir){
+  if(!S.story?.items)return;
+  const next=S.page+dir;
+  if(next<0||next>=S.story.items.length){showToast(dir>0?'마지막 페이지예요!':'첫 번째 페이지예요!');return;}
+  stopAudio();S.page=next;
+  const text=S.story.items[next]?.text?.plain||'';
+  if(text)addMsg('ai',`[${next+1}페이지] ${text}`);
+  refreshCanvas();updateUI();
+}
+
+// ══════════════════════════════════════════════
+// UI UPDATE
+// ══════════════════════════════════════════════
+function setMode(newMode, preserveStory=false){
+  if(!preserveStory){
+    if(newMode!=='demo')S.story=null;
+    if(newMode==='demo')S.story=DEMO_STORY;
+    S.page=0;
+    stopAudio();
+  }
+  S.mode=newMode;
+  updateUI();
+}
+
+function updateUI(){
+  // topbar title
+  const tbTitle=document.getElementById('tbTitle');
+  if(tbTitle)tbTitle.textContent=S.story?.title||(S.keyword?`${S.keyword} (AI 창작)`:'Dot Nana');
+
+  // page badge
+  const pgBadge=document.getElementById('pgBadge');
+  if(pgBadge){
+    if(S.story?.items&&(S.mode==='demo'||S.mode==='premium')){
+      pgBadge.style.display='block';
+      pgBadge.textContent=`${S.page+1} / ${S.story.items.length}`;
+    }else pgBadge.style.display='none';
+  }
+
+  // prev/next buttons
+  const prev=document.getElementById('btnPrev'),next=document.getElementById('btnNext');
+  if(prev){prev.disabled=!S.story||S.page===0||S.mode==='basic';}
+  if(next){next.disabled=!S.story||S.mode==='basic'||S.page>=(S.story?.items?.length||1)-1;}
+
+  // mode buttons
+  document.querySelectorAll('.mode-btn[data-mode]').forEach(b=>{
+    b.className='mode-btn'+(b.dataset.mode===S.mode?' on':'');
+  });
+
+  // save button
+  const btnSave=document.getElementById('btnSave');
+  if(btnSave)btnSave.style.display=(S.mode==='basic'&&S.keyword)?'flex':'none';
+
+  // inp hint
+  const inpHint=document.getElementById('inpHint');
+  if(inpHint)inpHint.textContent=S.mode==='basic'?'"우주 그려줘"처럼 말해봐!':'"다음 페이지"라고 말해봐!';
+
+  // sidebar content
+  renderSidebar();
+  renderPersonas();
+  refreshCanvas();
+}
+
+function renderPersonas(){
+  const grid=document.getElementById('personaGrid');if(!grid)return;
+  grid.innerHTML=PERSONAS.map(p=>`
+    <button class="p-btn${S.persona.id===p.id?' on':''}" data-pid="${p.id}" title="${p.hint}">
+      <span class="p-emoji">${p.emoji}</span>
+      <span class="p-name">${p.name}</span>
+    </button>`).join('');
+  grid.querySelectorAll('.p-btn').forEach(b=>{
+    b.addEventListener('click',()=>{
+      S.persona=PERSONAS.find(p=>p.id===b.dataset.pid);
+      stopAudio();renderPersonas();
+    });
+  });
+}
+
+function renderSidebar(){
+  const el=document.getElementById('sidebarContent');if(!el)return;
+  if(S.mode==='demo'){
+    el.innerHTML=`<div style="padding:12px;background:var(--s2);border-radius:9px;font-size:11px;color:var(--t2);line-height:1.65">
+      <strong style="color:var(--t1);font-size:11px">💡 시연 모드</strong><br>
+      "별을 삼킨 고래" 샘플 동화가 로드됐어요.<br>▶ 버튼으로 재생하거나 Kanana에게 말을 걸어봐요!
+    </div>`;
+  }else if(S.mode==='premium'){
+    const cats=['전체','이솝우화','전래동화','과학동화','AI 창작'];
+    const filtered=S.libCategory==='전체'?LIBRARY:LIBRARY.filter(b=>b.category===S.libCategory);
+    el.innerHTML=`
+      <div>
+        <div class="sec-lbl">무료 도서관</div>
+        <div class="cat-wrap">
+          ${cats.map(c=>`<button class="cat-btn${S.libCategory===c?' on':''}" data-cat="${c}">${c}</button>`).join('')}
+        </div>
+        <div class="book-list">
+          ${filtered.map(b=>`<button class="book-btn${S.story?.id===b.id?' on':''}" data-bid="${b.id}">
+            <div class="book-title">${b.title}</div>
+            <div class="book-meta">${b.category} · ${b.items.length}페이지</div>
+          </button>`).join('')}
+        </div>
+      </div>
+      <div style="padding-top:14px;border-top:1px solid var(--border)">
+        <div class="sec-lbl">DTMS 파일 업로드</div>
+        <button class="upload-btn" id="btnUpload">
+          <i data-lucide="upload" style="width:18px;height:18px;"></i>
+          <span>.dtms / .json 파일</span>
+        </button>
+        ${S.loadedFile?`<div class="file-card">
+          <div class="file-card-t">${S.loadedFile.title||'업로드된 동화'}</div>
+          <div class="file-card-s">총 ${S.loadedFile.items.length} 페이지</div>
+        </div>`:''}
+      </div>`;
+    lucide.createIcons();
+    el.querySelectorAll('.cat-btn').forEach(b=>b.addEventListener('click',()=>{S.libCategory=b.dataset.cat;renderSidebar();}));
+    el.querySelectorAll('.book-btn').forEach(b=>b.addEventListener('click',()=>{
+      const book=LIBRARY.find(lb=>lb.id===b.dataset.bid);if(!book)return;
+      S.story=book;S.page=0;stopAudio();
+      addMsg('ai',`'${book.title}'을 골랐구나! ▶ 버튼을 눌러서 들어봐!`);
+      updateUI();
+    }));
+    document.getElementById('btnUpload')?.addEventListener('click',()=>document.getElementById('fileInput').click());
+  }else{
+    const saved=S.savedStories;
+    el.innerHTML=`
+      <div>
+        <div class="sec-lbl">AI 창작 모드</div>
+        <div style="font-size:11px;color:var(--t2);line-height:1.65;padding:10px;background:var(--s2);border-radius:9px;margin-bottom:12px">
+          Kanana에게 주제를 말하면 즉석에서 동화와 촉각 그래픽을 만들어줘요!
+        </div>
+        ${saved.length?`<div class="sec-lbl" style="margin-top:8px">내 서재</div>
+          ${saved.map(s=>`<div class="book-btn"><div class="book-title">${s.title}</div></div>`).join('')}`:''}
+      </div>`;
+  }
+}
+
+// ══════════════════════════════════════════════
+// VIEW TRANSITIONS
+// ══════════════════════════════════════════════
+function startService(){
+  const intro=document.getElementById('introView');
+  const svc=document.getElementById('serviceView');
+  intro.style.opacity='0';
+  setTimeout(()=>{
+    intro.style.display='none';
+    svc.style.display='block';
+    void svc.offsetWidth;
+    svc.style.opacity='1';
+    updateUI();
+  },500);
+}
+
+function goToIntro(){
+  const intro=document.getElementById('introView');
+  const svc=document.getElementById('serviceView');
+  stopAudio();
+  svc.style.opacity='0';
+  setTimeout(()=>{
+    svc.style.display='none';
+    intro.style.display='';
+    void intro.offsetWidth;
+    intro.style.opacity='1';
+  },500);
+}
+
+// ══════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════
+function init(){
+  lucide.createIcons();
+
+  // nav dots
+  ['navDots','svcDots'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el)el.innerHTML=Array(6).fill('<div class="nav-dot"></div>').join('');
+  });
+
+  // canvas
+  canvas=document.getElementById('dotCanvas');
+  ctx=canvas.getContext('2d');
+  drawHex(GFX.whale()); // 기본 그래픽
+
+  // mode buttons
+  const modeList=document.getElementById('modeList');
+  if(modeList){
+    const modes=[
+      {id:'demo',    icon:'✦', label:'시연 모드',    desc:'샘플 동화 체험'},
+      {id:'premium', icon:'⊞', label:'도서관·파일', desc:'DTMS 파일 업로드'},
+      {id:'basic',   icon:'✨', label:'AI 창작',     desc:'Kanana와 함께'}
+    ];
+    modeList.innerHTML=modes.map(m=>`
+      <button class="mode-btn${S.mode===m.id?' on':''}" data-mode="${m.id}">
+        <div class="mode-lbl">${m.icon} ${m.label}</div>
+        <div class="mode-desc">${m.desc}</div>
+      </button>`).join('');
+    modeList.querySelectorAll('.mode-btn').forEach(b=>{
+      b.addEventListener('click',()=>setMode(b.dataset.mode));
+    });
+  }
+
+  // quick commands
+  const chips=document.getElementById('cmdChips');
+  if(chips){
+    chips.innerHTML=CMDS.map(c=>`<button class="cmd-chip">${c}</button>`).join('');
+    chips.querySelectorAll('.cmd-chip').forEach(b=>{
+      b.addEventListener('click',()=>{
+        document.getElementById('chatInput').value=b.textContent;
+        document.getElementById('chatInput').focus();
+      });
+    });
+  }
+
+  // events
+  document.getElementById('btnStart1')?.addEventListener('click',startService);
+  document.getElementById('btnStart2')?.addEventListener('click',startService);
+  document.getElementById('btnTryNav')?.addEventListener('click',startService);
+  document.getElementById('btnLearnMore')?.addEventListener('click',()=>{
+    document.querySelector('.feature-grid')?.scrollIntoView({behavior:'smooth'});
+  });
+  document.getElementById('btnGoIntro')?.addEventListener('click',goToIntro);
+  document.getElementById('btnGoIntro')?.addEventListener('keydown',e=>{if(e.key==='Enter')goToIntro();});
+  document.getElementById('btnPlay')?.addEventListener('click',handlePlay);
+  document.getElementById('btnPrev')?.addEventListener('click',()=>changePage(-1));
+  document.getElementById('btnNext')?.addEventListener('click',()=>changePage(1));
+  document.getElementById('btnMic')?.addEventListener('click',handleMic);
+  document.getElementById('btnSend')?.addEventListener('click',handleSend);
+  document.getElementById('btnOutput')?.addEventListener('click',sendToDotPad);
+  document.getElementById('btnBle')?.addEventListener('click',handleBle);
+  document.getElementById('btnSave')?.addEventListener('click',()=>{
+    if(S.keyword){
+      S.savedStories.push({id:Date.now(),title:`${S.keyword} 이야기`});
+      showToast('내 서재에 저장했어요!');updateUI();
+    }
+  });
+  document.getElementById('chatInput')?.addEventListener('keydown',e=>{
+    if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();handleSend();}
+  });
+  document.getElementById('chatInput')?.addEventListener('input',e=>{
+    document.getElementById('btnSend').disabled=!e.target.value.trim();
+  });
+  document.getElementById('fileInput')?.addEventListener('change',handleFileUpload);
+
+  // AI 창작 버튼은 sendBtn으로 통합 (basic 모드에서 일반 전송 = AI 창작)
+  // basic 모드에서는 handleSend → callAI 안에서 DRAW 명령이 처리됨
+
+  renderPersonas();
+  renderChat();
+  updateUI();
+
+  // btnSend 초기 비활성
+  document.getElementById('btnSend').disabled=true;
+}
+
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);
+else init();
+</script>
+</body>
+</html>

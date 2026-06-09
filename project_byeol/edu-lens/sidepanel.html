@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <style>
+    :root { --dot-orange: #EB5B33; --dot-bg: #FFFFFF; --dot-card: #F4F3EF; --dot-text: #1A1A1A; }
+    body { padding: 15px; font-family: sans-serif; background: var(--dot-bg); color: var(--dot-text); margin: 0; overflow-x: hidden; }
+    .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; border-bottom: 1px solid #EEE; padding-bottom: 8px; }
+    .logo { font-size: 18px; font-weight: 800; }
+    .logo span { color: var(--dot-orange); }
+    
+    button { width: 100%; padding: 12px; margin: 4px 0; border: none; border-radius: 25px; font-weight: bold; cursor: pointer; font-size: 13px; }
+    #btnConnect { background: var(--dot-orange); color: white; }
+    #btnCursorSync { background: #E0E0E0; color: #333; transition: 0.3s; }
+    
+    .status-box { background: var(--dot-card); padding: 10px; border-radius: 10px; font-size: 12px; margin-top: 10px; border-left: 4px solid var(--dot-orange); min-height: 20px; word-break: break-all; }
+    
+    .label { font-size: 11px; font-weight: bold; margin-top: 15px; color: #555; }
+    
+    /* 그래픽 영역 (60x40) */
+    #dotGrid { display: grid; grid-template-columns: repeat(60, 1fr); gap: 1px; background: #D6D4CD; padding: 4px; border-radius: 4px; margin-top: 5px; }
+    .dot { width: 100%; aspect-ratio: 1/1; border-radius: 50%; background: #F4F3EF; }
+    .dot.active { background: #1A1A1A; }
+
+    /* 점자 텍스트 바 (20셀) */
+    #brailleBar { display: flex; gap: 4px; background: #1A1A1A; padding: 10px 5px; border-radius: 4px; margin-top: 5px; }
+    .cell { flex: 1; aspect-ratio: 2/3; background: #2A2A2A; border-radius: 2px; display: grid; grid-template-columns: repeat(2, 1fr); grid-template-rows: repeat(3, 1fr); gap: 2px; padding: 3px; }
+    .b-dot { background: #3D3D3D; border-radius: 50%; }
+    .b-dot.active { background: #EB5B33; box-shadow: 0 0 4px #EB5B33; }
+
+    canvas { display: none; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="logo">dot<span>::</span> Lens</div>
+    <div style="font-size: 9px; color: #7A7A7A;">v0.4 Multi-Modal</div>
+  </div>
+  
+  <button id="btnConnect">닷패드 기기 연결</button>
+  <button id="btnCursorSync">Real-time Cursor Sync (OFF)</button>
+
+  <div class="status-box">
+    <strong>Text:</strong> <span id="currentText">탐색 대기 중...</span>
+  </div>
+
+  <div class="label">Graphic Area (60x40)</div>
+  <div id="dotGrid"></div>
+
+  <div class="label">Braille Text Bar (20 Cells Preview)</div>
+  <div id="brailleBar"></div>
+
+  <canvas id="mainCanvas"></canvas>
+  <script>
+/**
+ * Dot Edu-Lens Pro 0.4 - 최종 통합 엔진
+ * 그래픽(60x40) + 점자(20셀) + BLE 하드웨어 연동 및 성능 최적화
+ */
+
+document.addEventListener('DOMContentLoaded', () => {
+    // 1. UI 요소 참조
+    const grid = document.getElementById('dotGrid');
+    const brailleBar = document.getElementById('brailleBar');
+    const statusText = document.getElementById('currentText');
+    const btnConnect = document.getElementById('btnConnect');
+    const btnCursorSync = document.getElementById('btnCursorSync');
+    
+    const dots = [];
+    const cellElements = [];
+    let isCursorSyncActive = false;
+    let isCapturing = false;
+    let lastCaptureTime = 0;
+    const CAPTURE_INTERVAL = 150; // 실시간성을 위한 0.15초 간격
+
+    // 2. BLE 하드웨어 설정
+    let dotPadCharacteristic = null;
+    const SERVICE_UUID = '6e400001-b5a3-f393-e0a9-e50e24dcca9e';
+    const CHARACTERISTIC_UUID = '6e400002-b5a3-f393-e0a9-e50e24dcca9e';
+
+    // 3. 점자 매핑 테이블 (영문, 숫자, 주요 기호)
+    const BRAILLE_MAP = {
+        'a': 0b000001, 'b': 0b000011, 'c': 0b001001, 'd': 0b011001, 'e': 0b010001,
+        'f': 0b001011, 'g': 0b011011, 'h': 0b010011, 'i': 0b001010, 'j': 0b011010,
+        'k': 0b000101, 'l': 0b000111, 'm': 0b001101, 'n': 0b011101, 'o': 0b010101,
+        'p': 0b001111, 'q': 0b011111, 'r': 0b010111, 's': 0b001110, 't': 0b011110,
+        'u': 0b100101, 'v': 0b100111, 'w': 0b111010, 'x': 0b101101, 'y': 0b111101, 'z': 0b110101,
+        '1': 0b000001, '2': 0b000011, '3': 0b001001, '4': 0b011001, '5': 0b010001,
+        '6': 0b001011, '7': 0b011011, '8': 0b010011, '9': 0b001010, '0': 0b011010,
+        '.': 0b010010, ':': 0b010010, '-': 0b010000, ' ': 0b000000
+    };
+
+    // 4. UI 초기화 (그리드 및 셀 생성)
+    function initUI() {
+        if (!grid || !brailleBar) return;
+        grid.innerHTML = '';
+        brailleBar.innerHTML = '';
+        
+        // 그래픽 그리드 2400개 생성
+        for (let i = 0; i < 2400; i++) {
+            const d = document.createElement('div');
+            d.className = 'dot';
+            grid.appendChild(d);
+            dots.push(d);
+        }
+        
+        // 점자 바 20셀 생성 (각 셀당 6개 점)
+        for (let i = 0; i < 20; i++) {
+            const c = document.createElement('div');
+            c.className = 'cell';
+            const cDots = [];
+            for (let j = 0; j < 6; j++) {
+                const b = document.createElement('div');
+                b.className = 'b-dot';
+                c.appendChild(b);
+                cDots.push(b);
+            }
+            brailleBar.appendChild(c);
+            cellElements.push(cDots);
+        }
+    }
+    initUI();
+
+    // 5. 점자 바 업데이트 로직
+    function updateBrailleBar(text) {
+        if (statusText) statusText.innerText = text.substring(0, 80);
+        const clean = (text || "").toLowerCase().trim().substring(0, 20);
+        const dotMapping = [0, 2, 4, 1, 3, 5]; // 표준 점자 위치 매핑
+        
+        cellElements.forEach((cel, i) => {
+            if (i < clean.length) {
+                const pat = BRAILLE_MAP[clean[i]] || (clean[i] ? (clean.charCodeAt(i) % 63) : 0);
+                cel.forEach((d, idx) => {
+                    const bit = dotMapping.indexOf(idx);
+                    if ((pat >> bit) & 1) d.classList.add('active');
+                    else d.classList.remove('active');
+                });
+            } else {
+                cel.forEach(d => d.classList.remove('active'));
+            }
+        });
+    }
+
+    // 6. 하드웨어 전송 (300바이트 바이너리 패킷)
+    async function sendToHardware(dotArray) {
+        if (!dotPadCharacteristic) return;
+        const payload = new Uint8Array(300);
+        for (let i = 0; i < dotArray.length; i++) {
+            if (dotArray[i] === 1) {
+                payload[Math.floor(i / 8)] |= (1 << (7 - (i % 8)));
+            }
+        }
+        const packet = new Uint8Array([0x02, 0x47, 0x01, 0x2C, ...payload, 0x00, 0x03]);
+        try { await dotPadCharacteristic.writeValue(packet); } 
+        catch (e) { console.warn("BLE 데이터 전송 실패"); }
+    }
+
+    // 7. 실시간 캡처 및 그래픽 변환
+    function startCapture(rect, dpr) {
+        const now = Date.now();
+        if (isCapturing || (now - lastCaptureTime < CAPTURE_INTERVAL)) return;
+
+        isCapturing = true;
+        chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
+            if (!tabs[0]) { isCapturing = false; return; }
+            chrome.tabs.captureVisibleTab(tabs[0].windowId, { format: 'png' }, (url) => {
+                if (chrome.runtime.lastError || !url) { isCapturing = false; return; }
+                const img = new Image();
+                img.onload = () => {
+                    const canvas = document.getElementById('mainCanvas');
+                    const ctx = canvas.getContext('2d', { willReadFrequently: true });
+                    canvas.width = 600; canvas.height = 400;
+                    
+                    ctx.drawImage(img, rect.x * dpr, rect.y * dpr, rect.width * dpr, rect.height * dpr, 0, 0, 600, 400);
+                    
+                    const data = ctx.getImageData(0, 0, 600, 400).data;
+                    const hDots = [];
+
+                    for (let i = 0; i < 2400; i++) {
+                        const x = i % 60, y = Math.floor(i / 60);
+                        const idx = (y * 10 * 600 + x * 10) * 4;
+                        const avg = (data[idx] + data[idx+1] + data[idx+2]) / 3;
+                        const active = avg < 210; // 임계값
+                        dots[i].className = active ? 'dot active' : 'dot';
+                        hDots.push(active ? 1 : 0);
+                    }
+                    
+                    sendToHardware(hDots);
+                    isCapturing = false;
+                    lastCaptureTime = Date.now();
+                };
+                img.src = url;
+            });
+        });
+    }
+
+    // 8. 메시지 수신부
+    chrome.runtime.onMessage.addListener((req) => {
+        if (!isCursorSyncActive) return;
+        if (req.action === "mouseMove" || req.action === "focusTracking") {
+            if (req.text !== undefined) updateBrailleBar(req.text);
+            startCapture(req.rect, req.dpr);
+        }
+    });
+
+    // 9. 버튼 이벤트 (연결 로직 개선)
+    btnConnect.onclick = async () => {
+        try {
+            statusText.innerText = "기기 검색 중... (팝업창 확인)";
+            const dev = await navigator.bluetooth.requestDevice({
+                acceptAllDevices: true, // 검색 범위를 넓혀 기기 찾기 성공률 향상
+                optionalServices: [SERVICE_UUID]
+            });
+            const srv = await dev.gatt.connect();
+            const svc = await srv.getPrimaryService(SERVICE_UUID);
+            dotPadCharacteristic = await svc.getCharacteristic(CHARACTERISTIC_UUID);
+            
+            btnConnect.style.background = "#27ae60";
+            btnConnect.innerText = "닷패드 연결됨";
+            statusText.innerText = "연결 성공! 실시간 탐색을 시작하세요.";
+        } catch (e) {
+            console.error(e);
+            statusText.innerText = "기기 연결 실패: 블루투스가 켜져 있는지 확인하세요.";
+        }
+    };
+
+    btnCursorSync.onclick = () => {
+        isCursorSyncActive = !isCursorSyncActive;
+        btnCursorSync.style.background = isCursorSyncActive ? "#27ae60" : "#E0E0E0";
+        btnCursorSync.style.color = isCursorSyncActive ? "white" : "#333";
+        btnCursorSync.innerText = `Real-time Cursor Sync (${isCursorSyncActive ? 'ON' : 'OFF'})`;
+    };
+});
+</script>
+</body>
+</html>
