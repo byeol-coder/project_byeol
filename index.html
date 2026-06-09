@@ -3,603 +3,407 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>byeol × DOT — Vibe Coding Prototype Hub</title>
+<title>byeol × DOT — Accessibility Prototype Hub</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Noto+Sans+KR:wght@400;500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Noto+Sans+KR:wght@400;500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --bg:#08080f;--bg2:#0f0f1c;--bg3:#161628;--bg4:#1e1e35;
-  --border:#252545;--border2:#333360;
-  --text:#f0eeff;--text2:#9898cc;--text3:#555580;
-  --accent:#7c6ff7;--accent2:#5a52d5;--accent3:#a29bfe;
+  --ink:#060610;
+  --surface:#0d0d1f;
+  --raise:#171730;
+  --lift:#1f1f40;
+  --rule:#282850;
+  --rule2:#383870;
+  --text:#f0eeff;
+  --muted:#8888aa;
+  --faint:#444466;
+  --dot:#7c6ff7;
+  --dot-lt:#a29bfe;
+  --dot-xlt:#c4bfff;
+  --green:#22d68a;
+  --amber:#f59e0b;
+  --rose:#f43f5e;
+  --teal:#2dd4b0;
 }
 html{scroll-behavior:smooth}
-body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden;min-height:100vh}
-button,a{font-family:inherit;cursor:pointer;text-decoration:none}
-button:focus-visible,a:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
-::-webkit-scrollbar{height:4px;width:4px}
-::-webkit-scrollbar-thumb{background:var(--border2);border-radius:99px}
-::-webkit-scrollbar-track{background:transparent}
+body{background:var(--ink);color:var(--text);font-family:'Noto Sans KR',sans-serif;
+  min-height:100vh;-webkit-font-smoothing:antialiased}
+a{text-decoration:none;color:inherit}
+button{font-family:inherit;cursor:pointer;border:none;background:none}
 
-/* NAV */
-.nav{position:fixed;top:0;left:0;right:0;z-index:500;
-  background:linear-gradient(to bottom,rgba(8,8,15,.98),transparent);
-  padding:0 40px;height:56px;display:flex;align-items:center;justify-content:space-between}
-.nav-logo{font-family:'Syne',sans-serif;font-weight:800;font-size:16px;color:var(--text)}
-.nav-logo .accent{color:var(--accent3)}
-.nav-logo .sep{color:var(--text3);margin:0 8px;font-weight:400}
-.nav-cats{display:flex;gap:4px}
-.nav-cat{font-size:11px;color:var(--text3);padding:4px 10px;font-family:'DM Mono',monospace}
+/* ── SKIP NAV ── */
+.skip{position:absolute;top:-100px;left:8px;background:var(--dot);color:#fff;
+  padding:8px 16px;border-radius:6px;font-size:13px;font-weight:700;z-index:9999}
+.skip:focus{top:8px}
 
-/* HERO */
-.hero{position:relative;min-height:72vh;display:flex;align-items:flex-end;overflow:hidden}
-.hero-bg{position:absolute;inset:0;overflow:hidden}
-.hero-bg svg{width:100%;height:100%;object-fit:cover}
-.hero-grad-r{position:absolute;inset:0;
-  background:linear-gradient(to right,rgba(8,8,15,.98) 0%,rgba(8,8,15,.65) 55%,transparent 100%)}
-.hero-grad-b{position:absolute;inset:0;
-  background:linear-gradient(to top,rgba(8,8,15,1) 0%,transparent 45%)}
-.hero-content{position:relative;z-index:1;padding:60px 60px 64px;max-width:680px}
-.hero-kicker{display:inline-flex;align-items:center;gap:8px;
-  font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
-  color:var(--accent);border:1px solid rgba(124,111,247,.35);background:rgba(124,111,247,.08);
-  padding:5px 14px;border-radius:99px;margin-bottom:20px;font-family:'DM Mono',monospace}
-.hero-title{font-size:clamp(32px,4vw,52px);font-weight:800;line-height:1.15;
-  letter-spacing:-.02em;margin-bottom:16px;font-family:'Syne',sans-serif;color:var(--text)}
-.hero-title em{font-style:normal;color:var(--accent3)}
-.hero-desc{font-size:15px;color:var(--text2);line-height:1.75;max-width:500px;margin-bottom:32px}
-.hero-btns{display:flex;gap:12px;flex-wrap:wrap}
-.btn-primary{padding:12px 28px;background:var(--accent);color:#fff;border:none;
-  border-radius:9px;font-size:14px;font-weight:700;display:flex;align-items:center;gap:8px;
-  transition:background .15s}
-.btn-primary:hover{background:var(--accent2)}
-.btn-outline{padding:12px 28px;background:transparent;color:var(--accent3);
-  border:1.5px solid var(--border2);border-radius:9px;font-size:14px;font-weight:600;
-  transition:all .15s}
-.btn-outline:hover{background:var(--bg4)}
-
-/* ROWS */
-.rows{padding:0 40px 60px}
-.row{margin-bottom:44px}
-.row-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
-.row-title{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
-  color:var(--text2);font-family:'DM Mono',monospace}
-.row-arrows{display:flex;gap:6px}
-.arrow-btn{width:28px;height:28px;border-radius:6px;background:var(--bg4);border:1px solid var(--border2);
-  color:var(--text2);font-size:12px;display:flex;align-items:center;justify-content:center;
-  cursor:pointer;transition:all .15s}
-.arrow-btn:hover{background:var(--accent);color:#fff;border-color:var(--accent)}
-.cards-track{display:flex;gap:14px;overflow-x:auto;padding-bottom:8px;
-  scroll-snap-type:x mandatory;scrollbar-width:thin}
-
-/* CARD */
-.card{flex-shrink:0;width:260px;cursor:pointer;border-radius:10px;overflow:hidden;
-  scroll-snap-align:start;transition:transform .2s ease,box-shadow .2s ease;
-  outline:none;background:var(--bg3)}
-.card:hover,.card:focus-visible{transform:scale(1.04);
-  box-shadow:0 16px 48px rgba(0,0,0,.7)}
-.card-thumb{aspect-ratio:16/9;position:relative;overflow:hidden}
-.card-thumb svg{display:block;width:100%;height:100%}
-.card-overlay{position:absolute;inset:0;opacity:0;transition:opacity .2s;
-  background:linear-gradient(to top,rgba(8,8,15,.97),rgba(8,8,15,.4) 60%,transparent);
-  display:flex;flex-direction:column;justify-content:flex-end;padding:12px}
-.card:hover .card-overlay,.card:focus-visible .card-overlay{opacity:1}
-.card-overlay-text{font-size:11px;color:#c8c5ff;line-height:1.55;
-  display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
-.card-badges{position:absolute;top:8px;left:8px;display:flex;gap:4px;flex-wrap:wrap}
-.badge{font-size:9px;font-weight:700;padding:3px 7px;border-radius:99px;
-  font-family:'DM Mono',monospace;letter-spacing:.5px;white-space:nowrap}
-.card-info{padding:10px 12px;background:#141428}
-.card-name{font-size:13px;font-weight:700;color:var(--text);
-  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-family:'Syne',sans-serif}
-.card-sub{font-size:11px;color:var(--text3);margin-top:3px;
-  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-
-/* MODAL */
-.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:1000;
-  overflow-y:auto;backdrop-filter:blur(6px);display:none}
-.modal-overlay.open{display:block}
-.modal-box{max-width:900px;margin:40px auto 60px;background:var(--bg2);
-  border-radius:16px;overflow:hidden;border:1px solid var(--border);
-  box-shadow:0 24px 80px rgba(0,0,0,.8)}
-.modal-hero{position:relative;aspect-ratio:16/7;overflow:hidden}
-.modal-hero svg{display:block;width:100%;height:100%}
-.modal-hero-grad{position:absolute;inset:0;
-  background:linear-gradient(to right,rgba(8,8,15,.97) 0%,rgba(8,8,15,.6) 50%,transparent 100%)}
-.modal-hero-content{position:absolute;bottom:0;left:0;right:50%;padding:28px 32px}
-.modal-badges{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
-.modal-title{font-size:30px;font-weight:800;color:var(--text);line-height:1.2;
-  font-family:'Syne',sans-serif;letter-spacing:-.5px;margin-bottom:8px}
-.modal-desc{font-size:13px;color:#a0a0cc;line-height:1.65;margin-bottom:18px}
-.modal-close{position:absolute;top:16px;right:16px;width:36px;height:36px;
-  border-radius:8px;background:rgba(255,255,255,.1);backdrop-filter:blur(4px);
-  border:1px solid rgba(255,255,255,.15);color:#fff;font-size:16px;
-  display:flex;align-items:center;justify-content:center;cursor:pointer}
-.modal-close:hover{background:rgba(255,255,255,.2)}
-.modal-body{display:grid;grid-template-columns:1fr 1fr}
-.modal-col{padding:24px 28px}
-.modal-col+.modal-col{border-left:1px solid var(--border)}
-.modal-label{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;
-  color:var(--text3);margin-bottom:12px;font-family:'DM Mono',monospace}
-.feature-list{list-style:none;display:flex;flex-direction:column;gap:8px}
-.feature-item{display:flex;gap:10px;align-items:flex-start;font-size:13px;color:#c8c5ff;line-height:1.6}
-.feature-dot{color:var(--accent);margin-top:2px;flex-shrink:0;font-weight:700}
-.tech-tags{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:20px}
-.tech-tag{font-size:11px;padding:4px 10px;border-radius:6px;
-  background:var(--bg4);border:1px solid var(--border2);color:var(--accent3);
-  font-family:'DM Mono',monospace}
-.demo-btn{padding:9px 22px;background:var(--accent);color:#fff;border:none;
-  border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;
-  display:inline-flex;align-items:center;gap:7px;transition:background .15s;text-decoration:none}
-.demo-btn:hover{background:var(--accent2)}
-
-/* FOOTER */
-.footer{border-top:1px solid var(--bg4);padding:24px 40px;
+/* ── NAV ── */
+.nav{position:sticky;top:0;z-index:100;background:rgba(6,6,16,.92);
+  backdrop-filter:blur(12px);border-bottom:1px solid var(--rule);
+  padding:0 clamp(16px,4vw,56px);height:54px;
   display:flex;align-items:center;justify-content:space-between}
-.footer-text{font-family:'DM Mono',monospace;font-size:11px;color:var(--text3)}
+.nav-logo{display:flex;align-items:center;gap:11px}
+.nav-mark{width:30px;height:30px;background:var(--dot);border-radius:8px;
+  display:grid;grid-template-columns:repeat(3,1fr);gap:3px;padding:6px;flex-shrink:0}
+.nav-mark span{background:rgba(255,255,255,.9);border-radius:50%}
+.nav-wordmark{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:15px;
+  letter-spacing:-.3px;color:var(--text)}
+.nav-wordmark em{font-style:normal;color:var(--dot-lt)}
+.nav-wordmark .sep{color:var(--faint);margin:0 6px;font-weight:400}
+.nav-count{font-family:'DM Mono',monospace;font-size:11px;color:var(--faint);
+  border:1px solid var(--rule);padding:3px 10px;border-radius:99px}
+
+/* ── HEADER ── */
+.hub-header{padding:48px clamp(16px,4vw,56px) 0}
+.hub-eyebrow{display:inline-flex;align-items:center;gap:8px;
+  font-family:'DM Mono',monospace;font-size:11px;font-weight:500;
+  letter-spacing:.1em;text-transform:uppercase;color:var(--dot);
+  margin-bottom:14px}
+.hub-eyebrow::before{content:'';width:20px;height:1px;background:var(--dot)}
+.hub-title{font-family:'Space Grotesk',sans-serif;font-size:clamp(26px,4vw,42px);
+  font-weight:700;letter-spacing:-.03em;line-height:1.15;margin-bottom:10px;color:var(--text)}
+.hub-title span{color:var(--dot-lt)}
+.hub-desc{font-size:14px;color:var(--muted);line-height:1.75;max-width:520px}
+
+/* ── FILTERS ── */
+.filter-wrap{padding:28px clamp(16px,4vw,56px) 0;
+  display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.filter-btn{font-family:'DM Mono',monospace;font-size:11px;font-weight:500;
+  letter-spacing:.04em;padding:6px 16px;border-radius:99px;
+  border:1px solid var(--rule);color:var(--muted);
+  transition:all .15s;cursor:pointer;background:transparent;white-space:nowrap}
+.filter-btn:hover{border-color:var(--dot);color:var(--dot-lt)}
+.filter-btn.active{background:var(--dot);border-color:var(--dot);color:#fff}
+.filter-btn:focus-visible{outline:2px solid var(--dot);outline-offset:2px}
+
+/* ── GRID ── */
+.grid-wrap{padding:24px clamp(16px,4vw,56px) 64px}
+.card-grid{display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(280px,1fr));
+  gap:20px}
+
+/* ── CARD ── */
+.card{display:block;background:var(--surface);border-radius:12px;
+  overflow:hidden;border:1px solid var(--rule);
+  transition:transform .22s ease,box-shadow .22s ease,border-color .22s ease;
+  outline:none;cursor:pointer}
+.card:hover,.card:focus-visible{
+  transform:translateY(-4px) scale(1.015);
+  box-shadow:0 20px 56px rgba(0,0,0,.7),0 0 0 1px var(--dot);
+  border-color:var(--dot)}
+.card:focus-visible{box-shadow:0 0 0 3px var(--dot-lt)}
+
+/* Thumb */
+.card-thumb{position:relative;aspect-ratio:16/9;overflow:hidden;background:var(--ink)}
+.card-thumb canvas{display:block;width:100%;height:100%;image-rendering:pixelated}
+.card-thumb-overlay{position:absolute;inset:0;
+  background:linear-gradient(to top,rgba(6,6,16,.9) 0%,rgba(6,6,16,.2) 60%,transparent 100%);
+  display:flex;flex-direction:column;justify-content:flex-end;padding:14px}
+.card-badges{display:flex;gap:5px;flex-wrap:wrap}
+.badge{font-family:'DM Mono',monospace;font-size:9px;font-weight:500;
+  padding:3px 7px;border-radius:4px;letter-spacing:.4px;white-space:nowrap}
+.card-open-hint{position:absolute;top:10px;right:10px;
+  width:28px;height:28px;background:rgba(124,111,247,.9);border-radius:6px;
+  display:flex;align-items:center;justify-content:center;
+  opacity:0;transition:opacity .2s;font-size:13px}
+.card:hover .card-open-hint,.card:focus-visible .card-open-hint{opacity:1}
+
+/* Info */
+.card-info{padding:14px 16px 16px}
+.card-title{font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:700;
+  color:var(--text);margin-bottom:5px;letter-spacing:-.2px;line-height:1.3;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.card-desc{font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:11px;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.card-footer{display:flex;align-items:center;justify-content:space-between}
+.card-cat{font-family:'DM Mono',monospace;font-size:10px;color:var(--faint)}
+.card-link-hint{font-family:'DM Mono',monospace;font-size:9px;
+  color:var(--dot);letter-spacing:.04em;display:flex;align-items:center;gap:4px;
+  opacity:0;transition:opacity .15s}
+.card:hover .card-link-hint,.card:focus-visible .card-link-hint{opacity:1}
+
+/* ── FOOTER ── */
+.site-footer{border-top:1px solid var(--rule);padding:24px clamp(16px,4vw,56px);
+  display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
+.footer-text{font-family:'DM Mono',monospace;font-size:11px;color:var(--faint)}
+
+/* ── SR ONLY ── */
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;
+  overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+
+/* ── RESPONSIVE ── */
+@media(max-width:768px){.card-grid{grid-template-columns:repeat(2,1fr);gap:12px}}
+@media(max-width:480px){.card-grid{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
 
-<!-- NAV -->
-<nav class="nav">
-  <div class="nav-logo">
-    <span class="accent">byeol</span><span class="sep">×</span>DOT
-  </div>
-  <div class="nav-cats">
-    <span class="nav-cat">Accessibility</span>
-    <span class="nav-cat">Dot Pad</span>
-    <span class="nav-cat">Game</span>
-    <span class="nav-cat">AI Tools</span>
-  </div>
-</nav>
+<a href="#main" class="skip">본문으로 건너뛰기</a>
 
-<!-- HERO -->
-<section class="hero">
-  <div class="hero-bg" id="heroBg"></div>
-  <div class="hero-grad-r"></div>
-  <div class="hero-grad-b"></div>
-  <div class="hero-content">
-    <div class="hero-kicker">✦ Vibe Coding Prototype Hub</div>
-    <h1 class="hero-title">byeol × DOT<br><em>접근성 프로토타입</em> 모음</h1>
-    <p class="hero-desc">AI와 바이브코딩으로 제작한 시각장애·청각장애인을 위한 인터랙티브 프로토타입들. Dot Pad 촉각 그래픽부터 AI 구연동화까지.</p>
-    <div class="hero-btns">
-      <button class="btn-primary" id="heroBtn">▶ 첫 번째 프로토타입</button>
-      <button class="btn-outline" id="heroScrollBtn">전체 보기 ↓</button>
+<nav class="nav" aria-label="주 내비게이션">
+  <div class="nav-logo">
+    <div class="nav-mark" aria-hidden="true">
+      <span></span><span></span><span></span>
+      <span></span><span></span><span></span>
+      <span></span><span></span><span></span>
+    </div>
+    <div class="nav-wordmark">
+      <em>byeol</em><span class="sep">×</span>DOT
     </div>
   </div>
-</section>
+  <div class="nav-count" id="navCount" aria-live="polite"></div>
+</nav>
 
-<!-- ROWS -->
-<div class="rows" id="allRows"></div>
+<header>
+  <div class="hub-header">
+    <div class="hub-eyebrow">Accessibility Prototype Hub</div>
+    <h1 class="hub-title">접근성을 위한<br><span>AI 프로토타입</span> 모음</h1>
+    <p class="hub-desc">바이브코딩으로 제작한 시각장애·청각장애인을 위한 Dot Pad 촉각 그래픽·AI 인터랙티브 프로토타입입니다. 카드를 클릭하면 바로 열립니다.</p>
+  </div>
+  <div class="filter-wrap" id="filterWrap" role="tablist" aria-label="카테고리 필터"></div>
+</header>
 
-<!-- FOOTER -->
-<footer class="footer">
-  <span class="footer-text">byeol · 닷 디자인실 · 시니어 디자이너</span>
+<main id="main">
+  <div class="grid-wrap">
+    <div class="card-grid" id="cardGrid" aria-label="프로젝트 목록"></div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <span class="footer-text">이샛별 · 닷 디자인실 시니어 디자이너</span>
   <span class="footer-text" id="footerCount"></span>
 </footer>
 
-<!-- MODAL -->
-<div class="modal-overlay" id="modalOverlay" role="dialog" aria-modal="true" aria-label="프로젝트 상세">
-  <div class="modal-box">
-    <div class="modal-hero">
-      <div id="modalThumb"></div>
-      <div class="modal-hero-grad"></div>
-      <div class="modal-hero-content">
-        <div class="modal-badges" id="modalBadges"></div>
-        <h2 class="modal-title" id="modalTitle"></h2>
-        <p class="modal-desc" id="modalDesc"></p>
-        <div id="modalDemoBtn"></div>
-      </div>
-      <button class="modal-close" id="modalClose" aria-label="닫기">✕</button>
-    </div>
-    <div class="modal-body">
-      <div class="modal-col">
-        <div class="modal-label">핵심 기능</div>
-        <ul class="feature-list" id="modalFeatures"></ul>
-      </div>
-      <div class="modal-col">
-        <div class="modal-label">기술 스택</div>
-        <div class="tech-tags" id="modalTech"></div>
-        <div class="modal-label">카테고리</div>
-        <p id="modalCat" style="font-size:13px;color:var(--accent);font-weight:600"></p>
-      </div>
-    </div>
-  </div>
-</div>
-
 <script>
-// ── THUMBNAIL GENERATORS ──
-function makeSVG(w,h,cfg,id){
-  const ns='http://www.w3.org/2000/svg';
-  const svg=document.createElementNS(ns,'svg');
-  svg.setAttribute('viewBox',`0 0 ${w} ${h}`);
-  svg.setAttribute('width','100%');svg.setAttribute('height','100%');
-  svg.style.display='block';
-
-  // bg
-  const defs=document.createElementNS(ns,'defs');
-  const rg=document.createElementNS(ns,'radialGradient');
-  rg.id=`bg${id}`;
-  rg.setAttribute('cx','50%');rg.setAttribute('cy','50%');rg.setAttribute('r','70%');
-  const s1=document.createElementNS(ns,'stop');
-  s1.setAttribute('offset','0%');s1.setAttribute('stop-color',cfg.glow);s1.setAttribute('stop-opacity','0.3');
-  const s2=document.createElementNS(ns,'stop');
-  s2.setAttribute('offset','100%');s2.setAttribute('stop-color',cfg.dark);s2.setAttribute('stop-opacity','1');
-  rg.appendChild(s1);rg.appendChild(s2);
-  const fg=document.createElementNS(ns,'linearGradient');
-  fg.id=`fd${id}`;fg.setAttribute('x1','0');fg.setAttribute('y1','0');fg.setAttribute('x2','0');fg.setAttribute('y2','1');
-  const f1=document.createElementNS(ns,'stop');f1.setAttribute('offset','50%');f1.setAttribute('stop-color',cfg.dark);f1.setAttribute('stop-opacity','0');
-  const f2=document.createElementNS(ns,'stop');f2.setAttribute('offset','100%');f2.setAttribute('stop-color',cfg.dark);f2.setAttribute('stop-opacity','1');
-  fg.appendChild(f1);fg.appendChild(f2);
-  defs.appendChild(rg);defs.appendChild(fg);svg.appendChild(defs);
-
-  const bgR=document.createElementNS(ns,'rect');
-  bgR.setAttribute('width',w);bgR.setAttribute('height',h);bgR.setAttribute('fill',`url(#bg${id})`);
-  svg.appendChild(bgR);
-  const bgR2=document.createElementNS(ns,'rect');
-  bgR2.setAttribute('width',w);bgR2.setAttribute('height',h);bgR2.setAttribute('fill',cfg.dark);bgR2.setAttribute('opacity','0.45');
-  svg.appendChild(bgR2);
-
-  // dot grid
-  const step=w>400?18:10;
-  for(let row=0;row<Math.ceil(h/step);row++){
-    for(let col=0;col<Math.ceil(w/step);col++){
-      const pat=cfg.pattern;
-      const on=pat?pat[row%pat.length]?.[col%pat[0].length]:0:0;
-      const c=document.createElementNS(ns,'circle');
-      c.setAttribute('cx',col*step+step/2);c.setAttribute('cy',row*step+step/2);
-      c.setAttribute('r',step>14?1.2:0.8);c.setAttribute('fill',cfg.dotColor);
-      c.setAttribute('opacity',on?'0.85':'0.1');
-      svg.appendChild(c);
-    }
-  }
-
-  // illustration
-  cfg.draw(svg,w,h,ns);
-
-  // fade
-  const fd=document.createElementNS(ns,'rect');
-  fd.setAttribute('width',w);fd.setAttribute('height',h);fd.setAttribute('fill',`url(#fd${id})`);
-  svg.appendChild(fd);
-  return svg;
-}
-
-function el(tag,ns,attrs,parent){
-  const e=document.createElementNS(ns,tag);
-  Object.entries(attrs).forEach(([k,v])=>e.setAttribute(k,v));
-  if(parent)parent.appendChild(e);
-  return e;
-}
-
-// ── PROJECT DATA ──
-const PROJECTS=[
-  {id:'dotbeat',title:'Dot Beat',tagline:'시각장애 아동을 위한 촉각 리듬 게임',
-   category:'게임 & 인터랙션',cats:['Dot Pad','Game','Accessibility'],
-   desc:'Dot Pad 핀 배열로 리듬 패턴을 손끝으로 느끼며 음악을 배우는 촉각 리듬 게임. 아동의 반응 속도를 분석해 BPM과 패턴 복잡도를 자동 조절합니다.',
-   features:['촉각 박자 피드백 — Dot Pad 핀으로 리듬 패턴 전달','난이도 자동 조절 — 반응 속도 분석','음악 비트와 핀 진동 정밀 동기화','스크린리더 완전 호환 접근성'],
-   tech:['HTML/CSS/JS','Web Audio API','Dot Pad BLE','DTMS'],
-   demoUrl:'./dot-beat/index.html',
-   thumb:{dark:'#06040f',glow:'#7c6ff7',dotColor:'#a29bfe',
-     pattern:[[1,0,0,1,0,0,1,0],[0,0,1,0,0,1,0,0],[1,0,0,0,1,0,0,1],[0,1,0,1,0,0,1,0]],
-     draw:(svg,w,h,ns)=>{
-       [0,1,2,3,4,5,6,7].forEach(i=>{
-         const bar=el('rect',ns,{x:w*0.2+i*(w*0.075),y:h*0.32,width:w*0.052,
-           height:h*(0.18+Math.abs(Math.sin(i*1.3))*0.22),fill:'#7c6ff7',opacity:'0.75',rx:'3'},svg);
-       });
-       el('circle',ns,{cx:w*0.5,cy:h*0.68,r:h*0.13,fill:'none',stroke:'#a29bfe',
-         'stroke-width':'2',opacity:'0.4'},svg);
-       el('circle',ns,{cx:w*0.5,cy:h*0.68,r:h*0.06,fill:'#7c6ff7',opacity:'0.7'},svg);
-     }}},
-  {id:'dotventure',title:'Dot Venture',tagline:'Dot Pad 기반 아동용 촉각 탐험 게임 플랫폼',
-   category:'게임 & 인터랙션',cats:['Dot Pad','Game','Accessibility'],
-   desc:'촉각 맵 탐색, 캐릭터 조작, 멀티포맷 콘텐츠를 하나로 연결한 Dot Pad 기반 아동용 게임 플랫폼. 시각장애 아동도 또래 문화에 완전히 참여할 수 있습니다.',
-   features:['60×40 촉각 맵 실시간 렌더링','방향키·Dot Pad 제스처 기반 조작','콘텐츠 라이브러리 (점자 동화·촉각 퍼즐·음향 퀴즈)','다중 난이도 스테이지'],
-   tech:['HTML/CSS/JS','Canvas API','Dot Pad BLE','DTMS'],
-   demoUrl:'./dot-venture/index.html',
-   thumb:{dark:'#030a05',glow:'#22d68a',dotColor:'#22d68a',
-     pattern:[[1,1,0,0,1,1,0,0],[1,0,0,1,0,1,0,1],[0,0,1,1,0,0,1,1],[0,1,0,1,1,0,0,1]],
-     draw:(svg,w,h,ns)=>{
-       [[0,0],[1,0],[2,0],[0,1],[2,1],[0,2],[1,2],[2,2]].forEach(([x,y],i)=>{
-         const skip=[1,4].includes(i);
-         el('rect',ns,{x:w*0.35+x*(w*0.1),y:h*0.28+y*(h*0.16),width:w*0.08,height:h*0.13,
-           fill:skip?'transparent':'#22d68a',opacity:skip?'0':'0.6',
-           stroke:'#22d68a','stroke-width':'1',rx:'2'},svg);
-       });
-       el('circle',ns,{cx:w*0.45,cy:h*0.44,r:h*0.08,fill:'#f0eeff',opacity:'0.9'},svg);
-     }}},
-  {id:'election',title:'Dot Election Reader',tagline:'시각장애인을 위한 선거 정보 접근성 프로토타입',
-   category:'접근성 프로토타입',cats:['Accessibility','Public','Dot Pad'],
-   desc:'PDF·이미지 중심 선거 정보를 시각장애인이 자력으로 탐색할 수 있도록 ARIA 구조를 재설계하고 Dot Pad 점자 출력을 연결한 접근성 프로토타입.',
-   features:['스크린리더 완전 호환 ARIA 구조','후보 비교표 — 항목별 탭 탐색','TTS 읽어주기 내장','Dot Pad 점자 즉시 출력'],
-   tech:['HTML/CSS/JS','Web Speech API','ARIA','Dot Pad'],
-   demoUrl:'./dot-election/index.html',
-   thumb:{dark:'#030508',glow:'#4a9eff',dotColor:'#4a9eff',
-     pattern:[[1,0,1,0,1,0,1,0],[1,1,1,1,1,1,1,1],[0,0,0,0,0,0,0,0],[1,1,0,1,1,0,1,1]],
-     draw:(svg,w,h,ns)=>{
-       [0,1,2,3].forEach(i=>{
-         el('rect',ns,{x:w*0.25,y:h*0.2+i*(h*0.17),width:w*0.5,height:h*0.1,fill:'#4a9eff',opacity:'0.13',rx:'3'},svg);
-         el('rect',ns,{x:w*0.25,y:h*0.2+i*(h*0.17),width:w*(0.1+i*0.05),height:h*0.1,fill:'#4a9eff',opacity:'0.65',rx:'3'},svg);
-       });
-       el('circle',ns,{cx:w*0.16,cy:h*0.5,r:h*0.11,fill:'none',stroke:'#4a9eff','stroke-width':'2.5',opacity:'0.5'},svg);
-     }}},
-  {id:'concert',title:'K-pop Barrier-free Concert',tagline:'시청각 장애인을 위한 공연 접근성 프로토타입',
-   category:'접근성 프로토타입',cats:['Accessibility','Concert','Tactile'],
-   desc:'K-pop 공연의 실시간 자막, 촉각 진동 동기화, 수어 통역을 하나의 흐름으로 연결한 공연 접근성 프로토타입.',
-   features:['가사·MC멘트 실시간 자막 스트리밍','BPM 기반 Dot Pad 촉각 진동 동기화','수어 통역 영상 고정 레이아웃','음성 해설(AD) 선택 활성화'],
-   tech:['HTML/CSS/JS','Canvas API','Web Speech API','Dot Pad'],
-   demoUrl:'./kpop-concert/index.html',
-   thumb:{dark:'#0a0308',glow:'#f43f5e',dotColor:'#f43f5e',
-     pattern:[[1,0,0,0,1,0,0,0],[0,1,0,1,0,1,0,1],[0,0,1,0,0,0,1,0],[1,0,0,0,1,0,0,0]],
-     draw:(svg,w,h,ns)=>{
-       [0,1,2,3,4,5,6,7,8,9,10,11].forEach(i=>{
-         const bh=h*(0.1+Math.abs(Math.sin(i*0.9))*0.28);
-         el('line',ns,{x1:w*(0.14+i*0.062),y1:h*0.62,x2:w*(0.14+i*0.062),y2:h*0.62-bh,
-           stroke:'#f43f5e','stroke-width':'4','stroke-linecap':'round',opacity:'0.75'},svg);
-       });
-       [0,1,2].forEach(i=>{
-         el('circle',ns,{cx:w*(0.28+i*0.22),cy:h*0.24,r:h*(0.04+i*0.025),
-           fill:'#f43f5e',opacity:String(0.5-i*0.1)},svg);
-       });
-     }}},
-  {id:'aitactile',title:'AI Tactile Graphic Generator',tagline:'이미지·프롬프트 → Dot Pad 촉각 그래픽 자동 생성',
-   category:'AI 도구',cats:['AI','Tactile','Dot Pad'],
-   desc:'이미지를 업로드하거나 텍스트 프롬프트를 입력하면 AI가 윤곽선을 분석해 Dot Pad 60×40 점형 그래픽으로 자동 변환합니다.',
-   features:['AI 이미지 분석 — 주요 윤곽·계층 자동 추출','60×40 점형 최적화 변환','밀도·단순화 파라미터 실시간 조정','DTMS 내보내기 및 Dot Pad 직접 전송'],
-   tech:['HTML/CSS/JS','Canvas API','Anthropic API','DTMS'],
-   demoUrl:'./ai-tactile-gen/index.html',
-   thumb:{dark:'#060410',glow:'#a29bfe',dotColor:'#a29bfe',
-     pattern:[[0,0,1,1,0,0,1,1],[0,1,1,0,1,1,0,0],[1,1,0,0,1,0,1,0],[1,0,0,1,0,1,1,0]],
-     draw:(svg,w,h,ns)=>{
-       el('rect',ns,{x:w*0.2,y:h*0.25,width:w*0.22,height:h*0.46,fill:'none',stroke:'#a29bfe','stroke-width':'1.5',rx:'4',opacity:'0.5'},svg);
-       el('rect',ns,{x:w*0.58,y:h*0.25,width:w*0.22,height:h*0.46,fill:'none',stroke:'#22d68a','stroke-width':'1.5',rx:'4',opacity:'0.5'},svg);
-       [0,1,2,3,4].forEach(i=>{
-         el('circle',ns,{cx:w*0.2+i*(w*0.044),cy:h*0.3+i*(h*0.085),r:'3',fill:'#a29bfe',opacity:'0.8'},svg);
-         el('circle',ns,{cx:w*0.58+i*(w*0.044),cy:h*0.3+i*(h*0.085),r:'3',fill:'#22d68a',opacity:'0.8'},svg);
-       });
-       el('line',ns,{x1:w*0.44,y1:h*0.5,x2:w*0.56,y2:h*0.5,stroke:'#f0eeff','stroke-width':'2',opacity:'0.8'},svg);
-       el('polygon',ns,{points:`${w*0.545},${h*0.468} ${w*0.568},${h*0.5} ${w*0.545},${h*0.532}`,fill:'#f0eeff',opacity:'0.8'},svg);
-     }}},
-  {id:'edulens',title:'Dot Edu-Lens Pro',tagline:'웹 화면을 실시간 촉각+점자로 변환하는 크롬 확장',
-   category:'AI 도구',cats:['Extension','Tactile','Accessibility'],
-   desc:'브라우저 사이드패널에서 실시간으로 웹 화면을 그래픽(60×40)과 점자(20셀) 멀티모달로 변환해 Dot Pad에 전송하는 크롬 확장 프로그램.',
-   features:['마우스 커서 주변 150ms 간격 실시간 캡처','Smart Focus — img·canvas·svg 자동 감지','키보드 포커스 요소 자동 추적','300byte 바이너리 BLE 직접 전송'],
-   tech:['Chrome Extension MV3','Web Bluetooth','Canvas API','DTMS'],
-   demoUrl:'./edu-lens/sidepanel.html',
-   thumb:{dark:'#030a09',glow:'#2dd4b0',dotColor:'#2dd4b0',
-     pattern:[[1,1,1,1,0,0,0,0],[1,0,0,1,0,0,0,0],[1,0,0,1,0,0,0,0],[1,1,1,1,0,0,0,0]],
-     draw:(svg,w,h,ns)=>{
-       el('rect',ns,{x:w*0.15,y:h*0.2,width:w*0.7,height:h*0.56,fill:'none',stroke:'#2dd4b0','stroke-width':'1.5',rx:'6',opacity:'0.4'},svg);
-       el('rect',ns,{x:w*0.15,y:h*0.2,width:w*0.7,height:h*0.08,fill:'#2dd4b0',opacity:'0.18',rx:'6'},svg);
-       [0,1,2,3,4,5].forEach(i=>{
-         el('rect',ns,{x:w*(0.2+i*0.1),y:h*0.36,width:w*0.07,height:h*0.07,fill:'#2dd4b0',opacity:String(0.6-i*0.06),rx:'2'},svg);
-       });
-       [0,1,2,3].forEach(i=>{
-         el('rect',ns,{x:w*0.2,y:h*(0.52+i*0.056),width:w*(0.5-i*0.05),height:h*0.03,fill:'#2dd4b0',opacity:'0.32',rx:'2'},svg);
-       });
-       el('circle',ns,{cx:w*0.78,cy:h*0.7,r:h*0.1,fill:'none',stroke:'#f0eeff','stroke-width':'2',opacity:'0.45'},svg);
-       el('line',ns,{x1:w*0.85,y1:h*0.77,x2:w*0.88,y2:h*0.8,stroke:'#f0eeff','stroke-width':'2.5','stroke-linecap':'round',opacity:'0.45'},svg);
-     }}},
-  {id:'dotnori',title:'Dot Nori',tagline:'AI 기반 시각장애 학생 촉각 학습 놀이터',
-   category:'AI 도구',cats:['AI','Education','Tactile'],
-   desc:'AI 캐릭터 피포가 위키백과 이미지를 촉각 그래픽으로 변환하며 학습을 안내하는 MVP. 스크린리더 완전 호환 접근성 구조로 설계.',
-   features:['위키백과 이미지 → Dot Pad 점형 AI 변환','AI 캐릭터 피포 음성 단계별 안내','콘텐츠 카테고리 선택 학습 흐름','스크린리더 완전 호환'],
-   tech:['React','AI API','Web Speech','Dot Pad'],
-   demoUrl:'https://dotnori.netlify.app/',
-   thumb:{dark:'#040a04',glow:'#22d68a',dotColor:'#22d68a',
-     pattern:[[0,1,0,1,0,1,0,1],[1,0,1,0,1,0,1,0],[0,1,0,1,0,1,0,1],[1,0,1,0,1,0,1,0]],
-     draw:(svg,w,h,ns)=>{
-       el('circle',ns,{cx:w*0.5,cy:h*0.42,r:h*0.22,fill:'none',stroke:'#22d68a','stroke-width':'2',opacity:'0.4'},svg);
-       el('circle',ns,{cx:w*0.5,cy:h*0.42,r:h*0.12,fill:'#22d68a',opacity:'0.18'},svg);
-       [0,1,2,3,4,5].forEach(i=>{
-         const a=i*Math.PI/3;
-         el('circle',ns,{cx:w*0.5+Math.cos(a)*h*0.22,cy:h*0.42+Math.sin(a)*h*0.22,r:h*0.045,fill:'#22d68a',opacity:'0.8'},svg);
-       });
-     }}},
-  {id:'dotnana',title:'Dot Nana',tagline:'AI 페르소나가 들려주는 촉각 구연동화 서비스',
-   category:'AI 도구',cats:['AI','Story','Tactile'],
-   desc:'6가지 AI 페르소나 중 선택해 동화 삽화를 Dot Pad 촉각 그래픽으로 받으며 이야기를 듣는 AI 구연동화 서비스. 음성 입력·STT·BLE 완전 통합.',
-   features:['6가지 AI 페르소나 (선생님·사자·요정·탐험가 등)','동화 삽화 DTMS hex 변환 8종','Anthropic API 실제 연동 — [NEXT][DRAW] 명령 파싱','Web Speech STT 음성 입력 통합'],
-   tech:['HTML/CSS/JS','Anthropic API','Web Speech API','Dot Pad BLE'],
-   demoUrl:'./dot-nana/index.html',
-   thumb:{dark:'#08060a',glow:'#f59e0b',dotColor:'#f59e0b',
-     pattern:[[1,1,0,0,0,1,1,0],[1,0,1,0,1,0,1,0],[0,0,1,1,1,0,0,1],[0,1,0,1,0,1,0,1]],
-     draw:(svg,w,h,ns)=>{
-       el('rect',ns,{x:w*0.22,y:h*0.2,width:w*0.56,height:h*0.5,fill:'none',stroke:'#f59e0b','stroke-width':'1.5',rx:'6',opacity:'0.5'},svg);
-       [0,1,2,3].forEach(i=>{
-         el('rect',ns,{x:w*0.28,y:h*(0.28+i*0.1),width:w*(0.44-i*0.04),height:h*0.05,fill:'#f59e0b',opacity:String(0.5-i*0.07),rx:'2'},svg);
-       });
-       el('circle',ns,{cx:w*0.5,cy:h*0.78,r:h*0.08,fill:'#f59e0b',opacity:'0.55'},svg);
-     }}},
-  {id:'tactilelearning',title:'Dot Tactile Learning',tagline:'원격 교실 Dot Pad 실시간 송출·제어 시스템',
-   category:'접근성 프로토타입',cats:['Education','Remote','Dot Pad'],
-   desc:'교사가 원격지 학생 60~100명의 Dot Pad 상태를 실시간 모니터링하고 PDF·이미지·텍스트 자료를 촉각 그래픽·점자로 변환해 일괄 송출하는 MVP.',
-   features:['학생 단말 60~100명 수신 상태 대시보드','PDF·이미지→촉각 그래픽, 텍스트→점자 변환','전체·지역별 그룹 단위 일괄 송출','실시간 오류·연결 상태 모니터링'],
-   tech:['React','Canvas API','Dot Pad BLE','DTMS'],
-   demoUrl:'https://dottactilelearning.netlify.app/',
-   thumb:{dark:'#030510',glow:'#4a9eff',dotColor:'#4a9eff',
-     pattern:[[1,0,1,0,1,0,1,0],[1,1,1,1,1,1,1,1],[0,0,0,0,0,0,0,0],[1,0,1,0,1,0,1,0]],
-     draw:(svg,w,h,ns)=>{
-       [0,1,2,3,4,5,6,7,8,9].forEach(i=>{
-         const col=['#4a9eff','#22d68a','#f59e0b'][i%3];
-         el('rect',ns,{x:w*(0.14+i*0.072),y:h*0.24,width:w*0.052,height:h*0.42,
-           fill:col,opacity:i%4===3?'0.25':'0.6',rx:'3'},svg);
-       });
-       el('rect',ns,{x:w*0.14,y:h*0.72,width:w*0.72,height:h*0.04,fill:'#4a9eff',opacity:'0.18',rx:'2'},svg);
-     }}},
-  {id:'dotvillage',title:'닷 빌리지 아케이드',tagline:'루미와 함께하는 Dot Pad 촉각 마을 탐험 게임',
-   category:'게임 & 인터랙션',cats:['Game','Accessibility','Ideation'],
-   desc:'잎사귀 탐험가 루미와 Dotling 마을 친구들이 등장하는 60×40 촉각 마을 아케이드 게임. 패닝키·F키·점자 디스플레이를 완전히 통합한 접근성 게임 아이디에이션.',
-   features:['루미·Green/Yellow/Pink Dotling·Toto 캐릭터 시트','60×40 Dot Pad 핀 맵 실시간 탐색','F1~F4 기능키 — 위치·인사·미션·도움말','점자 디스플레이 20셀×2줄 실시간 안내'],
-   tech:['HTML/CSS/JS','Canvas API','Web Bluetooth','ARIA'],
-   demoUrl:'https://byeol-coder.github.io/dot-forest/',
-   thumb:{dark:'#040804',glow:'#22d68a',dotColor:'#a3e635',
-     pattern:[[1,1,0,1,1,0,1,1],[1,0,0,0,0,0,0,1],[1,0,1,0,1,0,0,1],[1,1,1,1,1,1,1,1]],
-     draw:(svg,w,h,ns)=>{
-       el('rect',ns,{x:w*0.2,y:h*0.18,width:w*0.6,height:h*0.58,fill:'none',stroke:'#22d68a','stroke-width':'1',rx:'4',opacity:'0.3'},svg);
-       [[0.35,0.28],[0.55,0.28],[0.45,0.46],[0.3,0.54],[0.65,0.54]].forEach(([x,y])=>{
-         el('circle',ns,{cx:w*x,cy:h*y,r:h*0.04,fill:'#22d68a',opacity:'0.7'},svg);
-       });
-       el('rect',ns,{x:w*0.35,y:h*0.7,width:w*0.3,height:h*0.06,fill:'#22d68a',opacity:'0.4',rx:'3'},svg);
-     }}}
-];
-
-// Badge colors
-const BADGE_COLORS={
-  'Dot Pad':'#7c6ff7','Game':'#22d68a','Accessibility':'#4a9eff','AI':'#f59e0b',
-  'Concert':'#f43f5e','Tactile':'#a29bfe','Extension':'#2dd4b0','Story':'#f59e0b',
-  'Education':'#4a9eff','Remote':'#22d68a','Public':'#4a9eff','Ideation':'#888'
+// ── BADGE COLORS ──
+const BC={
+  'Dot Pad':'#7c6ff7','Game':'#22d68a','Accessibility':'#4a9eff',
+  'AI':'#f59e0b','Concert':'#f43f5e','Tactile':'#a29bfe',
+  'Extension':'#2dd4b0','Story':'#f59e0b','Education':'#4a9eff',
+  'Remote':'#22d68a','Public':'#4a9eff','Ideation':'#888',
+  'MVP':'#22d68a','아동':'#f59e0b','촉각':'#a29bfe'
 };
 
-function createBadge(label){
-  const c=BADGE_COLORS[label]||'#888';
-  const b=document.createElement('span');
-  b.className='badge';
-  b.textContent=label;
-  b.style.background=`${c}22`;b.style.color=c;b.style.border=`1px solid ${c}44`;
-  return b;
-}
+// ── THUMB CONFIGS ──
+const THUMBS={
+  dotbeat:{bg:'#0a050f',glow:'#7c6ff7',dots:'#7c6ff7',
+    pat:[[1,0,0,1,0,0,1,0],[0,0,1,0,0,1,0,0],[1,0,0,0,1,0,0,1],[0,1,0,1,0,0,1,0]]},
+  dotventure:{bg:'#030a05',glow:'#22d68a',dots:'#22d68a',
+    pat:[[1,1,0,0,1,1,0,0],[1,0,0,1,0,1,0,1],[0,0,1,1,0,0,1,1],[0,1,0,1,1,0,0,1]]},
+  election:{bg:'#030508',glow:'#4a9eff',dots:'#4a9eff',
+    pat:[[1,0,1,0,1,0,1,0],[1,1,1,1,1,1,1,1],[0,0,0,0,0,0,0,0],[1,1,0,1,1,0,1,1]]},
+  concert:{bg:'#0a0308',glow:'#f43f5e',dots:'#f43f5e',
+    pat:[[1,0,0,0,1,0,0,0],[0,1,0,1,0,1,0,1],[0,0,1,0,0,0,1,0],[1,0,0,0,1,0,0,0]]},
+  aitactile:{bg:'#060410',glow:'#a29bfe',dots:'#a29bfe',
+    pat:[[0,0,1,1,0,0,1,1],[0,1,1,0,1,1,0,0],[1,1,0,0,1,0,1,0],[1,0,0,1,0,1,1,0]]},
+  edulens:{bg:'#030a09',glow:'#2dd4b0',dots:'#2dd4b0',
+    pat:[[1,1,1,1,0,0,0,0],[1,0,0,1,0,0,0,0],[1,0,0,1,0,0,0,0],[1,1,1,1,0,0,0,0]]},
+  dotnori:{bg:'#040a04',glow:'#22d68a',dots:'#22d68a',
+    pat:[[0,1,0,1,0,1,0,1],[1,0,1,0,1,0,1,0],[0,1,0,1,0,1,0,1],[1,0,1,0,1,0,1,0]]},
+  dotnana:{bg:'#080608',glow:'#f59e0b',dots:'#f59e0b',
+    pat:[[1,1,0,0,0,1,1,0],[1,0,1,0,1,0,1,0],[0,0,1,1,1,0,0,1],[0,1,0,1,0,1,0,1]]},
+  tactilelearning:{bg:'#030510',glow:'#4a9eff',dots:'#4a9eff',
+    pat:[[1,0,1,0,1,0,1,0],[1,1,1,1,1,1,1,1],[0,0,0,0,0,0,0,0],[1,0,1,0,1,0,1,0]]},
+  dotvillage:{bg:'#040804',glow:'#22d68a',dots:'#a3e635',
+    pat:[[1,1,0,1,1,0,1,1],[1,0,0,0,0,0,0,1],[1,0,1,0,1,0,0,1],[1,1,1,1,1,1,1,1]]}
+};
 
-function createCard(project){
-  const card=document.createElement('div');
-  card.className='card';card.tabIndex=0;card.setAttribute('role','button');
-  card.setAttribute('aria-label',`${project.title} — 상세 보기`);
-
-  const thumb=document.createElement('div');thumb.className='card-thumb';
-  thumb.appendChild(makeSVG(320,180,project.thumb,project.id+'s'));
-
-  const overlay=document.createElement('div');overlay.className='card-overlay';
-  const ot=document.createElement('p');ot.className='card-overlay-text';ot.textContent=project.tagline;
-  overlay.appendChild(ot);thumb.appendChild(overlay);
-
-  const badges=document.createElement('div');badges.className='card-badges';
-  project.cats.slice(0,2).forEach(c=>badges.appendChild(createBadge(c)));
-  thumb.appendChild(badges);
-
-  const info=document.createElement('div');info.className='card-info';
-  const name=document.createElement('div');name.className='card-name';name.textContent=project.title;
-  const sub=document.createElement('div');sub.className='card-sub';sub.textContent=project.tagline;
-  info.appendChild(name);info.appendChild(sub);
-
-  card.appendChild(thumb);card.appendChild(info);
-  card.addEventListener('click',()=>openModal(project));
-  card.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();openModal(project);}});
-  return card;
-}
-
-function createRow(title,projects){
-  const row=document.createElement('div');row.className='row';
-  const header=document.createElement('div');header.className='row-header';
-  const h2=document.createElement('h2');h2.className='row-title';h2.textContent=title;
-  const arrows=document.createElement('div');arrows.className='row-arrows';
-  ['←','→'].forEach((a,i)=>{
-    const btn=document.createElement('button');btn.className='arrow-btn';
-    btn.textContent=a;btn.setAttribute('aria-label',i===0?'이전':'다음');
-    btn.addEventListener('click',()=>track.scrollBy({left:i===0?-300:300,behavior:'smooth'}));
-    arrows.appendChild(btn);
-  });
-  header.appendChild(h2);header.appendChild(arrows);
-
-  const track=document.createElement('div');track.className='cards-track';
-  projects.forEach(p=>track.appendChild(createCard(p)));
-
-  row.appendChild(header);row.appendChild(track);
-  return row;
-}
-
-// ── MODAL ──
-let scrollPos=0;
-function openModal(project){
-  scrollPos=window.scrollY;
-  document.body.style.overflow='hidden';
-
-  // hero thumb
-  const mThumb=document.getElementById('modalThumb');
-  mThumb.innerHTML='';
-  mThumb.style.position='absolute';mThumb.style.inset='0';
-  mThumb.appendChild(makeSVG(900,360,project.thumb,project.id+'m'));
-
-  // badges
-  const mBadges=document.getElementById('modalBadges');
-  mBadges.innerHTML='';
-  project.cats.forEach(c=>mBadges.appendChild(createBadge(c)));
-
-  document.getElementById('modalTitle').textContent=project.title;
-  document.getElementById('modalDesc').textContent=project.desc;
-
-  // demo btn
-  const dBtn=document.getElementById('modalDemoBtn');
-  dBtn.innerHTML='';
-  if(project.demoUrl&&project.demoUrl!=='#'){
-    const a=document.createElement('a');a.className='demo-btn';
-    a.href=project.demoUrl;a.target='_blank';a.rel='noopener';
-    a.textContent='▶ 프로토타입 열기';dBtn.appendChild(a);
+function drawThumb(canvas, cfg, hovered){
+  const W=canvas.width, H=canvas.height;
+  const ctx=canvas.getContext('2d');
+  const cols=30, rows=20;
+  const cw=W/cols, ch=H/rows;
+  ctx.fillStyle=cfg.bg; ctx.fillRect(0,0,W,H);
+  for(let r=0;r<rows;r++){
+    for(let c=0;c<cols;c++){
+      const pr=cfg.pat[r%cfg.pat.length][c%cfg.pat[0].length];
+      const glow=hovered&&pr?0.95:pr?0.8:0.08;
+      ctx.globalAlpha=glow;
+      ctx.fillStyle=pr?cfg.dots:'#444466';
+      if(pr&&hovered){
+        ctx.shadowColor=cfg.glow;
+        ctx.shadowBlur=6;
+      }else{ctx.shadowBlur=0;}
+      const px=c*cw+cw*0.2, py=r*ch+ch*0.2;
+      const pr2=cw*0.28;
+      ctx.beginPath();ctx.arc(px+pr2,py+pr2,pr2,0,Math.PI*2);ctx.fill();
+    }
   }
-
-  // features
-  const mFeat=document.getElementById('modalFeatures');
-  mFeat.innerHTML='';
-  project.features.forEach(f=>{
-    const li=document.createElement('li');li.className='feature-item';
-    li.innerHTML=`<span class="feature-dot">▸</span><span>${f}</span>`;
-    mFeat.appendChild(li);
-  });
-
-  // tech
-  const mTech=document.getElementById('modalTech');
-  mTech.innerHTML='';
-  project.tech.forEach(t=>{
-    const s=document.createElement('span');s.className='tech-tag';s.textContent=t;mTech.appendChild(s);
-  });
-
-  document.getElementById('modalCat').textContent=project.category;
-
-  const overlay=document.getElementById('modalOverlay');
-  overlay.classList.add('open');
-  overlay.scrollTop=0;
-  document.getElementById('modalClose').focus();
+  ctx.globalAlpha=1;ctx.shadowBlur=0;
 }
 
-function closeModal(){
-  document.getElementById('modalOverlay').classList.remove('open');
-  document.body.style.overflow='';
-  window.scrollTo(0,scrollPos);
+// ── PROJECTS ──
+const PROJECTS=[
+  {id:'dotbeat',title:'Dot Beat',
+   desc:'시각장애 아동이 Dot Pad로 리듬을 치며 음악을 배우는 촉각 리듬 게임',
+   tags:['Dot Pad','Game','아동'],cat:'게임',
+   url:'./dot-beat/index.html'},
+  {id:'dotventure',title:'Dot Venture',
+   desc:'촉각 맵 탐색과 멀티포맷 콘텐츠를 결합한 Dot Pad 기반 아동용 게임 플랫폼',
+   tags:['Dot Pad','Game','아동'],cat:'게임',
+   url:'./dot-venture/index.html'},
+  {id:'election',title:'Dot Election Reader',
+   desc:'ARIA 재설계와 Dot Pad 점자 출력을 연결한 시각장애인 선거 정보 접근성 프로토타입',
+   tags:['Accessibility','Public'],cat:'접근성',
+   url:'./dot-election/index.html'},
+  {id:'concert',title:'K-pop Barrier-free Concert',
+   desc:'자막·촉각 진동·수어 통역을 하나로 연결한 공연 접근성 프로토타입',
+   tags:['Accessibility','Concert'],cat:'접근성',
+   url:'./kpop-concert/index.html'},
+  {id:'aitactile',title:'AI Tactile Generator',
+   desc:'이미지·프롬프트 입력으로 Dot Pad 60×40 점형 그래픽을 AI가 자동 생성',
+   tags:['AI','Dot Pad','촉각'],cat:'AI',
+   url:'./ai-tactile-gen/index.html'},
+  {id:'edulens',title:'Dot Edu-Lens Pro',
+   desc:'브라우저 사이드패널에서 웹 화면을 그래픽·점자 멀티모달로 실시간 변환하는 크롬 확장',
+   tags:['Extension','Accessibility'],cat:'접근성',
+   url:'./edu-lens/sidepanel.html'},
+  {id:'dotnori',title:'Dot Nori',
+   desc:'AI 캐릭터 피포와 함께 이미지를 촉각 그래픽으로 변환하며 배우는 학습 놀이터',
+   tags:['AI','Education','MVP'],cat:'AI',
+   url:'https://dotnori.netlify.app/'},
+  {id:'dotnana',title:'Dot Nana',
+   desc:'6가지 AI 페르소나가 동화를 읽어주며 Dot Pad 촉각 그래픽으로 삽화를 전달하는 구연동화',
+   tags:['AI','Story','Dot Pad'],cat:'AI',
+   url:'./dot-nana/index.html'},
+  {id:'tactilelearning',title:'Dot Tactile Learning',
+   desc:'교사가 60~100명 Dot Pad 단말에 촉각 자료를 실시간 송출·제어하는 원격 교육 시스템',
+   tags:['Education','Remote','Dot Pad'],cat:'교육',
+   url:'https://dottactilelearning.netlify.app/'},
+  {id:'dotvillage',title:'닷 빌리지 아케이드',
+   desc:'루미와 Dotling 마을 친구들이 등장하는 Dot Pad 촉각 마을 탐험 게임 — 아이디에이션',
+   tags:['Game','Dot Pad','Ideation'],cat:'게임',
+   url:'https://byeol-coder.github.io/dot-forest/'}
+];
+
+const CATS=['전체','접근성','게임','AI','교육'];
+let activeCat='전체';
+
+// ── RENDER FILTERS ──
+function renderFilters(){
+  const wrap=document.getElementById('filterWrap');
+  wrap.innerHTML='';
+  CATS.forEach(cat=>{
+    const btn=document.createElement('button');
+    btn.className='filter-btn'+(cat===activeCat?' active':'');
+    btn.textContent=cat;
+    btn.setAttribute('role','tab');
+    btn.setAttribute('aria-selected',cat===activeCat?'true':'false');
+    btn.setAttribute('aria-label',cat==='전체'?'전체 프로젝트 보기':cat+' 카테고리');
+    btn.addEventListener('click',()=>{
+      activeCat=cat;
+      renderFilters();
+      renderGrid();
+    });
+    wrap.appendChild(btn);
+  });
 }
 
-document.getElementById('modalClose').addEventListener('click',closeModal);
-document.getElementById('modalOverlay').addEventListener('click',e=>{
-  if(e.target===e.currentTarget)closeModal();
-});
-document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();});
+// ── RENDER GRID ──
+function renderGrid(){
+  const grid=document.getElementById('cardGrid');
+  grid.innerHTML='';
+  const filtered=activeCat==='전체'?PROJECTS:PROJECTS.filter(p=>p.cat===activeCat);
+
+  document.getElementById('navCount').textContent=filtered.length+' projects';
+  document.getElementById('footerCount').textContent=
+    `${filtered.length} / ${PROJECTS.length} 프로젝트`;
+
+  filtered.forEach(p=>{
+    const a=document.createElement('a');
+    a.className='card';
+    a.href=p.url;
+    a.target='_blank';
+    a.rel='noopener noreferrer';
+    a.setAttribute('aria-label',
+      `${p.title} — ${p.desc} (새 탭에서 열립니다)`);
+
+    // Thumb
+    const thumbWrap=document.createElement('div');
+    thumbWrap.className='card-thumb';
+
+    const cv=document.createElement('canvas');
+    cv.width=480;cv.height=270;
+    cv.setAttribute('aria-hidden','true');
+    const cfg=THUMBS[p.id]||THUMBS.dotbeat;
+    drawThumb(cv,cfg,false);
+    thumbWrap.appendChild(cv);
+
+    const overlay=document.createElement('div');
+    overlay.className='card-thumb-overlay';
+
+    const badges=document.createElement('div');
+    badges.className='card-badges';
+    p.tags.forEach(t=>{
+      const sp=document.createElement('span');
+      sp.className='badge';
+      const c=BC[t]||'#888';
+      sp.style.background=`${c}22`;
+      sp.style.color=c;
+      sp.style.border=`1px solid ${c}44`;
+      sp.textContent=t;
+      badges.appendChild(sp);
+    });
+    overlay.appendChild(badges);
+    thumbWrap.appendChild(overlay);
+
+    const hint=document.createElement('span');
+    hint.className='card-open-hint';
+    hint.setAttribute('aria-hidden','true');
+    hint.textContent='↗';
+    thumbWrap.appendChild(hint);
+
+    // Info
+    const info=document.createElement('div');
+    info.className='card-info';
+
+    const title=document.createElement('h2');
+    title.className='card-title';
+    title.textContent=p.title;
+
+    const desc=document.createElement('p');
+    desc.className='card-desc';
+    desc.textContent=p.desc;
+
+    const footer=document.createElement('div');
+    footer.className='card-footer';
+
+    const cat=document.createElement('span');
+    cat.className='card-cat';
+    cat.textContent=p.cat;
+
+    const lhint=document.createElement('span');
+    lhint.className='card-link-hint';
+    lhint.setAttribute('aria-hidden','true');
+    lhint.textContent='↗ 새 탭';
+
+    footer.appendChild(cat);
+    footer.appendChild(lhint);
+    info.appendChild(title);
+    info.appendChild(desc);
+    info.appendChild(footer);
+
+    a.appendChild(thumbWrap);
+    a.appendChild(info);
+    grid.appendChild(a);
+
+    // Hover animation
+    a.addEventListener('mouseenter',()=>drawThumb(cv,cfg,true));
+    a.addEventListener('mouseleave',()=>drawThumb(cv,cfg,false));
+    a.addEventListener('focusin',()=>drawThumb(cv,cfg,true));
+    a.addEventListener('focusout',()=>drawThumb(cv,cfg,false));
+
+    // SR: new tab notice
+    const sr=document.createElement('span');
+    sr.className='sr-only';
+    sr.textContent='새 탭에서 열립니다.';
+    a.appendChild(sr);
+  });
+}
 
 // ── INIT ──
-(function init(){
-  // Hero bg
-  document.getElementById('heroBg').appendChild(makeSVG(1400,600,PROJECTS[0].thumb,'hero'));
-
-  // Hero btns
-  document.getElementById('heroBtn').addEventListener('click',()=>openModal(PROJECTS[0]));
-  document.getElementById('heroScrollBtn').addEventListener('click',()=>{
-    document.getElementById('allRows').scrollIntoView({behavior:'smooth'});
-  });
-
-  // Category rows
-  const container=document.getElementById('allRows');
-  const rowDefs=[
-    {title:'Accessibility Prototypes',filter:p=>p.category==='접근성 프로토타입'},
-    {title:'Dot Pad · Tactile UX',filter:p=>p.cats.includes('Dot Pad')||p.cats.includes('Tactile')},
-    {title:'Game & Interaction',filter:p=>p.category==='게임 & 인터랙션'},
-    {title:'AI Tools',filter:p=>p.category==='AI 도구'},
-    {title:'All Projects',filter:()=>true},
-  ];
-  rowDefs.forEach(({title,filter})=>{
-    container.appendChild(createRow(title,PROJECTS.filter(filter)));
-  });
-
-  // Footer count
-  document.getElementById('footerCount').textContent=`${PROJECTS.length} prototypes`;
-})();
+renderFilters();
+renderGrid();
 </script>
 </body>
 </html>
