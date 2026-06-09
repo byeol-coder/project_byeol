@@ -585,7 +585,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 
 <script id="i18nLite">
 (function(){
-  const DICT = {"그래도 계속 보기": "Continue anyway", "데스크톱에서 최적화된 데모입니다": "Optimized for desktop", "이 프로토타입은 넓은 화면에 맞춰 설계되었습니다. PC나 태블릿 가로 모드에서 열면 가장 좋습니다.": "This prototype is designed for wide screens. Best viewed on PC or tablet landscape mode.", "대기 중": "Standby", "관련 기술": "Related Tech", "디지털 접근성": "Digital Accessibility", "보조기술": "Assistive Tech", "실시간 스캔": "Live Scan", "점자 출력": "Braille Output", "촉각 변환": "Tactile Convert", "데모 페이지": "Demo Pages"};
+  const DICT = {"그래도 계속 보기": "Continue anyway", "데스크톱에서 최적화된 데모입니다": "Optimized for desktop", "이 프로토타입은 넓은 화면에 맞춰 설계되었습니다. PC나 태블릿 가로 모드에서 열면 가장 좋습니다.": "This prototype is designed for wide screens. Best viewed on PC or tablet landscape mode.", "대기 중": "Standby", "화면 크기 안내": "Screen size notice", "관련 기술": "Related Tech", "디지털 접근성": "Digital Accessibility", "보조기술": "Assistive Tech", "실시간 스캔": "Live Scan", "점자 출력": "Braille Output", "촉각 변환": "Tactile Convert", "데모 페이지": "Demo Pages", "개요": "Overview", "굴절": "Refraction", "굴절 이상": "Refractive error", "굴절률": "Refractive index", "그래픽 영역 (60×40)": "Graphic area (60×40)", "기타": "Other", "녹내장": "Glaucoma", "대기": "Idle", "매질 경계에서 빛의 방향 변화": "Light direction change at media boundary", "매질에서 빛의 속도 비율": "Light speed ratio in media", "백내장": "Cataract", "보건": "Health", "볼록 렌즈와 오목 렌즈": "Convex and concave lenses", "볼록렌즈": "Convex lens", "빛과 파동": "Light and Waves", "빛을 모으는 수렴 렌즈": "Converging lens that gathers light", "빛을 퍼트리는 발산 렌즈": "Diverging lens that spreads light", "빛이 서로 다른 매질을 통과할 때 경계면에서 방향이 바뀌는 현상을": "When light passes through different media, its direction changes at the boundary —", "사회": "Social", "세계 시각장애 통계": "Global visual impairment stats", "시각장애": "Visual impairment", "시스템 정보": "System info", "실시간 동기화": "Real-time sync", "연결 안됨": "Disconnected", "연령별 분포": "Age distribution", "영역": "Area", "오목렌즈": "Concave lens", "완전 실명 인구": "Total blindness population", "원인": "Causes", "원인별 비율": "By cause", "이 시각 손상을 가지고 있으며, 그 중 약": "have visual impairment, of which about", "이미지": "Image", "자동": "Auto", "전 세계 시각 손상 인구": "Global visually impaired population", "전 세계 시각장애 현황": "Global visual impairment status", "전송 상태": "Transfer status", "전송 속도": "Transfer speed", "점자 텍스트 바 (20셀)": "Braille text bar (20 cells)", "접근성": "Accessibility", "좌표": "Coords", "중학교 과학 2 — 8단원": "Middle School Science 2 — Unit 8", "지역별 시각장애 인구 (백만 명)": "Visual impairment by region (millions)", "탐색 대기 중": "Awaiting scan", "탐지 모드": "Detection mode", "텍스트": "Text", "통계": "Stats", "패킷 크기": "Packet size", "프로토콜": "Protocol", "해상도": "Resolution", "핵심 개념 정리": "Key concepts", "현재 탐지 내용": "Current detection"};
   const REV = {};
   Object.keys(DICT).forEach(k=>REV[DICT[k]]=k);
   let cur='ko';
@@ -595,27 +595,47 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
   btn.setAttribute('aria-label','Switch to English');
   btn.style.cssText='position:fixed;bottom:14px;right:14px;z-index:99998;padding:8px 14px;background:rgba(20,20,35,.92);color:#fff;border:1px solid rgba(255,255,255,.25);border-radius:99px;font-size:11px;font-weight:800;font-family:monospace;cursor:pointer;backdrop-filter:blur(8px);letter-spacing:.08em';
   document.body.appendChild(btn);
-  function walk(node,dict){
-    if(node.nodeType===3){
-      const t=node.nodeValue.trim();
-      if(t&&dict[t])node.nodeValue=node.nodeValue.replace(t,dict[t]);
-      return;
-    }
-    if(node.nodeName==='SCRIPT'||node.nodeName==='STYLE')return;
-    if(node.setAttribute){
-      ['aria-label','placeholder','title'].forEach(a=>{
-        const v=node.getAttribute&&node.getAttribute(a);
-        if(v&&dict[v])node.setAttribute(a,dict[v]);
-      });
-    }
-    Array.from(node.childNodes).forEach(n=>walk(n,dict));
+  function applyDict(root,dict){
+    const w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT|NodeFilter.SHOW_ELEMENT,null);
+    let n=root;
+    const nodes=[root];
+    while(n=w.nextNode())nodes.push(n);
+    nodes.forEach(node=>{
+      if(node.nodeType===3){
+        const t=node.nodeValue.trim();
+        if(t&&dict[t])node.nodeValue=node.nodeValue.replace(t,dict[t]);
+      }else if(node.nodeType===1){
+        if(node.nodeName==='SCRIPT'||node.nodeName==='STYLE')return;
+        ['aria-label','placeholder','title'].forEach(a=>{
+          const v=node.getAttribute&&node.getAttribute(a);
+          if(v&&dict[v])node.setAttribute(a,dict[v]);
+        });
+      }
+    });
+  }
+  // 동적 렌더 대응: 새 노드에 현재 언어 적용
+  let observing=false;
+  const obs=new MutationObserver(muts=>{
+    if(cur==='ko')return;
+    obs.disconnect();observing=false;
+    muts.forEach(m=>m.addedNodes.forEach(n=>{
+      if(n.nodeType===1||n.nodeType===3)applyDict(n,DICT);
+    }));
+    startObs();
+  });
+  function startObs(){
+    if(observing)return;
+    obs.observe(document.body,{childList:true,subtree:true});
+    observing=true;
   }
   btn.addEventListener('click',()=>{
     const dict=cur==='ko'?DICT:REV;
-    walk(document.body,dict);
+    obs.disconnect();observing=false;
+    applyDict(document.body,dict);
     cur=cur==='ko'?'en':'ko';
     btn.textContent=cur==='ko'?'EN':'KO';
     document.documentElement.lang=cur;
+    if(cur==='en')startObs();
   });
 })();
 </script>
