@@ -1245,7 +1245,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 
 <script id="i18nLite">
 (function(){
-  const DICT = {"그래도 계속 보기": "Continue anyway", "데스크톱에서 최적화된 데모입니다": "Optimized for desktop", "이 프로토타입은 넓은 화면에 맞춰 설계되었습니다. PC나 태블릿 가로 모드에서 열면 가장 좋습니다.": "This prototype is designed for wide screens. Best viewed on PC or tablet landscape mode.", "대기 중": "Standby", "내 서재": "My Library", "더 알아보기": "Learn More", "무료 도서관": "Free Library", "빠른 명령": "Quick Commands", "서비스 모드": "Service Mode", "시연 시작": "Start Demo", "시각장애 아동을 위한": "For children with visual impairments", "실시간 Dot Pad 촉각 출력": "Real-time Dot Pad tactile output", "오디오 대기 중": "Audio standby", "별을 삼킨 고래": "The Whale Who Swallowed a Star"};
+  const DICT = {"그래도 계속 보기": "Continue anyway", "데스크톱에서 최적화된 데모입니다": "Optimized for desktop", "이 프로토타입은 넓은 화면에 맞춰 설계되었습니다. PC나 태블릿 가로 모드에서 열면 가장 좋습니다.": "This prototype is designed for wide screens. Best viewed on PC or tablet landscape mode.", "대기 중": "Standby", "화면 크기 안내": "Screen size notice", "내 서재": "My Library", "더 알아보기": "Learn More", "무료 도서관": "Free Library", "빠른 명령": "Quick Commands", "서비스 모드": "Service Mode", "시연 시작": "Start Demo", "시각장애 아동을 위한": "For children with visual impairments", "실시간 Dot Pad 촉각 출력": "Real-time Dot Pad tactile output", "오디오 대기 중": "Audio standby", "별을 삼킨 고래": "The Whale Who Swallowed a Star", "다음 페이지": "Next page", "이전 페이지": "Previous page", "음성 입력": "Voice input", "음성으로 조작": "Voice control", "이야기 친구,": "Story friend,", "인트로로 돌아가기": "Back to intro", "재생": "Play", "전송": "Send", "체험 시작하기": "Start Experience", "촉각 구연동화 플랫폼": "Tactile storytelling platform", "오늘의 동화 ✨": "Today's Story ✨"};
   const REV = {};
   Object.keys(DICT).forEach(k=>REV[DICT[k]]=k);
   let cur='ko';
@@ -1255,27 +1255,47 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
   btn.setAttribute('aria-label','Switch to English');
   btn.style.cssText='position:fixed;bottom:14px;right:14px;z-index:99998;padding:8px 14px;background:rgba(20,20,35,.92);color:#fff;border:1px solid rgba(255,255,255,.25);border-radius:99px;font-size:11px;font-weight:800;font-family:monospace;cursor:pointer;backdrop-filter:blur(8px);letter-spacing:.08em';
   document.body.appendChild(btn);
-  function walk(node,dict){
-    if(node.nodeType===3){
-      const t=node.nodeValue.trim();
-      if(t&&dict[t])node.nodeValue=node.nodeValue.replace(t,dict[t]);
-      return;
-    }
-    if(node.nodeName==='SCRIPT'||node.nodeName==='STYLE')return;
-    if(node.setAttribute){
-      ['aria-label','placeholder','title'].forEach(a=>{
-        const v=node.getAttribute&&node.getAttribute(a);
-        if(v&&dict[v])node.setAttribute(a,dict[v]);
-      });
-    }
-    Array.from(node.childNodes).forEach(n=>walk(n,dict));
+  function applyDict(root,dict){
+    const w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT|NodeFilter.SHOW_ELEMENT,null);
+    let n=root;
+    const nodes=[root];
+    while(n=w.nextNode())nodes.push(n);
+    nodes.forEach(node=>{
+      if(node.nodeType===3){
+        const t=node.nodeValue.trim();
+        if(t&&dict[t])node.nodeValue=node.nodeValue.replace(t,dict[t]);
+      }else if(node.nodeType===1){
+        if(node.nodeName==='SCRIPT'||node.nodeName==='STYLE')return;
+        ['aria-label','placeholder','title'].forEach(a=>{
+          const v=node.getAttribute&&node.getAttribute(a);
+          if(v&&dict[v])node.setAttribute(a,dict[v]);
+        });
+      }
+    });
+  }
+  // 동적 렌더 대응: 새 노드에 현재 언어 적용
+  let observing=false;
+  const obs=new MutationObserver(muts=>{
+    if(cur==='ko')return;
+    obs.disconnect();observing=false;
+    muts.forEach(m=>m.addedNodes.forEach(n=>{
+      if(n.nodeType===1||n.nodeType===3)applyDict(n,DICT);
+    }));
+    startObs();
+  });
+  function startObs(){
+    if(observing)return;
+    obs.observe(document.body,{childList:true,subtree:true});
+    observing=true;
   }
   btn.addEventListener('click',()=>{
     const dict=cur==='ko'?DICT:REV;
-    walk(document.body,dict);
+    obs.disconnect();observing=false;
+    applyDict(document.body,dict);
     cur=cur==='ko'?'en':'ko';
     btn.textContent=cur==='ko'?'EN':'KO';
     document.documentElement.lang=cur;
+    if(cur==='en')startObs();
   });
 })();
 </script>
