@@ -613,5 +613,63 @@ function init(){
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);
 else init();
 </script>
+
+<style id="mobileBannerStyle">
+#mobileBanner{position:fixed;inset:0;z-index:99999;display:none;flex-direction:column;align-items:center;justify-content:center;gap:18px;background:rgba(7,7,15,.97);backdrop-filter:blur(8px);padding:32px;text-align:center;font-family:'Noto Sans KR',sans-serif;color:#f0eeff}
+#mobileBanner.show{display:flex}
+#mobileBanner .mb-icon{font-size:48px}
+#mobileBanner .mb-title{font-size:18px;font-weight:800}
+#mobileBanner .mb-desc{font-size:13px;color:rgba(240,238,255,.6);line-height:1.7;max-width:300px}
+#mobileBanner .mb-btn{margin-top:8px;padding:11px 26px;background:#6b46f0;color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit}
+</style>
+<div id="mobileBanner" role="dialog" aria-label="화면 크기 안내">
+  <div class="mb-icon">🖥️</div>
+  <div class="mb-title">데스크톱에서 최적화된 데모입니다</div>
+  <div class="mb-desc">이 프로토타입은 넓은 화면에 맞춰 설계되었습니다. PC나 태블릿 가로 모드에서 열면 가장 좋습니다.</div>
+  <button class="mb-btn" onclick="document.getElementById('mobileBanner').classList.remove('show')">그래도 계속 보기</button>
+</div>
+<script>
+(function(){function c(){if(window.innerWidth<720)document.getElementById('mobileBanner')?.classList.add('show');}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',c);else c();})();
+</script>
+
+
+<script id="i18nLite">
+(function(){
+  const DICT = {"그래도 계속 보기": "Continue anyway", "데스크톱에서 최적화된 데모입니다": "Optimized for desktop", "이 프로토타입은 넓은 화면에 맞춰 설계되었습니다. PC나 태블릿 가로 모드에서 열면 가장 좋습니다.": "This prototype is designed for wide screens. Best viewed on PC or tablet landscape mode.", "대기 중": "Standby", "셋리스트": "Setlist", "수어 통역": "Sign Language", "접근성 설정": "Accessibility", "진동 강도": "Haptic Intensity", "촉각 비트": "Tactile Beat", "재생": "Play", "일시정지": "Pause", "자막": "Captions", "음성 해설": "Audio Description"};
+  const REV = {};
+  Object.keys(DICT).forEach(k=>REV[DICT[k]]=k);
+  let cur='ko';
+  const btn=document.createElement('button');
+  btn.id='langToggle';
+  btn.textContent='EN';
+  btn.setAttribute('aria-label','Switch to English');
+  btn.style.cssText='position:fixed;bottom:14px;right:14px;z-index:99998;padding:8px 14px;background:rgba(20,20,35,.92);color:#fff;border:1px solid rgba(255,255,255,.25);border-radius:99px;font-size:11px;font-weight:800;font-family:monospace;cursor:pointer;backdrop-filter:blur(8px);letter-spacing:.08em';
+  document.body.appendChild(btn);
+  function walk(node,dict){
+    if(node.nodeType===3){
+      const t=node.nodeValue.trim();
+      if(t&&dict[t])node.nodeValue=node.nodeValue.replace(t,dict[t]);
+      return;
+    }
+    if(node.nodeName==='SCRIPT'||node.nodeName==='STYLE')return;
+    if(node.setAttribute){
+      ['aria-label','placeholder','title'].forEach(a=>{
+        const v=node.getAttribute&&node.getAttribute(a);
+        if(v&&dict[v])node.setAttribute(a,dict[v]);
+      });
+    }
+    Array.from(node.childNodes).forEach(n=>walk(n,dict));
+  }
+  btn.addEventListener('click',()=>{
+    const dict=cur==='ko'?DICT:REV;
+    walk(document.body,dict);
+    cur=cur==='ko'?'en':'ko';
+    btn.textContent=cur==='ko'?'EN':'KO';
+    document.documentElement.lang=cur;
+  });
+})();
+</script>
+
 </body>
 </html>
