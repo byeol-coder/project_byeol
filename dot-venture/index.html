@@ -1540,7 +1540,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 
 <script id="i18nLite">
 (function(){
-  const DICT = {"그래도 계속 보기": "Continue anyway", "데스크톱에서 최적화된 데모입니다": "Optimized for desktop", "이 프로토타입은 넓은 화면에 맞춰 설계되었습니다. PC나 태블릿 가로 모드에서 열면 가장 좋습니다.": "This prototype is designed for wide screens. Best viewed on PC or tablet landscape mode.", "대기 중": "Standby", "미니맵": "Minimap", "아이템": "Items", "이벤트": "Events", "점자 출력": "Braille", "주변 아이템": "Nearby Items", "다시 도전": "Retry", "다음 세계 →": "Next World →", "누적 점수 ": "Total Score ", "탐험 시작하기": "Start Adventure", "방향키로 이동하세요": "Use arrow keys to move", "현재 위치": "Position", "진행률": "Progress", "점수": "Score", "열쇠": "Keys", "탐험 세계를 선택하세요": "Choose Your World"};
+  const DICT = {"그래도 계속 보기": "Continue anyway", "데스크톱에서 최적화된 데모입니다": "Optimized for desktop", "이 프로토타입은 넓은 화면에 맞춰 설계되었습니다. PC나 태블릿 가로 모드에서 열면 가장 좋습니다.": "This prototype is designed for wide screens. Best viewed on PC or tablet landscape mode.", "대기 중": "Standby", "화면 크기 안내": "Screen size notice", "미니맵": "Minimap", "아이템": "Items", "이벤트": "Events", "점자 출력": "Braille", "주변 아이템": "Nearby Items", "다시 도전": "Retry", "다음 세계 →": "Next World →", "누적 점수 ": "Total Score ", "누적 점수": "Total Score", "탐험 시작하기": "Start Adventure", "방향키로 이동하세요": "Use arrow keys to move", "현재 위치": "Position", "진행률": "Progress", "점수": "Score", "열쇠": "Keys", "탐험 세계를 선택하세요": "Choose Your World", "게임 맵 — 방향키로 이동": "Game map — arrow keys to move", "맵 선택": "Map Select", "맵 선택으로 돌아가기": "Back to map select", "방향 컨트롤": "Direction controls", "방향키로 이동 · Tab으로 메뉴 탐색": "Arrows to move · Tab to navigate", "아래로 이동": "Move down", "오른쪽으로 이동": "Move right", "왼쪽으로 이동": "Move left", "위로 이동": "Move up", "어디로 모험을 떠날까요?": "Where shall we explore?", "열쇠 현황": "Key status", "위치": "Position", "주변 요소": "Surroundings", "주변에 특별한 것이 없어요": "Nothing special nearby", "촉각 탐험 게임 플랫폼 · Dot Pad 60×40": "Tactile adventure platform · Dot Pad 60×40", "키보드 단축키": "Keyboard shortcuts", "탐험 세계 선택": "Select world", "현황": "Status"};
   const REV = {};
   Object.keys(DICT).forEach(k=>REV[DICT[k]]=k);
   let cur='ko';
@@ -1550,27 +1550,47 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
   btn.setAttribute('aria-label','Switch to English');
   btn.style.cssText='position:fixed;bottom:14px;right:14px;z-index:99998;padding:8px 14px;background:rgba(20,20,35,.92);color:#fff;border:1px solid rgba(255,255,255,.25);border-radius:99px;font-size:11px;font-weight:800;font-family:monospace;cursor:pointer;backdrop-filter:blur(8px);letter-spacing:.08em';
   document.body.appendChild(btn);
-  function walk(node,dict){
-    if(node.nodeType===3){
-      const t=node.nodeValue.trim();
-      if(t&&dict[t])node.nodeValue=node.nodeValue.replace(t,dict[t]);
-      return;
-    }
-    if(node.nodeName==='SCRIPT'||node.nodeName==='STYLE')return;
-    if(node.setAttribute){
-      ['aria-label','placeholder','title'].forEach(a=>{
-        const v=node.getAttribute&&node.getAttribute(a);
-        if(v&&dict[v])node.setAttribute(a,dict[v]);
-      });
-    }
-    Array.from(node.childNodes).forEach(n=>walk(n,dict));
+  function applyDict(root,dict){
+    const w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT|NodeFilter.SHOW_ELEMENT,null);
+    let n=root;
+    const nodes=[root];
+    while(n=w.nextNode())nodes.push(n);
+    nodes.forEach(node=>{
+      if(node.nodeType===3){
+        const t=node.nodeValue.trim();
+        if(t&&dict[t])node.nodeValue=node.nodeValue.replace(t,dict[t]);
+      }else if(node.nodeType===1){
+        if(node.nodeName==='SCRIPT'||node.nodeName==='STYLE')return;
+        ['aria-label','placeholder','title'].forEach(a=>{
+          const v=node.getAttribute&&node.getAttribute(a);
+          if(v&&dict[v])node.setAttribute(a,dict[v]);
+        });
+      }
+    });
+  }
+  // 동적 렌더 대응: 새 노드에 현재 언어 적용
+  let observing=false;
+  const obs=new MutationObserver(muts=>{
+    if(cur==='ko')return;
+    obs.disconnect();observing=false;
+    muts.forEach(m=>m.addedNodes.forEach(n=>{
+      if(n.nodeType===1||n.nodeType===3)applyDict(n,DICT);
+    }));
+    startObs();
+  });
+  function startObs(){
+    if(observing)return;
+    obs.observe(document.body,{childList:true,subtree:true});
+    observing=true;
   }
   btn.addEventListener('click',()=>{
     const dict=cur==='ko'?DICT:REV;
-    walk(document.body,dict);
+    obs.disconnect();observing=false;
+    applyDict(document.body,dict);
     cur=cur==='ko'?'en':'ko';
     btn.textContent=cur==='ko'?'EN':'KO';
     document.documentElement.lang=cur;
+    if(cur==='en')startObs();
   });
 })();
 </script>
