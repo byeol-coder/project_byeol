@@ -19,6 +19,72 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--t1)}
 button{font-family:inherit;cursor:pointer;border:none}
 :focus-visible{outline:2px solid var(--orange);outline-offset:2px;border-radius:4px}
 
+/* ── CHROME EXT HEADER ── */
+.chrome-ext-bar{
+  background:linear-gradient(135deg,#1a73e8,#0d47a1);
+  padding:10px 16px;display:flex;align-items:center;justify-content:space-between;
+  flex-shrink:0;
+}
+.ceb-left{display:flex;align-items:center;gap:10px}
+.ceb-icon{
+  width:32px;height:32px;border-radius:8px;background:#fff;
+  display:grid;grid-template-columns:repeat(3,1fr);gap:2.5px;padding:5.5px;
+  flex-shrink:0;
+}
+.ceb-icon span{background:#1a73e8;border-radius:50%}
+.ceb-name{font-size:14px;font-weight:900;color:#fff;letter-spacing:-.3px}
+.ceb-badges{display:flex;gap:5px;align-items:center}
+.ceb-badge{font-size:8.5px;font-family:'DM Mono',monospace;font-weight:700;padding:2px 7px;border-radius:99px;letter-spacing:.04em}
+.ceb-badge.mv3{background:rgba(255,255,255,.18);color:#fff}
+.ceb-badge.edu{background:#34a853;color:#fff}
+.ceb-add{
+  padding:7px 14px;border-radius:99px;font-size:11px;font-weight:800;
+  background:#fff;color:#1a73e8;cursor:pointer;border:none;
+  font-family:'DM Mono',monospace;letter-spacing:.04em;white-space:nowrap;
+  transition:all .18s;
+}
+.ceb-add:hover{background:#e8f0fe}
+
+/* ── B2G DASHBOARD ── */
+.b2g-kpi-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:18px}
+.b2g-kpi{background:var(--panel);border:1px solid var(--border);border-radius:var(--r);padding:14px 12px}
+.b2g-kpi-num{font-family:'DM Mono',monospace;font-size:24px;font-weight:700;letter-spacing:-.03em;margin-bottom:3px}
+.b2g-kpi-label{font-size:10px;color:var(--t3);line-height:1.4}
+.b2g-funnel{display:flex;flex-direction:column;gap:4px;margin-bottom:18px}
+.b2g-funnel-row{display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:8px;background:var(--panel);border:1px solid var(--border)}
+.b2g-funnel-icon{font-size:16px;flex-shrink:0}
+.b2g-funnel-label{font-size:11px;font-weight:700;flex:1}
+.b2g-funnel-val{font-family:'DM Mono',monospace;font-size:10px;font-weight:600}
+.b2g-funnel-bar{height:3px;border-radius:99px;margin-top:4px}
+.compat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:18px}
+.compat-item{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:10px 8px;text-align:center}
+.compat-icon{font-size:20px;margin-bottom:4px}
+.compat-label{font-size:9px;font-weight:700;color:var(--t2)}
+.compat-status{font-size:8px;color:var(--green);margin-top:2px;font-family:'DM Mono',monospace}
+
+/* ── DETECTION TYPES PANEL ── */
+.det-types{display:grid;grid-template-columns:repeat(3,1fr);gap:4px}
+.det-type{
+  background:var(--panel);border:1px solid var(--border);border-radius:6px;
+  padding:7px 5px;text-align:center;transition:all .2s;
+}
+.det-type.active{background:var(--orange-s);border-color:var(--orange-b)}
+.det-type-icon{font-size:14px;margin-bottom:2px}
+.det-type-label{font-size:8px;font-weight:700;color:var(--t3)}
+.det-type-count{font-family:'DM Mono',monospace;font-size:9px;font-weight:600;color:var(--orange)}
+
+/* ── SESSION STATS ── */
+.session-stat-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid var(--border)}
+.session-stat-row:last-child{border-bottom:none}
+.ss-label{font-size:10px;color:var(--t3)}
+.ss-val{font-family:'DM Mono',monospace;font-size:11px;font-weight:700;color:var(--orange)}
+
+/* ── TABS UPDATE ── */
+.demo-tabs{overflow-x:auto;flex-wrap:nowrap;white-space:nowrap}
+.demo-tabs::-webkit-scrollbar{height:2px}
+.demo-tabs::-webkit-scrollbar-thumb{background:var(--border2)}
+
+
 .app{display:grid;grid-template-rows:48px 1fr;height:100vh}
 .topbar{background:var(--card);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 16px;flex-shrink:0}
 .logo-area{display:flex;align-items:center;gap:8px}
@@ -148,9 +214,13 @@ button{font-family:inherit;cursor:pointer;border:none}
       </div>
     </div>
     <div class="demo-tabs" role="tablist">
-      <div class="demo-tab on" data-page="wiki" role="tab" tabindex="0">📖 Wikipedia</div>
-      <div class="demo-tab" data-page="chart" role="tab" tabindex="0">📊 데이터 차트</div>
-      <div class="demo-tab" data-page="textbook" role="tab" tabindex="0">📚 교과서</div>
+      <div class="demo-tab on" data-page="wiki" role="tab" tabindex="0">📖 위키</div>
+      <div class="demo-tab" data-page="chart" role="tab" tabindex="0">📊 통계</div>
+      <div class="demo-tab" data-page="textbook" role="tab" tabindex="0">🔬 과학</div>
+      <div class="demo-tab" data-page="math" role="tab" tabindex="0">📐 수학</div>
+      <div class="demo-tab" data-page="news" role="tab" tabindex="0">📰 뉴스</div>
+      <div class="demo-tab" data-page="geo" role="tab" tabindex="0">🗺️ 지리</div>
+      <div class="demo-tab" data-page="b2g" role="tab" tabindex="0" style="color:#1a73e8;font-weight:800">🏫 B2G</div>
     </div>
 
     <div class="demo-content" id="demoContent">
@@ -235,6 +305,220 @@ button{font-family:inherit;cursor:pointer;border:none}
             </div>
           </div>
         </div>
+
+      <!-- PAGE 4: Math -->
+      <div class="demo-page" id="page-math">
+        <div class="dp-header" style="background:linear-gradient(135deg,#1a1a5e,#2d2d8f)">
+          <h1>중학교 수학 3 — 4단원</h1>
+          <p>이차방정식과 그래프</p>
+        </div>
+        <div class="dp-article">
+          <div class="dp-tag-row">
+            <span class="dp-tag">수식</span><span class="dp-tag">그래프</span><span class="dp-tag">함수</span>
+          </div>
+          <h2>4-1. 이차방정식</h2>
+          <div class="dp-img-placeholder" style="font-size:28px;flex-direction:column;gap:6px">
+            <span style="font-family:monospace;font-size:20px">ax² + bx + c = 0</span>
+            <span style="font-size:12px;color:#888">이차방정식의 일반형</span>
+          </div>
+          <p>이차방정식은 x에 대한 이차식을 0으로 놓은 방정식입니다. <strong>판별식 D = b² - 4ac</strong>의 값에 따라 근의 개수가 결정됩니다.</p>
+          <h3>근의 공식</h3>
+          <div style="background:var(--panel);border-radius:8px;padding:14px;text-align:center;font-family:monospace;font-size:16px;letter-spacing:1px;margin-bottom:14px">
+            x = (-b ± √(b²-4ac)) / 2a
+          </div>
+          <h3>포물선 그래프 특성</h3>
+          <div style="background:var(--panel);border-radius:8px;padding:12px">
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;font-size:11px">
+              <div style="background:var(--card);padding:8px;border-radius:6px;text-align:center"><div style="font-weight:700;margin-bottom:3px">꼭짓점</div><div style="color:var(--t3)">x=-b/2a</div></div>
+              <div style="background:var(--card);padding:8px;border-radius:6px;text-align:center"><div style="font-weight:700;margin-bottom:3px">축</div><div style="color:var(--t3)">x = -b/2a</div></div>
+              <div style="background:var(--card);padding:8px;border-radius:6px;text-align:center"><div style="font-weight:700;margin-bottom:3px">개폐</div><div style="color:var(--t3)">a>0 위로</div></div>
+            </div>
+          </div>
+          <h3>피타고라스 정리</h3>
+          <div class="dp-img-placeholder" style="font-size:22px">📐 a² + b² = c²</div>
+          <p>직각삼각형에서 빗변의 제곱은 나머지 두 변의 제곱의 합과 같습니다.</p>
+        </div>
+      </div>
+
+      <!-- PAGE 5: News -->
+      <div class="demo-page" id="page-news">
+        <div class="dp-header" style="background:linear-gradient(135deg,#1c1c1c,#3a3a3a)">
+          <h1>IT조선 — 2026.06.09</h1>
+          <p>AI · 접근성 · 기술</p>
+        </div>
+        <div class="dp-article">
+          <div class="dp-tag-row">
+            <span class="dp-tag">AI</span><span class="dp-tag">접근성</span><span class="dp-tag">Dot Pad</span>
+          </div>
+          <h2>"AI가 책을 읽어준다" — 시각장애 학생 위한 촉각 교육 혁신</h2>
+          <div class="dp-img-placeholder">📸</div>
+          <p>국내 스타트업 닷(Dot Inc.)이 개발한 AI 기반 촉각 그래픽 변환 시스템이 시각장애 학생들의 교육 환경을 바꾸고 있다. Dot Pad 기기에 탑재된 소프트웨어는 <strong>150ms 이내</strong>에 화면 콘텐츠를 60×40 핀 배열로 실시간 변환한다.</p>
+          <h3>핵심 기능</h3>
+          <div style="background:var(--panel);border-radius:8px;padding:12px;margin-bottom:14px">
+            <div style="display:flex;flex-direction:column;gap:8px;font-size:12px">
+              <div style="display:flex;gap:10px;align-items:flex-start"><span style="color:var(--orange);font-weight:900;flex-shrink:0">01</span><span>이미지·차트·표·수식 등 모든 콘텐츠 유형 자동 탐지</span></div>
+              <div style="display:flex;gap:10px;align-items:flex-start"><span style="color:var(--orange);font-weight:900;flex-shrink:0">02</span><span>커서 위치 기반 실시간 촉각 출력 (150ms)</span></div>
+              <div style="display:flex;gap:10px;align-items:flex-start"><span style="color:var(--orange);font-weight:900;flex-shrink:0">03</span><span>20셀 점자 텍스트바 동시 출력</span></div>
+              <div style="display:flex;gap:10px;align-items:flex-start"><span style="color:var(--orange);font-weight:900;flex-shrink:0">04</span><span>BLE 4.2 저전력 무선 연결, 배터리 24시간</span></div>
+            </div>
+          </div>
+          <h3>교육부 시범사업 현황</h3>
+          <p>2025년부터 전국 15개 특수학교에 Dot Pad 320이 보급됐으며, 2026년에는 일반 학교 통합교육 환경으로 확대될 예정이다.</p>
+          <div style="background:#fff8f5;border:1px solid var(--orange-b);border-radius:8px;padding:12px;margin-top:12px">
+            <div style="font-size:11px;font-weight:700;color:var(--orange);margin-bottom:6px">관련 데이터</div>
+            <div style="font-size:11px;color:var(--t2);line-height:1.7">
+              국내 시각장애인: <strong>25만 3천 명</strong> (2024, 복지부)<br>
+              특수교육 대상자 중 시각장애: <strong>2,847명</strong><br>
+              Dot Pad 보급 목표: <strong>2026년까지 3,000대</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PAGE 6: Geography -->
+      <div class="demo-page" id="page-geo">
+        <div class="dp-header" style="background:linear-gradient(135deg,#0a3d0a,#1a5c1a)">
+          <h1>중학교 사회 1 — 1단원</h1>
+          <p>한반도의 자연환경</p>
+        </div>
+        <div class="dp-article">
+          <div class="dp-tag-row">
+            <span class="dp-tag">지도</span><span class="dp-tag">지형</span><span class="dp-tag">기후</span>
+          </div>
+          <h2>1-1. 한반도의 위치와 지형</h2>
+          <div class="dp-img-placeholder" style="font-size:16px;flex-direction:column;gap:4px">
+            <span style="font-size:32px">🗺️</span>
+            <span style="color:#888">한반도 지형도 — 촉각 변환 가능</span>
+          </div>
+          <p>한반도는 유라시아 대륙의 동쪽 끝 북위 33°~43°에 위치합니다. 전체 면적의 <strong>약 70%가 산지</strong>이며, 동쪽은 높고 서쪽은 낮은 <strong>동고서저</strong>의 지형입니다.</p>
+          <h3>주요 산맥과 하천</h3>
+          <div style="background:var(--panel);border-radius:8px;padding:12px;margin-bottom:14px">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:11px">
+              <div style="background:var(--card);padding:8px;border-radius:6px"><div style="font-weight:700;margin-bottom:3px">태백산맥</div><div style="color:var(--t3)">한반도의 등뼈, 동해안 따라 남북으로</div></div>
+              <div style="background:var(--card);padding:8px;border-radius:6px"><div style="font-weight:700;margin-bottom:3px">낙동강</div><div style="color:var(--t3)">길이 525km, 영남 최대 하천</div></div>
+              <div style="background:var(--card);padding:8px;border-radius:6px"><div style="font-weight:700;margin-bottom:3px">한강</div><div style="color:var(--t3)">수도권을 관통, 서해로 유입</div></div>
+              <div style="background:var(--card);padding:8px;border-radius:6px"><div style="font-weight:700;margin-bottom:3px">백두산</div><div style="color:var(--t3)">2,744m, 한반도 최고봉</div></div>
+            </div>
+          </div>
+          <h3>기후 특성</h3>
+          <div style="background:var(--panel);border-radius:8px;padding:12px">
+            <div style="display:flex;flex-direction:column;gap:7px;font-size:11px">
+              <div><div style="display:flex;justify-content:space-between;margin-bottom:3px"><span>강수량 (여름 집중)</span><span style="font-weight:700;color:var(--orange)">60%</span></div><div style="height:5px;background:#e8e7e3;border-radius:3px"><div style="width:60%;height:100%;background:var(--orange);border-radius:3px"></div></div></div>
+              <div><div style="display:flex;justify-content:space-between;margin-bottom:3px"><span>산지 면적</span><span style="font-weight:700">70%</span></div><div style="height:5px;background:#e8e7e3;border-radius:3px"><div style="width:70%;height:100%;background:var(--t1);border-radius:3px"></div></div></div>
+              <div><div style="display:flex;justify-content:space-between;margin-bottom:3px"><span>서해안 조수간만차</span><span style="font-weight:700;color:var(--t3)">최대 9m</span></div><div style="height:5px;background:#e8e7e3;border-radius:3px"><div style="width:45%;height:100%;background:var(--t3);border-radius:3px"></div></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PAGE 7: B2G Dashboard -->
+      <div class="demo-page" id="page-b2g">
+        <div class="dp-header" style="background:linear-gradient(135deg,#1a73e8,#0d47a1)">
+          <h1>글로벌 교육 시장 배포 현황</h1>
+          <p>B2G · Google Chromebook 시범사업 · 2026</p>
+        </div>
+        <div class="dp-article">
+          <!-- KPI 4개 -->
+          <div class="b2g-kpi-grid">
+            <div class="b2g-kpi">
+              <div class="b2g-kpi-num" style="color:#1a73e8">47M+</div>
+              <div class="b2g-kpi-label">미국 K-12<br>Chromebook 기기 수<br><span style="color:var(--orange)">(교육용 1위 기기)</span></div>
+            </div>
+            <div class="b2g-kpi">
+              <div class="b2g-kpi-num" style="color:#34a853">3억+</div>
+              <div class="b2g-kpi-label">전 세계 시각장애 인구<br>잠재 수혜 대상<br><span style="color:var(--orange)">(WHO 기준)</span></div>
+            </div>
+            <div class="b2g-kpi">
+              <div class="b2g-kpi-num" style="color:#eb5b33">150ms</div>
+              <div class="b2g-kpi-label">실시간 변환<br>응답 속도<br>(BLE 4.2 기준)</div>
+            </div>
+            <div class="b2g-kpi">
+              <div class="b2g-kpi-num" style="color:#9c27b0">9종</div>
+              <div class="b2g-kpi-label">감지 가능<br>콘텐츠 유형<br>(이미지·수식·지도 등)</div>
+            </div>
+          </div>
+
+          <!-- Google Workspace 호환 -->
+          <h3 style="margin-bottom:10px">Google Workspace for Education 호환</h3>
+          <div class="compat-grid">
+            <div class="compat-item"><div class="compat-icon">📄</div><div class="compat-label">Google Docs</div><div class="compat-status">✓ 지원</div></div>
+            <div class="compat-item"><div class="compat-icon">📊</div><div class="compat-label">Google Slides</div><div class="compat-status">✓ 지원</div></div>
+            <div class="compat-item"><div class="compat-icon">🌐</div><div class="compat-label">Chrome Web</div><div class="compat-status">✓ 지원</div></div>
+            <div class="compat-item"><div class="compat-icon">📚</div><div class="compat-label">Khan Academy</div><div class="compat-status">✓ 지원</div></div>
+            <div class="compat-item"><div class="compat-icon">🎓</div><div class="compat-label">Google Classroom</div><div class="compat-status">✓ 지원</div></div>
+            <div class="compat-item"><div class="compat-icon">📝</div><div class="compat-label">Wikipedia</div><div class="compat-status">✓ 지원</div></div>
+          </div>
+
+          <!-- 시범사업 파이프라인 -->
+          <h3 style="margin-bottom:10px">시범사업 파이프라인</h3>
+          <div class="b2g-funnel">
+            <div class="b2g-funnel-row">
+              <div class="b2g-funnel-icon">🇰🇷</div>
+              <div style="flex:1">
+                <div class="b2g-funnel-label">한국 — 특수학교 시범사업</div>
+                <div class="b2g-funnel-bar" style="background:var(--orange);width:85%"></div>
+              </div>
+              <div class="b2g-funnel-val" style="color:var(--orange)">진행 중 · 15교</div>
+            </div>
+            <div class="b2g-funnel-row">
+              <div class="b2g-funnel-icon">🇺🇸</div>
+              <div style="flex:1">
+                <div class="b2g-funnel-label">미국 — IDEA Act 연계 예산</div>
+                <div class="b2g-funnel-bar" style="background:#1a73e8;width:55%"></div>
+              </div>
+              <div class="b2g-funnel-val" style="color:#1a73e8">협의 중</div>
+            </div>
+            <div class="b2g-funnel-row">
+              <div class="b2g-funnel-icon">🇬🇧</div>
+              <div style="flex:1">
+                <div class="b2g-funnel-label">영국 — DfE 접근성 보조금</div>
+                <div class="b2g-funnel-bar" style="background:#34a853;width:35%"></div>
+              </div>
+              <div class="b2g-funnel-val" style="color:#34a853">검토 중</div>
+            </div>
+            <div class="b2g-funnel-row">
+              <div class="b2g-funnel-icon">🌏</div>
+              <div style="flex:1">
+                <div class="b2g-funnel-label">동남아 — UNESCO ICT4D 프로그램</div>
+                <div class="b2g-funnel-bar" style="background:#9c27b0;width:20%"></div>
+              </div>
+              <div class="b2g-funnel-val" style="color:#9c27b0">파이프라인</div>
+            </div>
+          </div>
+
+          <!-- 비즈니스 모델 -->
+          <h3 style="margin-bottom:10px">B2G 비즈니스 모델</h3>
+          <div style="background:var(--panel);border-radius:var(--r);padding:14px;border:1px solid var(--border)">
+            <div style="display:flex;flex-direction:column;gap:8px;font-size:12px">
+              <div style="display:flex;justify-content:space-between;align-items:center;padding:8px;background:var(--card);border-radius:6px">
+                <div><div style="font-weight:700">디바이스 라이선스</div><div style="font-size:10px;color:var(--t3)">Dot Pad + 확장 프로그램 번들</div></div>
+                <div style="font-family:'DM Mono',monospace;font-weight:700;color:var(--orange)">$299/대</div>
+              </div>
+              <div style="display:flex;justify-content:space-between;align-items:center;padding:8px;background:var(--card);border-radius:6px">
+                <div><div style="font-weight:700">학교 구독 (SaaS)</div><div style="font-size:10px;color:var(--t3)">Extension 업데이트 + 관리자 대시보드</div></div>
+                <div style="font-family:'DM Mono',monospace;font-weight:700;color:#1a73e8">$49/교/년</div>
+              </div>
+              <div style="display:flex;justify-content:space-between;align-items:center;padding:8px;background:#e8f5e9;border-radius:6px;border:1px solid #a5d6a7">
+                <div><div style="font-weight:700;color:#2e7d32">교육청 일괄 계약</div><div style="font-size:10px;color:#388e3c">MOE / District 단위 예산 집행</div></div>
+                <div style="font-family:'DM Mono',monospace;font-weight:700;color:#2e7d32">협의</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- MVP 기술 스택 -->
+          <h3 style="margin-top:16px;margin-bottom:10px">Chrome Extension MVP 기술 스택</h3>
+          <div style="background:var(--panel);border-radius:8px;padding:12px;font-size:11px;font-family:'DM Mono',monospace">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+              <div style="background:var(--card);padding:7px;border-radius:6px"><div style="color:var(--t3);margin-bottom:2px">MANIFEST</div><div style="font-weight:700">Manifest V3</div></div>
+              <div style="background:var(--card);padding:7px;border-radius:6px"><div style="color:var(--t3);margin-bottom:2px">PANEL</div><div style="font-weight:700">Side Panel API</div></div>
+              <div style="background:var(--card);padding:7px;border-radius:6px"><div style="color:var(--t3);margin-bottom:2px">DETECT</div><div style="font-weight:700">MutationObserver</div></div>
+              <div style="background:var(--card);padding:7px;border-radius:6px"><div style="color:var(--t3);margin-bottom:2px">CONNECT</div><div style="font-weight:700">Web Bluetooth</div></div>
+              <div style="background:var(--card);padding:7px;border-radius:6px"><div style="color:var(--t3);margin-bottom:2px">AI</div><div style="font-weight:700">Claude API</div></div>
+              <div style="background:var(--card);padding:7px;border-radius:6px"><div style="color:var(--t3);margin-bottom:2px">OUTPUT</div><div style="font-weight:700">DTMS 300B</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
       </div>
     </div>
   </div>
@@ -284,12 +568,33 @@ button{font-family:inherit;cursor:pointer;border:none}
       <div class="braille-bar-wrap" id="brailleBar"></div>
     </div>
 
+    <div class="cp-section">
+      <div class="cp-label">감지 가능 콘텐츠 유형</div>
+      <div class="det-types" id="detTypes">
+        <div class="det-type" id="dt-image"><div class="det-type-icon">🖼️</div><div class="det-type-label">이미지</div><div class="det-type-count" id="dtc-image">0</div></div>
+        <div class="det-type" id="dt-chart"><div class="det-type-icon">📊</div><div class="det-type-label">차트</div><div class="det-type-count" id="dtc-chart">0</div></div>
+        <div class="det-type" id="dt-table"><div class="det-type-icon">📋</div><div class="det-type-label">표</div><div class="det-type-count" id="dtc-table">0</div></div>
+        <div class="det-type" id="dt-formula"><div class="det-type-icon">🔢</div><div class="det-type-label">수식</div><div class="det-type-count" id="dtc-formula">0</div></div>
+        <div class="det-type" id="dt-map"><div class="det-type-icon">🗺️</div><div class="det-type-label">지도</div><div class="det-type-count" id="dtc-map">0</div></div>
+        <div class="det-type" id="dt-heading"><div class="det-type-icon">📌</div><div class="det-type-label">제목</div><div class="det-type-count" id="dtc-heading">0</div></div>
+        <div class="det-type" id="dt-paragraph"><div class="det-type-icon">📝</div><div class="det-type-label">본문</div><div class="det-type-count" id="dtc-paragraph">0</div></div>
+        <div class="det-type" id="dt-list"><div class="det-type-icon">📃</div><div class="det-type-label">목록</div><div class="det-type-count" id="dtc-list">0</div></div>
+        <div class="det-type" id="dt-graph"><div class="det-type-icon">📈</div><div class="det-type-label">그래프</div><div class="det-type-count" id="dtc-graph">0</div></div>
+      </div>
+    </div>
+    <div class="cp-section">
+      <div class="cp-label">세션 감지 통계</div>
+      <div class="session-stat-row"><span class="ss-label">총 감지 횟수</span><span class="ss-val" id="ssTotal">0회</span></div>
+      <div class="session-stat-row"><span class="ss-label">Dot Pad 전송</span><span class="ss-val" id="ssTx">0회</span></div>
+      <div class="session-stat-row"><span class="ss-label">감지 유형 수</span><span class="ss-val" id="ssTypes">0 / 9</span></div>
+      <div class="session-stat-row"><span class="ss-label">전송 상태</span><span class="ss-val" id="txState" style="color:var(--t3)">대기</span></div>
+    </div>
     <div class="cp-section" style="border-bottom:none">
-      <div class="cp-label">시스템 정보</div>
-      <div class="tech-row"><span class="tech-label">패킷 크기</span><span class="tech-val">300 bytes</span></div>
+      <div class="cp-label">시스템</div>
+      <div class="tech-row"><span class="tech-label">패킷</span><span class="tech-val">300 bytes</span></div>
       <div class="tech-row"><span class="tech-label">해상도</span><span class="tech-val">60×40 + 20셀</span></div>
       <div class="tech-row"><span class="tech-label">프로토콜</span><span class="tech-val">BLE 4.2</span></div>
-      <div class="tech-row"><span class="tech-label">전송 상태</span><span class="tech-val" id="txState" style="color:var(--t3)">대기</span></div>
+      <div class="tech-row"><span class="tech-label">Manifest</span><span class="tech-val" style="color:#1a73e8">V3</span></div>
     </div>
 
     <div class="log-area" id="logArea"></div>
@@ -308,21 +613,110 @@ const BRAILLE = {
 };
 
 // DEMO DATA: content blocks per page with their dot patterns
+// 추가 도트 패턴
+function makeFormula(){
+  const g=empty();
+  // x² (parabola shape)
+  for(let x=0;x<60;x++){const y=Math.round(20-((x-30)**2)/40);if(y>=0&&y<40)g[y][x]=true;}
+  // axis lines
+  for(let y=0;y<40;y++)g[y][30]=g[y][30]||(y%4===0);
+  for(let x=0;x<60;x++)g[20][x]=g[20][x]||(x%4===0);
+  return g;
+}
+function makeKoreaMap(){
+  const g=empty();
+  const pts=[[22,5],[26,4],[30,4],[34,5],[37,7],[39,10],[40,14],[39,18],[37,21],[35,24],[38,27],[39,30],[37,33],[34,35],[31,37],[28,38],[25,37],[22,35],[20,32],[19,28],[18,24],[19,20],[20,16],[21,12],[22,8]];
+  for(let i=0;i<pts.length-1;i++){
+    const [x1,y1]=pts[i],[x2,y2]=pts[i+1];
+    const steps=Math.max(Math.abs(x2-x1),Math.abs(y2-y1));
+    for(let s=0;s<=steps;s++){
+      const x=Math.round(x1+(x2-x1)*s/steps);
+      const y=Math.round(y1+(y2-y1)*s/steps);
+      if(x>=0&&x<60&&y>=0&&y<40)g[y][x]=true;
+    }
+  }
+  return g;
+}
+function makeNewsLayout(){
+  const g=empty();
+  // headline (thick top bar)
+  for(let x=3;x<57;x++){g[2][x]=true;g[3][x]=true;}
+  // image placeholder
+  for(let y=6;y<18;y++)for(let x=3;x<28;x++)if(y===6||y===17||x===3||x===27)g[y][x]=true;
+  // text columns
+  [20,22,24,26,28,30].forEach(y=>{for(let x=3;x<57;x+=2)g[y][x]=true;});
+  [20,22,24].forEach(y=>{for(let x=30;x<57;x+=2)g[y+12][x]=true;});
+  return g;
+}
+function makeDataTable(){
+  const g=empty();
+  [5,12,19,26,33].forEach(y=>{for(let x=2;x<58;x++)g[y][x]=true;});
+  [2,15,30,45,58].forEach(x=>{for(let y=5;y<34;y++)g[y][x]=true;});
+  // filled cells (data)
+  [[3,7],[16,7],[31,7],[3,14],[16,14]].forEach(([x,y])=>{
+    for(let dy=1;dy<6;dy++)for(let dx=1;dx<11;dx++)if((dx+dy)%3===0)g[y+dy][x+dx]=true;
+  });
+  return g;
+}
+function makeBarChartH(){
+  const g=empty();
+  const bars=[{y:5,w:48},{y:12,w:36},{y:19,w:28},{y:26,w:42}];
+  bars.forEach(({y,w})=>{for(let x=5;x<5+w;x++){g[y][x]=true;g[y+1][x]=true;g[y+2][x]=true;}});
+  for(let y=3;y<35;y++)g[y][4]=true;
+  return g;
+}
+
 const PAGE_CONTENT = {
   wiki:[
     {label:'안내견 이미지',type:'image',text:'시각장애 안내견',grid:()=>makeCircle(30,20,14)},
     {label:'소제목: 디지털 접근성',type:'heading',text:'디지털 접근성',grid:()=>makeText()},
     {label:'본문 텍스트',type:'paragraph',text:'Dot Pad 촉각 그래픽',grid:()=>makeLines()},
     {label:'기사 본문 2',type:'paragraph',text:'AI 접근성 기술',grid:()=>makeWave()},
+    {label:'관련 항목 목록',type:'list',text:'관련: 점자 / BLE / Dot',grid:()=>makeLines()},
+    {label:'인포그래픽',type:'graph',text:'접근성 기술 트렌드',grid:()=>makeBarChart()},
   ],
   chart:[
     {label:'WHO 통계 차트',type:'chart',text:'세계 시각장애 통계',grid:()=>makeBarChart()},
-    {label:'백분율 바 그래프',type:'chart',text:'굴절 이상 43%',grid:()=>makePieSlice()},
+    {label:'원인별 파이 차트',type:'chart',text:'굴절 이상 43%',grid:()=>makePieSlice()},
+    {label:'연령별 분포 막대',type:'chart',text:'50세 이상 집중',grid:()=>makeBarChartH()},
+    {label:'지역별 데이터 표',type:'table',text:'지역별 시각장애 인구',grid:()=>makeDataTable()},
+    {label:'추세선 그래프',type:'graph',text:'2000-2026 증감 추이',grid:()=>makeWave()},
   ],
   textbook:[
     {label:'렌즈 다이어그램',type:'image',text:'볼록렌즈 굴절 도',grid:()=>makeLens()},
     {label:'개념 정리표',type:'table',text:'굴절 / 굴절률',grid:()=>makeGrid2()},
-  ]
+    {label:'광선 경로 그래프',type:'graph',text:'스넬의 법칙',grid:()=>makeWave()},
+    {label:'수식 블록',type:'formula',text:'n₁sinθ₁=n₂sinθ₂',grid:()=>makeFormula()},
+  ],
+  math:[
+    {label:'이차방정식 수식',type:'formula',text:'ax²+bx+c=0',grid:()=>makeFormula()},
+    {label:'포물선 그래프',type:'graph',text:'y=x²-4x+3',grid:()=>makeFormula()},
+    {label:'근의 공식',type:'formula',text:'x=(-b±√D)/2a',grid:()=>makeFormula()},
+    {label:'피타고라스 다이어그램',type:'image',text:'a²+b²=c²',grid:()=>makeGrid2()},
+    {label:'좌표 표 ',type:'table',text:'x, y 대응표',grid:()=>makeDataTable()},
+  ],
+  news:[
+    {label:'기사 헤드라인',type:'heading',text:'AI 촉각 교육 혁신',grid:()=>makeText()},
+    {label:'대표 이미지',type:'image',text:'Dot Pad 수업 장면',grid:()=>makeNewsLayout()},
+    {label:'기사 본문 1',type:'paragraph',text:'150ms 실시간 변환',grid:()=>makeLines()},
+    {label:'관련 데이터 표',type:'table',text:'보급 현황 3000대',grid:()=>makeDataTable()},
+    {label:'기사 본문 2',type:'paragraph',text:'국내 시각장애 25만',grid:()=>makeLines()},
+    {label:'관련 기사 목록',type:'list',text:'Dot Inc. 시범사업',grid:()=>makeLines()},
+  ],
+  geo:[
+    {label:'한반도 지도',type:'map',text:'한반도 지형도',grid:()=>makeKoreaMap()},
+    {label:'지형 개념표',type:'table',text:'태백산맥 / 한강',grid:()=>makeDataTable()},
+    {label:'기후 분포 그래프',type:'chart',text:'강수량 60% 여름',grid:()=>makeBarChartH()},
+    {label:'산맥 단면도',type:'image',text:'동고서저 지형',grid:()=>makeWave()},
+    {label:'행정구역 목록',type:'list',text:'17개 시도 목록',grid:()=>makeLines()},
+  ],
+  b2g:[
+    {label:'Chromebook 보급 통계',type:'chart',text:'47M Chromebook',grid:()=>makeBarChart()},
+    {label:'국가별 파이프라인',type:'graph',text:'KR/US/UK/동남아',grid:()=>makePieSlice()},
+    {label:'기술 스택 다이어그램',type:'image',text:'Manifest V3 · BLE',grid:()=>makeGrid2()},
+    {label:'비즈니스 모델 표',type:'table',text:'$299/대 · $49/교',grid:()=>makeDataTable()},
+    {label:'호환 플랫폼 목록',type:'list',text:'Google Workspace',grid:()=>makeLines()},
+  ],
 };
 
 // DOT PATTERN GENERATORS
@@ -459,6 +853,9 @@ demoContent.addEventListener('mousemove',e=>{
   if(syncOn)triggerScan();
 });
 
+const DET_COUNTS={image:0,chart:0,table:0,formula:0,map:0,heading:0,paragraph:0,list:0,graph:0};
+let totalDetects=0;
+
 function triggerScan(){
   const contents=PAGE_CONTENT[currentPage]||[];
   const item=contents[contentIdx%contents.length];
@@ -468,11 +865,24 @@ function triggerScan(){
   document.getElementById('detectedText').textContent=item.text.substring(0,20);
   document.getElementById('detectedType').textContent=item.type;
   document.getElementById('detectedPos').textContent=`x:${Math.round(mouseX)} y:${Math.round(mouseY)}`;
-  txCount++;
+  txCount++;totalDetects++;
   document.getElementById('txState').textContent=`${txCount}회 전송`;
   document.getElementById('txState').style.color='var(--orange)';
   setTimeout(()=>document.getElementById('txState').style.color='var(--t3)',300);
-  if(txCount%4===0){contentIdx++;addLog(`📡 전송 #${txCount} — ${item.label}`,'scan');}
+  // 타입 카운터 업데이트
+  if(item.type&&DET_COUNTS.hasOwnProperty(item.type)){
+    DET_COUNTS[item.type]++;
+    const dtEl=document.getElementById('dt-'+item.type);
+    const dtc=document.getElementById('dtc-'+item.type);
+    if(dtEl){dtEl.classList.add('active');}
+    if(dtc)dtc.textContent=DET_COUNTS[item.type]+'회';
+    // 세션 통계
+    document.getElementById('ssTotal').textContent=totalDetects+'회';
+    document.getElementById('ssTx').textContent=txCount+'회';
+    const activeTypes=Object.values(DET_COUNTS).filter(v=>v>0).length;
+    document.getElementById('ssTypes').textContent=activeTypes+' / 9';
+  }
+  if(txCount%4===0){contentIdx++;addLog(`📡 전송 #${txCount} — ${item.label} [${item.type}]`,'scan');}
 }
 
 // AUTO DEMO when sync is on but not moving
@@ -541,7 +951,7 @@ document.querySelectorAll('.demo-tab').forEach(t=>{
     currentPage=t.dataset.page;
     document.getElementById('page-'+currentPage).classList.add('on');
     contentIdx=0;
-    const urls={wiki:'https://ko.wikipedia.org/wiki/시각장애',chart:'https://who.int/data/visual-impairment',textbook:'https://textbook.co.kr/science/ch8-lens'};
+    const urls={wiki:'ko.wikipedia.org/wiki/시각장애',chart:'who.int/data/visual-impairment',textbook:'교과서 — 빛과 굴절',math:'교과서 — 이차방정식',news:'it.chosun.com/ai-education',geo:'교과서 — 한반도 지형',b2g:'dot.inc/edu-lens/b2g-dashboard'};
     document.getElementById('urlBar').textContent=urls[currentPage]||'';
     addLog(`🌐 페이지 전환 — ${t.textContent.trim()}`);
     if(syncOn){clearInterval(autoDemo);startAutoDemo();}
