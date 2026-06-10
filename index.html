@@ -668,7 +668,7 @@ body::before{
     <p class="section-desc" id="sec-game-desc"></p>
   </div>
 
-  <!-- Dot Beat + Dot Venture -->
+  <!-- Dot Forest + Dot Venture -->
   <div class="feature-section reveal">
     <div class="fs-text">
       <div class="fs-kicker" style="background:rgba(34,214,138,.1);color:#22d68a;border:1px solid rgba(34,214,138,.2)" id="fs-beat-kicker"></div>
@@ -676,7 +676,7 @@ body::before{
       <p class="fs-p" id="fs-beat-p"></p>
       <div class="fs-features" id="fs-beat-features"></div>
       <div class="fs-links">
-        <a class="fs-link-btn primary" href="./dot-beat/index.html" target="_blank" rel="noopener" id="fs-beat-btn"></a>
+        <a class="fs-link-btn primary" href="https://byeol-coder.github.io/dot-forest/" target="_blank" rel="noopener" id="fs-beat-btn"></a>
         <a class="fs-link-btn ghost" href="./dot-venture/index.html" target="_blank" rel="noopener" id="fs-venture-btn"></a>
       </div>
     </div>
@@ -686,9 +686,9 @@ body::before{
         <div class="device-browser">
           <div class="device-browser-bar">
             <div class="dev-dots"><div class="dev-dot r"></div><div class="dev-dot y"></div><div class="dev-dot g"></div></div>
-            <div class="dev-url-bar">dot-beat.byeol-coder.github.io</div>
+            <div class="dev-url-bar">byeol-coder.github.io/dot-forest</div>
           </div>
-          <div class="device-screen" id="thumb-beat"></div>
+          <div class="device-screen" id="thumb-beat" data-thumb="dotvillage"></div>
         </div>
         <div class="device-float" style="width:45%;bottom:-10%;right:-10%">
           <div class="device-screen" id="thumb-venture-float"></div>
@@ -873,11 +873,11 @@ const I18N = {
     quoteBy:'— 이샛별, 닷 디자인실 시니어 디자이너',
     secGameH2:'귀가 아닌 손끝으로\n즐기는 게임',
     secGameDesc:'리듬·탐험·우주·마을 — 모든 게임이 Dot Pad 촉각 출력과 TTS를 통해 시각 없이도 완전히 플레이 가능합니다.',
-    fsBeatKicker:'촉각 리듬 게임',
-    fsBeatH3:'리듬을 <span>손끝으로</span>\n느끼다',
-    fsBeatP:'핀이 올라오는 패턴을 양손으로 느끼며 박자를 맞춥니다. 음악을 읽지 못해도 리듬을 배울 수 있습니다.',
-    fsBeatFeatures:['Dot Pad 핀 패턴으로 비트 전달','좌우 패닝 촉각 채널','반응 속도 기반 자동 난이도 조절','아기상어 BPM 72 포함 다수 수록'],
-    fsBeatBtn:'Dot Beat 플레이 →', fsVentureBtn:'Dot Venture →',
+    fsBeatKicker:'촉각 숲 탐험 게임',
+    fsBeatH3:'숲을 <span>촉각으로</span>\n탐험하다',
+    fsBeatP:'3D 루미와 함께 숲을 탐험합니다. 방향키로 이동할 때마다 Dot Pad 60×40 핀이 공간을 표현합니다. 눈이 없어도 공간과 방향을 손끝으로 익힐 수 있습니다.',
+    fsBeatFeatures:['Three.js GLB 3D 캐릭터 실시간 렌더링','이동 방향에 따른 3인칭 추적 카메라','60×40 Dot Pad 촉각 공간 동기화','키보드·D-pad·음성 명령 완전 지원'],
+    fsBeatBtn:'Dot Forest 플레이 →', fsVentureBtn:'Dot Venture →',
     fsSpaceKicker:'촉각 우주 과학',
     fsSpaceH3:'<span>손끝으로</span>\n우주를 탐험하다',
     fsSpaceP:'행성 표면 질감을 촉각으로 탐색하고, 우주선을 조종해 달에 착륙합니다. 5가지 미션으로 천문학을 배웁니다.',
@@ -926,11 +926,11 @@ const I18N = {
     quoteBy:'— Byeol Lee, Dot Inc. Senior Designer',
     secGameH2:'Games You Feel\nNot Just See',
     secGameDesc:'Rhythm · Adventure · Space · Village — every game is fully playable without vision through Dot Pad tactile output and TTS.',
-    fsBeatKicker:'Tactile Rhythm Game',
+    fsBeatKicker:'Tactile Forest Explorer',
     fsBeatH3:'Feel the Rhythm\n<span>by Touch</span>',
-    fsBeatP:'Feel pin patterns rising with both hands and match the beat. You can learn rhythm even without reading music.',
+    fsBeatP:'Explore the forest with 3D Lumi. Every move is expressed as a 60×40 Dot Pad tactile pattern. Learn space and direction through your fingertips — no vision needed.',
     fsBeatFeatures:['Beat delivered via Dot Pad pin patterns','Left/right panning tactile channels','Auto difficulty based on response time','Baby Shark BPM 72 + multiple tracks'],
-    fsBeatBtn:'Play Dot Beat →', fsVentureBtn:'Dot Venture →',
+    fsBeatBtn:'Play Dot Forest →', fsVentureBtn:'Dot Venture →',
     fsSpaceKicker:'Tactile Space Science',
     fsSpaceH3:'Explore Space\n<span>by Touch</span>',
     fsSpaceP:'Explore planet surface textures tactilely and pilot a spaceship to the moon. Learn astronomy through 5 tactile missions.',
@@ -1112,7 +1112,7 @@ function renderContent(){
   setFeatures('fs-beat-features',t('fsBeatFeatures'),'#22d68a');
   setText('fs-beat-btn',t('fsBeatBtn'));
   setText('fs-venture-btn',t('fsVentureBtn'));
-  setThumb('thumb-beat','dotbeat');
+  setThumb('thumb-beat','dotvillage');
   setThumb('thumb-venture-float','dotventure');
   setText('fs-space-kicker',t('fsSpaceKicker'));
   document.getElementById('fs-space-h3').innerHTML=t('fsSpaceH3').replace('\n','<br>');
