@@ -184,54 +184,103 @@ input[type=range]{width:80px;accent-color:var(--accent)}
 // ── SETLIST DATA ──
 const SONGS=[
   {id:0,title:'Dynamite',artist:'BTS',bpm:114,duration:'3:19',
-    lyrics:[
-      {t:0,ko:"Cause I, I, I'm in the stars tonight",en:"오늘 밤 나는 별빛 속에 있어"},
-      {t:3,ko:"So watch me bring the fire and set the night alight",en:"불꽃을 피워 밤을 환하게 밝혀"},
-      {t:6,ko:"Shining through the city with a little funk and soul",en:"도시를 빛내며 소울과 펑크를 담아"},
-      {t:9,ko:"So I'ma light it up like dynamite",en:"다이너마이트처럼 불을 밝혀"}
-    ]},
+   fxEvents:[{t:18,type:'fireworks',warn:3},{t:42,type:'confetti',warn:3},{t:60,type:'lasers',warn:2}],
+   formations:[{t:0,text:'7인 일렬 대형 등장'},{t:20,text:'V자 대형 전환'},{t:44,text:'원형 대형 피날레'}],
+   gestures:[{t:8,text:'정국 — 팬석 향해 손하트'},{t:30,text:'RM 마이크 들어올리기'}],
+   lyrics:[
+     {t:0, ko:"Cause I, I, I'm in the stars tonight", en:"오늘 밤 나는 별빛 속에"},
+     {t:5, ko:"So watch me bring the fire and set the night alight", en:"불꽃을 피워 밤을 밝혀"},
+     {t:10,ko:"Shining through the city with a little funk", en:"도시를 빛내며 나아가"},
+     {t:15,ko:"So I'ma light it up like dynamite", en:"다이너마이트처럼 불을 밝혀"},
+     {t:20,ko:"터지는 폭죽 소리에 맞춰 춤춰", en:"Dancing to the sound of fireworks"},
+     {t:25,ko:"이 순간 모두가 하나가 돼", en:"In this moment we are all one"},
+     {t:30,ko:"손을 높이 들어 환호해", en:"Raise your hands and cheer together"},
+     {t:35,ko:"다이나마이트 — 끝까지 타오르자", en:"Dynamite — burn till the very end"}
+   ]},
   {id:1,title:'Butter',artist:'BTS',bpm:110,duration:'2:44',
-    lyrics:[
-      {t:0,ko:"Smooth like butter, like a criminal undercover",en:"버터처럼 부드럽게, 잠복 중인 범인처럼"},
-      {t:3,ko:"Gon' pop like trouble breaking into your heart like that",en:"말썽처럼 터져서 당신의 마음속으로"},
-      {t:6,ko:"Cool shade stunner yeah I owe it all to my mother",en:"쿨한 선글라스 착용자, 이 모든 건 엄마 덕분"},
-      {t:9,ko:"Hotter than a summer gonna make you feel that butter",en:"여름보다 뜨겁게, 버터처럼 느끼게 해줄게"}
-    ]},
+   fxEvents:[{t:15,type:'spotlight',warn:2},{t:35,type:'confetti',warn:3},{t:50,type:'lasers',warn:2}],
+   formations:[{t:0,text:'7인 분산 등장'},{t:18,text:'대각선 대형'},{t:38,text:'하트 대형'}],
+   gestures:[{t:10,text:'지민 — 느린 윙크'},{t:32,text:'V — 카메라 향해 손키스'}],
+   lyrics:[
+     {t:0, ko:"Smooth like butter — like a criminal undercover", en:"버터처럼 부드럽게"},
+     {t:5, ko:"Gon' pop like trouble — breaking into your heart", en:"네 마음 속으로 파고들어"},
+     {t:10,ko:"Cool shade stunner — hot like summer", en:"쿨하고 뜨거운 여름처럼"},
+     {t:15,ko:"우리 함께 빛나자 — Side step right-left", en:"오른쪽 왼쪽 스텝 맞춰"},
+     {t:20,ko:"High like the moon — rock with me baby", en:"달처럼 높이 나와 함께"},
+     {t:25,ko:"버터처럼 녹아드는 밤", en:"Melting into the night like butter"},
+     {t:30,ko:"너의 맘에 스며들고 싶어", en:"I want to melt right into your heart"},
+     {t:35,ko:"이 순간 영원하길 바라", en:"I wish this moment lasts forever"}
+   ]},
   {id:2,title:'Pink Venom',artist:'BLACKPINK',bpm:124,duration:'3:06',
-    lyrics:[
-      {t:0,ko:"내 독이 네 몸속에 퍼지도록",en:"Let my venom spread through your body"},
-      {t:3,ko:"기억해 이건 내 영역",en:"Remember, this is my territory"},
-      {t:6,ko:"핑크빛 독으로 물들이겠어",en:"I'll dye you with my pink venom"},
-      {t:9,ko:"떨려도 눈을 마주쳐",en:"Even if you tremble, meet my eyes"}
-    ]},
+   fxEvents:[{t:12,type:'smoke',warn:3},{t:28,type:'fireworks',warn:3},{t:45,type:'lasers',warn:2}],
+   formations:[{t:0,text:'어둠 속 4인 등장 — 안개 효과'},{t:16,text:'전면 일렬 대형'},{t:32,text:'대각 크로스 이동'}],
+   gestures:[{t:8,text:'제니 — 카리스마 포즈'},{t:24,text:'리사 — 댄스 브레이크 솔로'}],
+   lyrics:[
+     {t:0, ko:"내 독이 네 몸속에 퍼지도록", en:"Let my venom spread through you"},
+     {t:5, ko:"기억해 이건 내 영역", en:"Remember — this is my territory"},
+     {t:10,ko:"핑크빛 독으로 물들이겠어", en:"I'll dye you in pink venom"},
+     {t:15,ko:"떨려도 눈을 마주쳐", en:"Even if you tremble — meet my eyes"},
+     {t:20,ko:"이 무대는 내 것이야", en:"This stage belongs to me"},
+     {t:25,ko:"너의 심장을 멈추게 해", en:"I'll make your heart stop"},
+     {t:30,ko:"BLACKPINK in your area", en:"BLACKPINK in your area — yeah"},
+     {t:35,ko:"이 순간 세상이 멈춰", en:"In this moment the world stands still"}
+   ]},
   {id:3,title:'Hype Boy',artist:'NewJeans',bpm:130,duration:'3:07',
-    lyrics:[
-      {t:0,ko:"너는 나의 하이프보이",en:"You're my hype boy"},
-      {t:3,ko:"내 모든 것을 쏟아부어",en:"I pour everything I have into you"},
-      {t:6,ko:"함께라면 무엇이든 돼",en:"With you, anything is possible"},
-      {t:9,ko:"넌 내 세상이야",en:"You're my whole world"}
-    ]},
+   fxEvents:[{t:20,type:'confetti',warn:3},{t:40,type:'spotlight',warn:2}],
+   formations:[{t:0,text:'5인 캐주얼 등장'},{t:22,text:'2열 대형 전환'}],
+   gestures:[{t:12,text:'해린 — 관객 향해 손흔들기'},{t:28,text:'민지 — 팬들과 눈맞춤'}],
+   lyrics:[
+     {t:0, ko:"너는 나의 하이프보이", en:"You're my hype boy"},
+     {t:5, ko:"내 모든 것을 쏟아부어", en:"I pour everything into you"},
+     {t:10,ko:"함께라면 무엇이든 돼", en:"With you anything is possible"},
+     {t:15,ko:"넌 내 세상이야", en:"You are my whole world"},
+     {t:20,ko:"내 맘을 두근거리게 해", en:"You make my heart beat fast"},
+     {t:25,ko:"이 설렘이 멈추지 않아", en:"This excitement won't stop"},
+     {t:30,ko:"나를 바라봐줘", en:"Look at me — see me"},
+     {t:35,ko:"우리 함께 뛰어오르자", en:"Let's jump up together"}
+   ]},
   {id:4,title:'Cupid (Twin Ver.)',artist:'FIFTY FIFTY',bpm:110,duration:'3:15',
-    lyrics:[
-      {t:0,ko:"큐피드가 나에게 화살을 쏘지 않아",en:"Cupid doesn't shoot his arrow at me"},
-      {t:3,ko:"사랑은 왜 이렇게 힘든 걸까",en:"Why is love so difficult"},
-      {t:6,ko:"언제쯤 내 사람을 만날 수 있을까",en:"When will I finally meet my person"},
-      {t:9,ko:"기다리고 기다려도 오지 않아",en:"I wait and wait but you don't come"}
-    ]},
+   fxEvents:[{t:25,type:'spotlight',warn:2},{t:48,type:'confetti',warn:3}],
+   formations:[{t:0,text:'4인 좌우 분리'},{t:26,text:'중앙 집결'}],
+   gestures:[{t:14,text:'시오 — 하늘 향해 손 뻗기'},{t:36,text:'전원 — 관객 향해 손키스'}],
+   lyrics:[
+     {t:0, ko:"큐피드가 화살을 쏘지 않아", en:"Cupid doesn't shoot his arrow at me"},
+     {t:5, ko:"사랑은 왜 이렇게 힘든 걸까", en:"Why is love so difficult"},
+     {t:10,ko:"언제쯤 내 사람을 만날까", en:"When will I finally meet my person"},
+     {t:15,ko:"기다려도 오지 않아", en:"I wait and wait but you don't come"},
+     {t:20,ko:"혼자 있는 게 이제 익숙해", en:"I've grown used to being alone"},
+     {t:25,ko:"그래도 나는 오늘도 믿어", en:"But I still believe today"},
+     {t:30,ko:"언젠가 반드시 찾아올 거야", en:"Someday love will surely come"},
+     {t:35,ko:"큐피드야 제발 부탁이야", en:"Cupid — please send me love"}
+   ]},
   {id:5,title:'Supernova',artist:'aespa',bpm:128,duration:'3:12',
-    lyrics:[
-      {t:0,ko:"나는 이 세계의 중심에 서 있어",en:"I stand at the center of this world"},
-      {t:3,ko:"별처럼 빛나는 나의 에너지",en:"My energy shines like a star"},
-      {t:6,ko:"초신성처럼 터지는 감정들",en:"Emotions exploding like a supernova"},
-      {t:9,ko:"우주를 가득 채우는 나의 노래",en:"My song fills the entire universe"}
-    ]},
+   fxEvents:[{t:18,type:'lasers',warn:3},{t:36,type:'fireworks',warn:3},{t:52,type:'confetti',warn:2}],
+   formations:[{t:0,text:'4인 V자 대형 등장'},{t:20,text:'원형 대형 전환'},{t:40,text:'일렬 피날레'}],
+   gestures:[{t:10,text:'카리나 — 관객 향해 손하트'},{t:28,text:'윈터 — 팬들에게 윙크'}],
+   lyrics:[
+     {t:0, ko:"나는 이 세계의 중심에 서 있어", en:"I stand at the center of this world"},
+     {t:5, ko:"별처럼 빛나는 나의 에너지", en:"My energy shines like a star"},
+     {t:10,ko:"초신성처럼 터지는 감정들", en:"Emotions exploding like a supernova"},
+     {t:15,ko:"우주를 가득 채우는 나의 노래", en:"My song fills the entire universe"},
+     {t:20,ko:"KWANGYA를 넘어서 달려", en:"Running past KWANGYA"},
+     {t:25,ko:"ae와 함께 더 높이 날아", en:"Flying higher with my ae"},
+     {t:30,ko:"이 빛은 꺼지지 않아", en:"This light will never go out"},
+     {t:35,ko:"Supernova — 우리가 완성돼", en:"Supernova — we are complete"}
+   ]},
   {id:6,title:'Love Wins All',artist:'IU',bpm:78,duration:'4:01',
-    lyrics:[
-      {t:0,ko:"너와 나 손을 잡고 걸어가",en:"You and I, walking hand in hand"},
-      {t:3,ko:"이 세상 끝까지 함께라면",en:"If we're together until the end of the world"},
-      {t:6,ko:"어둠도 두렵지 않아",en:"Even darkness doesn't frighten me"},
-      {t:9,ko:"사랑이 결국 이길 거야",en:"Love will win in the end"}
-    ]},
+   fxEvents:[{t:30,type:'spotlight',warn:2},{t:55,type:'confetti',warn:3}],
+   formations:[{t:0,text:'솔로 스포트라이트 등장'},{t:32,text:'무대 중앙 이동'}],
+   gestures:[{t:18,text:'IU — 관객 향해 두 손 모음'},{t:42,text:'IU — 눈물 참으며 인사'}],
+   lyrics:[
+     {t:0, ko:"너와 나 손을 잡고 걸어가", en:"You and I walking hand in hand"},
+     {t:6, ko:"이 세상 끝까지 함께라면", en:"If we're together to the very end"},
+     {t:12,ko:"어둠도 두렵지 않아", en:"Even darkness holds no fear"},
+     {t:18,ko:"사랑이 결국 이길 거야", en:"Love will win in the end"},
+     {t:24,ko:"눈물이 흘러도 괜찮아", en:"Even if the tears fall — it's okay"},
+     {t:30,ko:"이 순간 너와 함께니까", en:"Because in this moment I have you"},
+     {t:36,ko:"사랑은 모든 것을 이겨", en:"Love conquers everything"},
+     {t:42,ko:"끝까지 함께 걸어가자", en:"Let's walk together all the way"}
+   ]},
 ];
 const SIGN_EMOJIS=['🤟','✌️','👋','🙌','👐','🤲','🫶','👆','✋','🤙'];
 
