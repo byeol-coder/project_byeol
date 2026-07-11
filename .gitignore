@@ -1,5 +1,30 @@
 *.sh
 *.py
-*.sh
-*.py
 .DS_Store
+
+# Environment variables and local secrets
+.env
+.env.*
+!.env.example
+!.env.*.example
+*.local
+*.secret
+*.secrets
+secrets/
+*.pem
+*.key
+*.p12
+*.pfx
+service-account*.json
+credentials*.json
+
+# Dependencies and build output
+node_modules/
+dist/
+build/
+coverage/
+
+# Logs and editor files
+*.log
+.vscode/
+.idea/
