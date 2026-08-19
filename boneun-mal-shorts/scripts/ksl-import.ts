@@ -68,16 +68,22 @@ async function main(): Promise<number> {
     return 5;
   }
 
+  // Confirmed by hand (curl -v, 2026-08-19): sldict.korean.go.kr times out on
+  // port 80 (plain http) but serves instantly over 443 with a valid
+  // *.korean.go.kr certificate. The API always hands back http:// links, so
+  // every download needs this upgrade first — it is not optional.
+  const videoUrl = exact.videoUrl.replace(/^http:\/\//i, 'https://');
+
   log.ok(`찾음: ${exact.id} — ${exact.title}`);
   if (exact.handshapeDescription) log.info(`손동작: ${exact.handshapeDescription}`);
-  log.info(`영상: ${exact.videoUrl}`);
+  log.info(`영상: ${videoUrl}`);
 
   const dest = path.join(P.kslAssets, `${word}.mp4`);
   if (fs.existsSync(dest)) {
     log.warn(`${rel(dest)} already exists — overwriting.`);
   }
   log.info(`다운로드 중 → ${rel(dest)}`);
-  const dl = await downloadFile(exact.videoUrl, dest, { timeoutMs: 60_000, maxRetries: 3 });
+  const dl = await downloadFile(videoUrl, dest, { timeoutMs: 60_000, maxRetries: 3 });
   if (!dl.ok) {
     log.error(`다운로드 실패: ${dl.error}`);
     return 6;
@@ -98,7 +104,7 @@ async function main(): Promise<number> {
     license,
     licenseUrl,
     attributionText: '자료 제공: 국립국어원 한국수어사전 (sldict.korean.go.kr)',
-    officialSourceUrl: exact.videoUrl,
+    officialSourceUrl: videoUrl,
   };
   const sidecar = path.join(P.kslAssets, `${word}.json`);
   writeJson(sidecar, metadata);
