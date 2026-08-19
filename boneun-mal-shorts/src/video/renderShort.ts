@@ -260,6 +260,10 @@ export async function renderShort(opts: RenderOptions): Promise<RenderResult> {
   }
   inputIndex += 1;
 
+  // The graph is passed inline rather than via -filter_complex_script: that
+  // option was removed in FFmpeg 9, and inline works on every version. A
+  // pretty-printed copy is still written to disk purely for debugging.
+  const filterGraph = filters.join(';');
   const filterFile = path.join(workDir, 'filtergraph.txt');
   fs.writeFileSync(filterFile, filters.join(';\n'), 'utf8');
 
@@ -267,8 +271,8 @@ export async function renderShort(opts: RenderOptions): Promise<RenderResult> {
     '-hide_banner',
     '-y',
     ...inputs,
-    '-filter_complex_script',
-    filterFile,
+    '-filter_complex',
+    filterGraph,
     '-map',
     '[vout]',
     '-map',
