@@ -55,6 +55,73 @@ function writeTextFile(workDir: string, name: string, text: string): string {
   return file;
 }
 
+/** CJK glyphs render close to square; Latin/punctuation run narrower. */
+function estimateCharWidthPx(ch: string, fontSizePx: number): number {
+  const code = ch.codePointAt(0) ?? 0;
+  const isWide =
+    (code >= 0x1100 && code <= 0x11ff) || // Hangul Jamo
+    (code >= 0x3130 && code <= 0x318f) || // Hangul Compat Jamo
+    (code >= 0xac00 && code <= 0xd7a3) || // Hangul Syllables
+    (code >= 0x3000 && code <= 0x303f) || // CJK punctuation
+    (code >= 0x4e00 && code <= 0x9fff); // CJK Unified Ideographs
+  if (/\s/.test(ch)) return fontSizePx * 0.32;
+  return fontSizePx * (isWide ? 0.98 : 0.58);
+}
+
+function textWidthPx(text: string, fontSizePx: number): number {
+  let w = 0;
+  for (const ch of text) w += estimateCharWidthPx(ch, fontSizePx);
+  return w;
+}
+
+/**
+ * Card text is drawn as one centered block with no automatic wrapping —
+ * drawtext just draws whatever it's given on a single line, however wide.
+ * Without this, a line a couple of words longer than usual runs straight off
+ * both edges of the canvas (see the "안내방송이 안 들려도" hook: 17 characters
+ * at the card's 96px Korean size is ~1600px wide against a 1080px canvas).
+ * Wraps at word boundaries to fit maxWidthPx; drawtext renders the embedded
+ * newlines natively via its existing line_spacing option.
+ */
+function wrapToWidth(text: string, fontSizePx: number, maxWidthPx: number): string {
+  const words = text.split(/\s+/).filter(Boolean);
+  if (words.length === 0) return text;
+  const lines: string[] = [];
+  let current = '';
+
+  const hardSplit = (word: string): void => {
+    let chunk = '';
+    for (const ch of word) {
+      const next = chunk + ch;
+      if (chunk && textWidthPx(next, fontSizePx) > maxWidthPx) {
+        lines.push(chunk);
+        chunk = ch;
+      } else {
+        chunk = next;
+      }
+    }
+    current = chunk;
+  };
+
+  for (const word of words) {
+    const candidate = current ? `${current} ${word}` : word;
+    if (textWidthPx(candidate, fontSizePx) <= maxWidthPx) {
+      current = candidate;
+    } else if (!current) {
+      // A single word alone is already too wide (long compound noun, URL-ish
+      // string) — split it by character rather than let it overflow anyway.
+      if (textWidthPx(word, fontSizePx) > maxWidthPx) hardSplit(word);
+      else current = word;
+    } else {
+      lines.push(current);
+      current = textWidthPx(word, fontSizePx) > maxWidthPx ? '' : word;
+      if (!current) hardSplit(word);
+    }
+  }
+  if (current) lines.push(current);
+  return lines.join('\n');
+}
+
 /**
  * Typographic card for beats with no footage. Korean big, English small beneath.
  * Deliberately plain: solid ground, one accent, no gradient, no motion.
@@ -84,53 +151,54 @@ function cardFilters(
   const blockCenter = isEnding ? Math.round(h * 0.5) : Math.round(h * 0.42);
   const texts: CardText[] = [];
 
+  // Horizontal breathing room each side, independent of the burn-in subtitle
+  // safe area (that one's asymmetric for the Shorts UI; cards are centered
+  // text with nothing to dodge).
+  const cardMarginPx = 96;
+  const maxTextWidthPx = vid.canvas.width - cardMarginPx * 2;
+  const LINE_BOX = 1.25;
+  const LINE_GAP_PX = 14;
+  const BLOCK_GAP_PX = 22;
+
+  const blockHeightPx = (wrapped: string, fontSizePx: number): number => {
+    const lines = wrapped.split('\n').length;
+    return lines * Math.round(fontSizePx * LINE_BOX) + (lines - 1) * LINE_GAP_PX;
+  };
+
+  /** Wraps to fit the canvas, writes the file, and advances the layout cursor past it. */
+  const addLine = (
+    cursor: { y: number },
+    name: string,
+    rawText: string,
+    fontSize: number,
+    lineColor: string,
+    gapAfterPx = BLOCK_GAP_PX,
+  ): void => {
+    const wrapped = wrapToWidth(rawText, fontSize, maxTextWidthPx);
+    texts.push({ file: writeTextFile(workDir, name, wrapped), fontSize, color: lineColor, yPx: cursor.y });
+    cursor.y += blockHeightPx(wrapped, fontSize) + gapAfterPx;
+  };
+
   if (isPlaceholder) {
-    texts.push({
-      file: writeTextFile(workDir, `seg${index}-notice`, segment.placeholderNotice ?? ''),
-      fontSize: 54,
-      color: secondary,
-      yPx: blockCenter - 120,
-    });
-    texts.push({
-      file: writeTextFile(workDir, `seg${index}-ko`, segment.textKo),
-      fontSize: koSize,
-      color: ink,
-      yPx: blockCenter,
-    });
-    texts.push({
-      file: writeTextFile(
-        workDir,
-        `seg${index}-en`,
-        'Record this sign with a real signer before publishing.',
-      ),
-      fontSize: 38,
-      color: color('stone'),
-      yPx: blockCenter + 150,
-    });
+    const cursor = { y: blockCenter - 120 };
+    addLine(cursor, `seg${index}-notice`, segment.placeholderNotice ?? '', 54, secondary);
+    addLine(cursor, `seg${index}-ko`, segment.textKo, koSize, ink);
+    addLine(cursor, `seg${index}-en`, 'Record this sign with a real signer before publishing.', 38, color('stone'));
   } else {
-    if (segment.textKo.trim()) {
-      texts.push({
-        file: writeTextFile(workDir, `seg${index}-ko`, segment.textKo.trim()),
-        fontSize: koSize,
-        color: ink,
-        yPx: blockCenter,
-      });
-    }
+    const cursor = { y: blockCenter };
+    if (segment.textKo.trim()) addLine(cursor, `seg${index}-ko`, segment.textKo.trim(), koSize, ink);
     if (segment.textEn.trim()) {
-      texts.push({
-        file: writeTextFile(workDir, `seg${index}-en`, segment.textEn.trim().toUpperCase()),
-        fontSize: enSize,
-        color: isEnding ? secondary : color('stone'),
-        yPx: blockCenter + Math.round(koSize * 1.15),
-      });
+      addLine(
+        cursor,
+        `seg${index}-en`,
+        segment.textEn.trim().toUpperCase(),
+        enSize,
+        isEnding ? secondary : color('stone'),
+        isEnding ? BLOCK_GAP_PX + 40 : BLOCK_GAP_PX,
+      );
     }
     if (isEnding && b.ending.showDescriptor) {
-      texts.push({
-        file: writeTextFile(workDir, `seg${index}-desc`, b.descriptor),
-        fontSize: hierarchy['descriptorSizePx'] ?? 30,
-        color: color('stone'),
-        yPx: blockCenter + Math.round(koSize * 1.15) + 80,
-      });
+      addLine(cursor, `seg${index}-desc`, b.descriptor, hierarchy['descriptorSizePx'] ?? 30, color('stone'));
     }
   }
 
