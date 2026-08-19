@@ -145,8 +145,11 @@ function cardFilters(
       `fontcolor=${hexToFfmpeg(t.color)}`,
       'x=(w-text_w)/2',
       `y=${t.yPx}`,
-      'text_shaping=1',
       'line_spacing=14',
+      // Not 'text_shaping': that drawtext option only exists on some
+      // libfreetype/harfbuzz builds (present on FFmpeg 6.1 here, absent on a
+      // stock FFmpeg 9 + Homebrew ffmpeg-full build) and fails hard with
+      // "Option not found" when missing. Korean glyphs render fine without it.
     ].join(':');
   });
 
