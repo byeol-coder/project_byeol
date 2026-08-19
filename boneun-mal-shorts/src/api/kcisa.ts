@@ -46,7 +46,11 @@ export function kcisaConfig(): KcisaConfig {
     operation: env('KCISA_OPERATION', 'getCTE01701'),
     serviceKey: env('KCISA_SERVICE_KEY'),
     keyParam: env('KCISA_KEY_PARAM', 'serviceKey'),
-    queryParam: env('KCISA_QUERY_PARAM', 'keyword'),
+    // 'keyword' returns an empty <items></items> on getCTE01701 (confirmed
+    // 2026-08-19 with a live key: resultCode 0000 but items=""). 'srchKwd' is
+    // the one candidate that actually returns records, so it's the default —
+    // still overridable via .env if a different KCISA operation needs another name.
+    queryParam: env('KCISA_QUERY_PARAM', 'srchKwd'),
     timeoutMs: envInt('KCISA_TIMEOUT_MS', 15_000),
     maxRetries: envInt('KCISA_MAX_RETRIES', 3),
     rowsPerPage: envInt('KCISA_ROWS_PER_PAGE', 50),
