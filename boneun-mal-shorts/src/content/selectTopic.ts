@@ -58,6 +58,16 @@ export function loadHistory(): HistoryEntry[] {
   return readJson<HistoryFile>(P.renderHistory, { entries: [] }).entries ?? [];
 }
 
+/**
+ * Rotation state comes from published renders only. A preview is a
+ * work-in-progress, so it must not consume a topic, burn a B-roll clip or flip
+ * the structure variant — otherwise repeated preview attempts starve the
+ * rotation rules. Matches markTopicUsed(), which already skips previews.
+ */
+export function rotationHistory(): HistoryEntry[] {
+  return loadHistory().filter((e) => e.mode === 'render');
+}
+
 function loadPerformance(): PerformanceEntry[] {
   return readJson<PerformanceFile>(P.performance, { entries: [] }).entries ?? [];
 }
@@ -179,7 +189,7 @@ export interface SelectOptions {
 
 export function selectTopic(opts: SelectOptions = {}): TopicSeed {
   const { topics } = loadTopics();
-  const history = loadHistory();
+  const history = rotationHistory();
 
   if (opts.requestedTopic) {
     const needle = opts.requestedTopic.replace(/\s+/g, '').toLowerCase();
@@ -270,7 +280,7 @@ export function appendHistory(entry: HistoryEntry): void {
 /** B-roll files used by the last N videos, which must not be reused. */
 export function recentlyUsedBroll(): Set<string> {
   const cfg = contentConfig();
-  const history = loadHistory();
+  const history = rotationHistory();
   const recent = history.slice(-cfg.rotation.brollNoRepeatWindow);
   return new Set(recent.flatMap((e) => e.brollUsed ?? []));
 }

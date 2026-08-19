@@ -47,6 +47,60 @@ export async function toolAvailable(bin: string): Promise<boolean> {
   }
 }
 
+/**
+ * Filters this FFmpeg build actually provides. Text rendering is not optional
+ * for this project — Korean typography and burn-in captions are the product —
+ * but `drawtext` and `subtitles` are both build-time options, so a perfectly
+ * healthy-looking `ffmpeg -version` can still be unable to draw a single letter.
+ */
+export async function ffmpegFilters(): Promise<Set<string>> {
+  const r = await run(ffmpegBin(), ['-hide_banner', '-filters'], 30_000);
+  if (r.code !== 0) throw new Error(`could not list ffmpeg filters: ${r.stderr.trim().slice(0, 300)}`);
+  const names = new Set<string>();
+  for (const line of r.stdout.split('\n')) {
+    // Format: " ... name  in->out  description"
+    const m = /^\s*[A-Z.]+\s+(\S+)\s/.exec(line);
+    if (m?.[1]) names.add(m[1]);
+  }
+  return names;
+}
+
+export const REQUIRED_FILTERS = ['drawtext', 'subtitles', 'concat', 'scale', 'crop', 'pad', 'tpad'] as const;
+
+export interface FilterSupport {
+  ok: boolean;
+  missing: string[];
+}
+
+export async function checkRequiredFilters(): Promise<FilterSupport> {
+  try {
+    const available = await ffmpegFilters();
+    const missing = REQUIRED_FILTERS.filter((f) => !available.has(f));
+    return { ok: missing.length === 0, missing };
+  } catch {
+    // Could not enumerate: don't claim a failure that might not exist.
+    return { ok: true, missing: [] };
+  }
+}
+
+/** Actionable install guidance, since the raw ffmpeg error is cryptic. */
+export function missingFilterHelp(missing: string[]): string {
+  const lines = [
+    `This FFmpeg build is missing required filter(s): ${missing.join(', ')}.`,
+    '',
+    'Text is the product here — Korean typography cards and burn-in captions —',
+    'so a build without them cannot render. `drawtext` needs libfreetype and',
+    'libharfbuzz; `subtitles` needs libass. Install a full build:',
+    '',
+    '  macOS    brew reinstall ffmpeg          # homebrew-core enables all three',
+    '  Debian   sudo apt-get install ffmpeg',
+    '  check    ffmpeg -filters | grep -E "drawtext|subtitles"',
+    '',
+    'If you have several FFmpeg builds, point FFMPEG_PATH in .env at the full one.',
+  ];
+  return lines.join('\n');
+}
+
 export interface ProbeStreams {
   durationSeconds: number;
   width: number;

@@ -1,26 +1,5 @@
 {
-  "_comment": "What was rendered and which assets were consumed. Used to stop B-roll and topics repeating across consecutive videos.",
+  "_comment": "What was rendered and which assets were consumed. Rotation reads only entries with mode \"render\" — previews are logged but never consume a topic or B-roll clip.",
   "_schemaVersion": 1,
-  "entries": [
-    {
-      "createdAt": "2026-08-19T01:23:09.173Z",
-      "slug": "2026-08-19-커피-question-answer",
-      "topicId": "ksign-coffee",
-      "topic": "커피",
-      "series": "K-SIGN",
-      "brollUsed": [],
-      "mode": "preview",
-      "publishReady": false
-    },
-    {
-      "createdAt": "2026-08-19T01:23:22.656Z",
-      "slug": "2026-08-19-시끄러운-카페-hook-first",
-      "topicId": "perks-loud-cafe",
-      "topic": "시끄러운 카페",
-      "series": "DEAF PERKS",
-      "brollUsed": [],
-      "mode": "preview",
-      "publishReady": false
-    }
-  ]
+  "entries": []
 }

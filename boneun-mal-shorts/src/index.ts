@@ -4,7 +4,13 @@ import { P, rel } from './util/paths.js';
 import { brand, koreanFontFileOrNull, video as videoConfig } from './util/config.js';
 import { log } from './util/log.js';
 import { writeJson, writeText } from './util/json.js';
-import { ffmpegBin, ffprobeBin, toolAvailable } from './util/exec.js';
+import {
+  checkRequiredFilters,
+  ffmpegBin,
+  ffprobeBin,
+  missingFilterHelp,
+  toolAvailable,
+} from './util/exec.js';
 import { appendHistory, markTopicUsed, selectTopic } from './content/selectTopic.js';
 import { generateContent, scriptToText } from './content/generateContent.js';
 import { matchKslWords, verifiedWordsAvailable } from './ksl/matcher.js';
@@ -107,6 +113,17 @@ async function main(): Promise<number> {
     return 2;
   }
   log.ok(`ffmpeg + ffprobe available`);
+
+  // A build without drawtext/subtitles fails deep inside the filter graph with
+  // an opaque message. Catch it here and say what to install.
+  const filters = await checkRequiredFilters();
+  if (!filters.ok) {
+    log.error(`FFmpeg is missing required filter(s): ${filters.missing.join(', ')}`);
+    for (const line of missingFilterHelp(filters.missing).split('\n')) log.error(line);
+    return 2;
+  }
+  log.ok('ffmpeg has drawtext + subtitles');
+
   const font = koreanFontFileOrNull();
   if (!font) {
     log.error('No Korean-capable font found — burn-in Korean text would render as empty boxes.');

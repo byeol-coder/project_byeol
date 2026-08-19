@@ -2,7 +2,7 @@ import { brand, content as contentConfig, video as videoConfig } from '../util/c
 import { log } from '../util/log.js';
 import { readJson } from '../util/json.js';
 import { P } from '../util/paths.js';
-import { loadHistory } from './selectTopic.js';
+import { rotationHistory } from './selectTopic.js';
 import type { Commercial, ContentScript, SeriesName, TopicSeed } from '../types.js';
 
 // ---------------------------------------------------------------------------
@@ -43,7 +43,7 @@ const VARIANTS: StructureVariant[] = ['hook-first', 'cold-open', 'question-answe
 
 /** Pick a structure that differs from the previous video's, to avoid a house format. */
 export function pickVariant(topicId: string): StructureVariant {
-  const history = loadHistory();
+  const history = rotationHistory();
   const previous = history.at(-1)?.slug ?? '';
   const base = VARIANTS[hash(topicId) % VARIANTS.length]!;
   if (!previous) return base;

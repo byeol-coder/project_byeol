@@ -3,7 +3,14 @@ import path from 'node:path';
 import { P, rel } from '../src/util/paths.js';
 import { brand, koreanFontFileOrNull } from '../src/util/config.js';
 import { env, maskSecret } from '../src/util/env.js';
-import { ffmpegBin, ffprobeBin, run, toolAvailable } from '../src/util/exec.js';
+import {
+  checkRequiredFilters,
+  ffmpegBin,
+  ffprobeBin,
+  missingFilterHelp,
+  run,
+  toolAvailable,
+} from '../src/util/exec.js';
 import { log } from '../src/util/log.js';
 import { kcisaConfig } from '../src/api/kcisa.js';
 import { loadKslLibrary, verifyClipMetadata } from '../src/ksl/verifier.js';
@@ -38,6 +45,20 @@ async function main(): Promise<number> {
   line(haveFfmpeg, 'ffmpeg', haveFfmpeg ? await version(ffmpegBin()) : 'not found — required for rendering');
   const haveFfprobe = await toolAvailable(ffprobeBin());
   line(haveFfprobe, 'ffprobe', haveFfprobe ? await version(ffprobeBin()) : 'not found — required for QA');
+
+  if (haveFfmpeg) {
+    const filters = await checkRequiredFilters();
+    line(
+      filters.ok,
+      'ffmpeg filters',
+      filters.ok
+        ? 'drawtext + subtitles available'
+        : `missing: ${filters.missing.join(', ')} — this build cannot draw text`,
+    );
+    if (!filters.ok) {
+      for (const l of missingFilterHelp(filters.missing).split('\n')) log.raw(`   ${l}`);
+    }
+  }
 
   const font = koreanFontFileOrNull();
   line(

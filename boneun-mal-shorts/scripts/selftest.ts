@@ -2,7 +2,14 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { P, rel } from '../src/util/paths.js';
 import { log } from '../src/util/log.js';
-import { ffmpegBin, ffprobeMedia, run, toolAvailable } from '../src/util/exec.js';
+import {
+  checkRequiredFilters,
+  ffmpegBin,
+  ffprobeMedia,
+  missingFilterHelp,
+  run,
+  toolAvailable,
+} from '../src/util/exec.js';
 import { extractEnvelope, normalizeRecord, parsePayload, recordMatchesWord } from '../src/ksl/normalize.js';
 import { verifyClipMetadata } from '../src/ksl/verifier.js';
 import { findCopyViolations } from '../src/content/generateContent.js';
@@ -475,8 +482,14 @@ async function main(): Promise<number> {
   testCopyGuard();
   testLayout();
 
+  const filters = (await toolAvailable(ffmpegBin())) ? await checkRequiredFilters() : { ok: false, missing: [] };
   if (!(await toolAvailable(ffmpegBin()))) {
     log.raw('\n⚠ ffmpeg not available — render checks skipped');
+  } else if (!filters.ok) {
+    // Not a code failure: report it as an environment problem, with the fix.
+    log.raw(`\n❌ ffmpeg cannot render: missing filter(s) ${filters.missing.join(', ')}`);
+    log.raw(missingFilterHelp(filters.missing));
+    failed += 1;
   } else {
     const dir = path.join(P.cache, 'selftest');
     fs.mkdirSync(dir, { recursive: true });
