@@ -14,7 +14,14 @@ import type { KslClip, KslClipMetadata } from '../types.js';
 
 const VIDEO_EXT = new Set(['.mp4', '.mov', '.m4v', '.webm', '.mkv']);
 
-/** Origins that describe a real human recording. AI origins are never allowed. */
+/**
+ * Origins that describe a real human recording. AI origins are never allowed.
+ * `kcisa-official-dictionary` is a recording pulled directly from the KCISA
+ * getCTE01701 response (國立國語院 한국수어사전 / sldict.korean.go.kr) — a real
+ * signer, government-produced, used under whatever public licence that source
+ * actually carries. `npm run ksl:import` is the only thing that should ever
+ * write this value, and only after a human confirmed the licence permits it.
+ */
 const HUMAN_SOURCES = new Set([
   'human-recorded',
   'human_recorded',
@@ -22,6 +29,7 @@ const HUMAN_SOURCES = new Set([
   'studio-recording',
   'licensed-human-footage',
   'community-recorded',
+  'kcisa-official-dictionary',
 ]);
 
 const AI_MARKERS = ['ai', 'generated', 'synthetic', 'avatar', 'diffusion', 'model-generated'];

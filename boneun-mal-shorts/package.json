@@ -14,6 +14,7 @@
     "ksl:search": "tsx scripts/ksl-search.ts",
     "ksl:probe": "tsx scripts/ksl-probe.ts",
     "ksl:library": "tsx scripts/ksl-library.ts",
+    "ksl:import": "tsx scripts/ksl-import.ts",
     "verify": "tsx scripts/verify-output.ts",
     "youtube:upload": "tsx scripts/publish.ts",
     "doctor": "tsx scripts/doctor.ts",

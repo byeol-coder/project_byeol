@@ -8,14 +8,25 @@
       "series": "K-SIGN",
       "priority": 5,
       "status": "unused",
-      "kslWords": ["커피"],
+      "kslWords": [
+        "커피"
+      ],
       "place": "서울 카페",
-      "brollTags": ["cafe", "seoul"],
+      "brollTags": [
+        "cafe",
+        "seoul"
+      ],
       "copy": {
         "hookKo": "카페에서 자주 쓰는 말.",
         "hookEn": "One you'll use in every café.",
-        "beatsKo": ["오늘은 커피.", "한국수어로는?"],
-        "beatsEn": ["Today: coffee.", "In Korean Sign Language?"],
+        "beatsKo": [
+          "오늘은 커피.",
+          "한국수어로는?"
+        ],
+        "beatsEn": [
+          "Today: coffee.",
+          "In Korean Sign Language?"
+        ],
         "pointKo": "손 모양이 컵을 닮았습니다.",
         "pointEn": "The hand keeps the shape of the cup.",
         "ctaKo": "다음엔 어떤 말을 볼까요?",
@@ -28,14 +39,25 @@
       "series": "K-SIGN",
       "priority": 5,
       "status": "unused",
-      "kslWords": ["맛있다"],
+      "kslWords": [
+        "맛있다"
+      ],
       "place": "광장시장",
-      "brollTags": ["food", "street"],
+      "brollTags": [
+        "food",
+        "street"
+      ],
       "copy": {
         "hookKo": "한국에서는 이렇게 말합니다.",
         "hookEn": "How Koreans say it.",
-        "beatsKo": ["맛있다.", "한 번 보면 기억하기 쉽습니다."],
-        "beatsEn": ["Delicious.", "Hard to forget once you've seen it."],
+        "beatsKo": [
+          "맛있다.",
+          "한 번 보면 기억하기 쉽습니다."
+        ],
+        "beatsEn": [
+          "Delicious.",
+          "Hard to forget once you've seen it."
+        ],
         "pointKo": "말보다 표정이 먼저 옵니다.",
         "pointEn": "The face says it before the hand does.",
         "ctaKo": "",
@@ -48,14 +70,26 @@
       "series": "K-SIGN",
       "priority": 4,
       "status": "unused",
-      "kslWords": ["밥", "먹다"],
+      "kslWords": [
+        "밥",
+        "먹다"
+      ],
       "place": "동네 골목",
-      "brollTags": ["street", "food"],
+      "brollTags": [
+        "street",
+        "food"
+      ],
       "copy": {
         "hookKo": "한국에서 친구 만나면 가장 먼저 하는 말.",
         "hookEn": "The first thing a Korean friend asks you.",
-        "beatsKo": ["밥 먹었어?", "인사입니다."],
-        "beatsEn": ["Did you eat?", "It's a greeting."],
+        "beatsKo": [
+          "밥 먹었어?",
+          "인사입니다."
+        ],
+        "beatsEn": [
+          "Did you eat?",
+          "It's a greeting."
+        ],
         "pointKo": "안부를 묻는 한국식 방법.",
         "pointEn": "A very Korean way of saying hello.",
         "ctaKo": "",
@@ -68,14 +102,25 @@
       "series": "K-SIGN",
       "priority": 4,
       "status": "unused",
-      "kslWords": ["감사"],
+      "kslWords": [
+        "감사"
+      ],
       "place": "편의점",
-      "brollTags": ["street", "seoul"],
+      "brollTags": [
+        "street",
+        "seoul"
+      ],
       "copy": {
         "hookKo": "하루에 몇 번은 쓰게 됩니다.",
         "hookEn": "You'll need this one daily.",
-        "beatsKo": ["감사.", "한국수어로."],
-        "beatsEn": ["Thank you.", "In Korean Sign Language."],
+        "beatsKo": [
+          "감사.",
+          "한국수어로."
+        ],
+        "beatsEn": [
+          "Thank you.",
+          "In Korean Sign Language."
+        ],
         "pointKo": "짧게 해도 충분히 전해집니다.",
         "pointEn": "Short version works too.",
         "ctaKo": "",
@@ -88,14 +133,25 @@
       "series": "K-SIGN",
       "priority": 4,
       "status": "unused",
-      "kslWords": ["친구"],
+      "kslWords": [
+        "친구"
+      ],
       "place": "한강",
-      "brollTags": ["hanriver", "street"],
+      "brollTags": [
+        "hanriver",
+        "street"
+      ],
       "copy": {
         "hookKo": "이 표현, 한국수어로 보면 조금 다릅니다.",
         "hookEn": "This one looks different in KSL.",
-        "beatsKo": ["친구.", "두 손이 만납니다."],
-        "beatsEn": ["Friend.", "Two hands meet."],
+        "beatsKo": [
+          "친구.",
+          "두 손이 만납니다."
+        ],
+        "beatsEn": [
+          "Friend.",
+          "Two hands meet."
+        ],
         "pointKo": "관계가 손 안에서 보입니다.",
         "pointEn": "You can see the relationship in the hands.",
         "ctaKo": "",
@@ -108,14 +164,25 @@
       "series": "K-SIGN",
       "priority": 3,
       "status": "unused",
-      "kslWords": ["함께"],
+      "kslWords": [
+        "함께"
+      ],
       "place": "성수",
-      "brollTags": ["street", "cafe"],
+      "brollTags": [
+        "street",
+        "cafe"
+      ],
       "copy": {
         "hookKo": "혼자보다 자주 쓰는 말.",
         "hookEn": "Used more often than you'd think.",
-        "beatsKo": ["함께.", "같이 간다는 뜻."],
-        "beatsEn": ["Together.", "We go together."],
+        "beatsKo": [
+          "함께.",
+          "같이 간다는 뜻."
+        ],
+        "beatsEn": [
+          "Together.",
+          "We go together."
+        ],
         "pointKo": "두 손이 같은 방향으로 움직입니다.",
         "pointEn": "Both hands travel the same way.",
         "ctaKo": "",
@@ -128,14 +195,25 @@
       "series": "K-SIGN",
       "priority": 3,
       "status": "unused",
-      "kslWords": ["물"],
+      "kslWords": [
+        "물"
+      ],
       "place": "식당",
-      "brollTags": ["food", "cafe"],
+      "brollTags": [
+        "food",
+        "cafe"
+      ],
       "copy": {
         "hookKo": "식당에서 제일 먼저 필요한 말.",
         "hookEn": "The first thing you'll ask for at a restaurant.",
-        "beatsKo": ["물.", "이건 바로 통합니다."],
-        "beatsEn": ["Water.", "This one lands instantly."],
+        "beatsKo": [
+          "물.",
+          "이건 바로 통합니다."
+        ],
+        "beatsEn": [
+          "Water.",
+          "This one lands instantly."
+        ],
         "pointKo": "소리 없이도 주문이 됩니다.",
         "pointEn": "You can order without a sound.",
         "ctaKo": "",
@@ -148,14 +226,25 @@
       "series": "K-SIGN",
       "priority": 3,
       "status": "unused",
-      "kslWords": ["사랑"],
+      "kslWords": [
+        "사랑"
+      ],
       "place": "서울 거리",
-      "brollTags": ["street", "seoul"],
+      "brollTags": [
+        "street",
+        "seoul"
+      ],
       "copy": {
         "hookKo": "생각하는 모양과 다를 수 있습니다.",
         "hookEn": "Probably not the shape you expected.",
-        "beatsKo": ["사랑.", "한국수어로는 이렇게."],
-        "beatsEn": ["Love.", "This is the Korean sign."],
+        "beatsKo": [
+          "사랑.",
+          "한국수어로는 이렇게."
+        ],
+        "beatsEn": [
+          "Love.",
+          "This is the Korean sign."
+        ],
         "pointKo": "나라마다 수어가 다릅니다.",
         "pointEn": "Sign languages differ by country.",
         "ctaKo": "",
@@ -168,14 +257,27 @@
       "series": "DEAF PICK",
       "priority": 4,
       "status": "unused",
-      "kslWords": ["여행"],
+      "kslWords": [
+        "여행"
+      ],
       "place": "공항",
-      "brollTags": ["travel", "street"],
+      "brollTags": [
+        "travel",
+        "street"
+      ],
       "copy": {
         "hookKo": "여행 가방에 꼭 들어가는 것.",
         "hookEn": "What goes in the bag first.",
-        "beatsKo": ["진동 알람.", "메모 앱.", "번역 키보드."],
-        "beatsEn": ["Vibration alarm.", "A notes app.", "A translation keyboard."],
+        "beatsKo": [
+          "진동 알람.",
+          "메모 앱.",
+          "번역 키보드."
+        ],
+        "beatsEn": [
+          "Vibration alarm.",
+          "A notes app.",
+          "A translation keyboard."
+        ],
         "pointKo": "소리로 알려주는 건 대신할 게 필요합니다.",
         "pointEn": "Anything that only beeps needs a backup.",
         "ctaKo": "",
@@ -188,14 +290,27 @@
       "series": "DEAF PICK",
       "priority": 3,
       "status": "unused",
-      "kslWords": ["시계"],
+      "kslWords": [
+        "시계"
+      ],
       "place": "지하철",
-      "brollTags": ["subway", "street"],
+      "brollTags": [
+        "subway",
+        "street"
+      ],
       "copy": {
         "hookKo": "손목이 알려주면 편합니다.",
         "hookEn": "Easier when your wrist tells you.",
-        "beatsKo": ["진동 세기 조절.", "알람 반복.", "화면 항상 켜기."],
-        "beatsEn": ["Adjustable vibration.", "Repeating alarms.", "Always-on display."],
+        "beatsKo": [
+          "진동 세기 조절.",
+          "알람 반복.",
+          "화면 항상 켜기."
+        ],
+        "beatsEn": [
+          "Adjustable vibration.",
+          "Repeating alarms.",
+          "Always-on display."
+        ],
         "pointKo": "세기 조절이 되는지가 제일 중요합니다.",
         "pointEn": "Adjustable strength matters most.",
         "ctaKo": "",
@@ -208,14 +323,27 @@
       "series": "DEAF PICK",
       "priority": 3,
       "status": "unused",
-      "kslWords": ["회의"],
+      "kslWords": [
+        "회의"
+      ],
       "place": "사무실",
-      "brollTags": ["street", "seoul"],
+      "brollTags": [
+        "street",
+        "seoul"
+      ],
       "copy": {
         "hookKo": "회의 자막, 생각보다 쓸 만합니다.",
         "hookEn": "Live captions in meetings — actually usable now.",
-        "beatsKo": ["실시간 자막.", "회의록 자동 저장.", "화자 구분."],
-        "beatsEn": ["Live captions.", "Auto transcript.", "Speaker labels."],
+        "beatsKo": [
+          "실시간 자막.",
+          "회의록 자동 저장.",
+          "화자 구분."
+        ],
+        "beatsEn": [
+          "Live captions.",
+          "Auto transcript.",
+          "Speaker labels."
+        ],
         "pointKo": "완벽하진 않지만 회의를 따라갈 수 있습니다.",
         "pointEn": "Not perfect. Enough to keep up.",
         "ctaKo": "",
@@ -228,14 +356,27 @@
       "series": "DEAF PERKS",
       "priority": 5,
       "status": "unused",
-      "kslWords": ["대화"],
+      "kslWords": [
+        "대화"
+      ],
       "place": "성수 카페",
-      "brollTags": ["cafe", "street"],
+      "brollTags": [
+        "cafe",
+        "street"
+      ],
       "copy": {
         "hookKo": "여기선 목소리를 높일 필요가 없습니다.",
         "hookEn": "No need to raise your voice in here.",
-        "beatsKo": ["음악이 크든", "옆자리가 시끄럽든", "대화는 그대로."],
-        "beatsEn": ["Loud music,", "louder table next to us —", "conversation unchanged."],
+        "beatsKo": [
+          "음악이 크든",
+          "옆자리가 시끄럽든",
+          "대화는 그대로."
+        ],
+        "beatsEn": [
+          "Loud music,",
+          "louder table next to us —",
+          "conversation unchanged."
+        ],
         "pointKo": "손으로 하는 대화는 볼륨이 없습니다.",
         "pointEn": "A conversation in hands has no volume.",
         "ctaKo": "",
@@ -248,14 +389,25 @@
       "series": "DEAF PERKS",
       "priority": 4,
       "status": "unused",
-      "kslWords": ["친구"],
+      "kslWords": [
+        "친구"
+      ],
       "place": "학교 운동장",
-      "brollTags": ["street", "seoul"],
+      "brollTags": [
+        "street",
+        "seoul"
+      ],
       "copy": {
         "hookKo": "눈이 마주치면 대화가 시작됩니다.",
         "hookEn": "Eye contact, and we're already talking.",
-        "beatsKo": ["운동장 반대편.", "부를 필요 없이."],
-        "beatsEn": ["Other side of the yard.", "No shouting needed."],
+        "beatsKo": [
+          "운동장 반대편.",
+          "부를 필요 없이."
+        ],
+        "beatsEn": [
+          "Other side of the yard.",
+          "No shouting needed."
+        ],
         "pointKo": "거리는 문제가 안 됩니다.",
         "pointEn": "Distance isn't the problem here.",
         "ctaKo": "",
@@ -268,14 +420,25 @@
       "series": "DEAF PERKS",
       "priority": 3,
       "status": "unused",
-      "kslWords": ["어디"],
+      "kslWords": [
+        "어디"
+      ],
       "place": "공연장",
-      "brollTags": ["street", "seoul"],
+      "brollTags": [
+        "street",
+        "seoul"
+      ],
       "copy": {
         "hookKo": "공연장에서 친구 찾는 법.",
         "hookEn": "Finding your friend at a concert.",
-        "beatsKo": ["소리는 이미 꽉 찼고", "손을 들면 끝."],
-        "beatsEn": ["Sound is already maxed out.", "One raised hand does it."],
+        "beatsKo": [
+          "소리는 이미 꽉 찼고",
+          "손을 들면 끝."
+        ],
+        "beatsEn": [
+          "Sound is already maxed out.",
+          "One raised hand does it."
+        ],
         "pointKo": "이런 순간에는 수어가 더 빠릅니다.",
         "pointEn": "In that moment, signing is just faster.",
         "ctaKo": "",
@@ -288,14 +451,26 @@
       "series": "SIGN KOREA",
       "priority": 4,
       "status": "unused",
-      "kslWords": ["카페"],
+      "kslWords": [
+        "카페"
+      ],
       "place": "성수",
-      "brollTags": ["seoul", "cafe", "street"],
+      "brollTags": [
+        "seoul",
+        "cafe",
+        "street"
+      ],
       "copy": {
         "hookKo": "오늘은 성수.",
         "hookEn": "Today: Seongsu, Seoul.",
-        "beatsKo": ["카페.", "여기서 제일 많이 하는 말."],
-        "beatsEn": ["Café.", "The word you'll use most here."],
+        "beatsKo": [
+          "카페.",
+          "여기서 제일 많이 하는 말."
+        ],
+        "beatsEn": [
+          "Café.",
+          "The word you'll use most here."
+        ],
         "pointKo": "동네마다 자주 쓰는 말이 다릅니다.",
         "pointEn": "Every neighbourhood has its own most-used word.",
         "ctaKo": "다음은 어디로 갈까요?",
@@ -308,14 +483,25 @@
       "series": "SIGN KOREA",
       "priority": 4,
       "status": "unused",
-      "kslWords": ["시장"],
+      "kslWords": [
+        "시장"
+      ],
       "place": "광장시장",
-      "brollTags": ["food", "street"],
+      "brollTags": [
+        "food",
+        "street"
+      ],
       "copy": {
         "hookKo": "시장에서 알아두면 좋은 수어.",
         "hookEn": "Worth knowing at the market.",
-        "beatsKo": ["시장.", "그리고 하나 더."],
-        "beatsEn": ["Market.", "And one more."],
+        "beatsKo": [
+          "시장.",
+          "그리고 하나 더."
+        ],
+        "beatsEn": [
+          "Market.",
+          "And one more."
+        ],
         "pointKo": "가리키는 것만으로도 절반은 통합니다.",
         "pointEn": "Pointing already gets you halfway.",
         "ctaKo": "",
@@ -328,14 +514,25 @@
       "series": "SIGN KOREA",
       "priority": 3,
       "status": "unused",
-      "kslWords": ["바다"],
+      "kslWords": [
+        "바다"
+      ],
       "place": "제주",
-      "brollTags": ["travel", "hanriver"],
+      "brollTags": [
+        "travel",
+        "hanriver"
+      ],
       "copy": {
         "hookKo": "제주에서 제일 많이 본 것.",
         "hookEn": "What you see most in Jeju.",
-        "beatsKo": ["바다.", "한국수어로."],
-        "beatsEn": ["The sea.", "In Korean Sign Language."],
+        "beatsKo": [
+          "바다.",
+          "한국수어로."
+        ],
+        "beatsEn": [
+          "The sea.",
+          "In Korean Sign Language."
+        ],
         "pointKo": "손이 파도를 그대로 따라갑니다.",
         "pointEn": "The hand follows the wave.",
         "ctaKo": "",
@@ -348,14 +545,25 @@
       "series": "SIGN KOREA",
       "priority": 3,
       "status": "unused",
-      "kslWords": ["부산"],
+      "kslWords": [
+        "부산"
+      ],
       "place": "부산",
-      "brollTags": ["travel", "street"],
+      "brollTags": [
+        "travel",
+        "street"
+      ],
       "copy": {
         "hookKo": "지역 이름에도 수어가 있습니다.",
         "hookEn": "Cities have signs too.",
-        "beatsKo": ["부산.", "이렇게 표현합니다."],
-        "beatsEn": ["Busan.", "This is the sign."],
+        "beatsKo": [
+          "부산.",
+          "이렇게 표현합니다."
+        ],
+        "beatsEn": [
+          "Busan.",
+          "This is the sign."
+        ],
         "pointKo": "도시마다 고유한 수어 이름이 있습니다.",
         "pointEn": "Each city has its own name sign.",
         "ctaKo": "",
@@ -368,14 +576,25 @@
       "series": "K-SIGN",
       "priority": 2,
       "status": "unused",
-      "kslWords": ["안녕"],
+      "kslWords": [
+        "안녕"
+      ],
       "place": "서울 거리",
-      "brollTags": ["street", "seoul"],
+      "brollTags": [
+        "street",
+        "seoul"
+      ],
       "copy": {
         "hookKo": "시작은 항상 이 말입니다.",
         "hookEn": "Everything starts here.",
-        "beatsKo": ["안녕.", "한국수어로."],
-        "beatsEn": ["Hello.", "In Korean Sign Language."],
+        "beatsKo": [
+          "안녕.",
+          "한국수어로."
+        ],
+        "beatsEn": [
+          "Hello.",
+          "In Korean Sign Language."
+        ],
         "pointKo": "",
         "pointEn": "",
         "ctaKo": "",
@@ -388,14 +607,25 @@
       "series": "K-SIGN",
       "priority": 2,
       "status": "unused",
-      "kslWords": ["가족"],
+      "kslWords": [
+        "가족"
+      ],
       "place": "집",
-      "brollTags": ["street", "food"],
+      "brollTags": [
+        "street",
+        "food"
+      ],
       "copy": {
         "hookKo": "설명이 필요 없는 말.",
         "hookEn": "Needs no explanation.",
-        "beatsKo": ["가족.", "한국수어로."],
-        "beatsEn": ["Family.", "In Korean Sign Language."],
+        "beatsKo": [
+          "가족.",
+          "한국수어로."
+        ],
+        "beatsEn": [
+          "Family.",
+          "In Korean Sign Language."
+        ],
         "pointKo": "",
         "pointEn": "",
         "ctaKo": "",
@@ -408,14 +638,25 @@
       "series": "K-SIGN",
       "priority": 2,
       "status": "unused",
-      "kslWords": ["여행"],
+      "kslWords": [
+        "여행"
+      ],
       "place": "서울역",
-      "brollTags": ["travel", "subway"],
+      "brollTags": [
+        "travel",
+        "subway"
+      ],
       "copy": {
         "hookKo": "한국 여행에서 알아두면 좋은 말.",
         "hookEn": "Worth knowing before you travel Korea.",
-        "beatsKo": ["여행.", "한국수어로."],
-        "beatsEn": ["Travel.", "In Korean Sign Language."],
+        "beatsKo": [
+          "여행.",
+          "한국수어로."
+        ],
+        "beatsEn": [
+          "Travel.",
+          "In Korean Sign Language."
+        ],
         "pointKo": "",
         "pointEn": "",
         "ctaKo": "",
@@ -428,14 +669,634 @@
       "series": "K-SIGN",
       "priority": 2,
       "status": "unused",
-      "kslWords": ["좋다"],
+      "kslWords": [
+        "좋다"
+      ],
       "place": "카페",
-      "brollTags": ["cafe", "street"],
+      "brollTags": [
+        "cafe",
+        "street"
+      ],
       "copy": {
         "hookKo": "한 손으로 끝나는 말.",
         "hookEn": "One hand is enough.",
-        "beatsKo": ["좋다.", "이건 금방 외웁니다."],
-        "beatsEn": ["Good.", "You'll remember this one."],
+        "beatsKo": [
+          "좋다.",
+          "이건 금방 외웁니다."
+        ],
+        "beatsEn": [
+          "Good.",
+          "You'll remember this one."
+        ],
+        "pointKo": "",
+        "pointEn": "",
+        "ctaKo": "",
+        "ctaEn": ""
+      }
+    },
+    {
+      "id": "perks-subway",
+      "topic": "지하철에서",
+      "series": "DEAF PERKS",
+      "priority": 5,
+      "status": "unused",
+      "kslWords": [
+        "지하철"
+      ],
+      "place": "지하철",
+      "brollTags": [
+        "subway"
+      ],
+      "copy": {
+        "hookKo": "안내방송이 안 들려도 상관없습니다.",
+        "hookEn": "Missing the announcement doesn't matter here.",
+        "beatsKo": [
+          "전광판을 봅니다.",
+          "내릴 역은 이미 압니다."
+        ],
+        "beatsEn": [
+          "Eyes on the screen.",
+          "Already know the stop."
+        ],
+        "pointKo": "듣는 게 아니라 보는 걸로 충분합니다.",
+        "pointEn": "Watching is enough. You don't need to hear it.",
+        "ctaKo": "",
+        "ctaEn": ""
+      }
+    },
+    {
+      "id": "perks-cinema",
+      "topic": "영화관에서",
+      "series": "DEAF PERKS",
+      "priority": 5,
+      "status": "unused",
+      "kslWords": [
+        "영화"
+      ],
+      "place": "영화관",
+      "brollTags": [
+        "street",
+        "seoul"
+      ],
+      "copy": {
+        "hookKo": "자막이 있는 자리를 고릅니다.",
+        "hookEn": "Just pick the subtitled showing.",
+        "beatsKo": [
+          "한글 자막.",
+          "놓치는 대사가 없습니다."
+        ],
+        "beatsEn": [
+          "Korean subtitles.",
+          "Not a line missed."
+        ],
+        "pointKo": "이미 익숙한 방식입니다.",
+        "pointEn": "Already the normal way to watch.",
+        "ctaKo": "",
+        "ctaEn": ""
+      }
+    },
+    {
+      "id": "perks-gym",
+      "topic": "헬스장에서",
+      "series": "DEAF PERKS",
+      "priority": 4,
+      "status": "unused",
+      "kslWords": [
+        "운동"
+      ],
+      "place": "헬스장",
+      "brollTags": [
+        "street"
+      ],
+      "copy": {
+        "hookKo": "음악을 아무리 키워도 상관없습니다.",
+        "hookEn": "Turn the music up all the way. Doesn't matter.",
+        "beatsKo": [
+          "운동.",
+          "손짓 하나로 세트 수를 맞춥니다."
+        ],
+        "beatsEn": [
+          "Working out.",
+          "One hand signal keeps the count."
+        ],
+        "pointKo": "귀를 쓸 일이 애초에 없습니다.",
+        "pointEn": "There was never anything to hear here.",
+        "ctaKo": "",
+        "ctaEn": ""
+      }
+    },
+    {
+      "id": "perks-airport",
+      "topic": "공항에서",
+      "series": "DEAF PERKS",
+      "priority": 4,
+      "status": "unused",
+      "kslWords": [
+        "공항"
+      ],
+      "place": "공항",
+      "brollTags": [
+        "travel"
+      ],
+      "copy": {
+        "hookKo": "탑승 안내를 놓칠 걱정이 없습니다.",
+        "hookEn": "No risk of missing the boarding call.",
+        "beatsKo": [
+          "전광판.",
+          "게이트 번호만 보면 됩니다."
+        ],
+        "beatsEn": [
+          "The screen.",
+          "The gate number says it all."
+        ],
+        "pointKo": "방송보다 화면이 먼저 와닿습니다.",
+        "pointEn": "The screen reaches you before the announcement does.",
+        "ctaKo": "",
+        "ctaEn": ""
+      }
+    },
+    {
+      "id": "perks-festival",
+      "topic": "축제 인파 속에서",
+      "series": "DEAF PERKS",
+      "priority": 4,
+      "status": "unused",
+      "kslWords": [
+        "축제"
+      ],
+      "place": "축제",
+      "brollTags": [
+        "street",
+        "seoul"
+      ],
+      "copy": {
+        "hookKo": "이 소음 속에서도 대화는 끊기지 않습니다.",
+        "hookEn": "The noise never breaks the conversation.",
+        "beatsKo": [
+          "사람이 아무리 많아도",
+          "눈만 마주치면 됩니다."
+        ],
+        "beatsEn": [
+          "However packed it gets,",
+          "eye contact is enough."
+        ],
+        "pointKo": "소리가 없는 대화는 소음을 타지 않습니다.",
+        "pointEn": "A conversation with no sound has nothing for the noise to drown out.",
+        "ctaKo": "",
+        "ctaEn": ""
+      }
+    },
+    {
+      "id": "perks-library",
+      "topic": "도서관에서",
+      "series": "DEAF PERKS",
+      "priority": 3,
+      "status": "unused",
+      "kslWords": [
+        "도서관"
+      ],
+      "place": "도서관",
+      "brollTags": [
+        "street"
+      ],
+      "copy": {
+        "hookKo": "조용히 해야 하는 곳에서 오히려 편합니다.",
+        "hookEn": "The one place everyone else has to whisper.",
+        "beatsKo": [
+          "도서관.",
+          "대화는 평소와 똑같습니다."
+        ],
+        "beatsEn": [
+          "The library.",
+          "The conversation doesn't change at all."
+        ],
+        "pointKo": "'쉿' 소리를 들을 일이 없습니다.",
+        "pointEn": "Nobody has to shush this conversation.",
+        "ctaKo": "",
+        "ctaEn": ""
+      }
+    },
+    {
+      "id": "perks-nightshift",
+      "topic": "편의점 야간 근무",
+      "series": "DEAF PERKS",
+      "priority": 3,
+      "status": "unused",
+      "kslWords": [
+        "편의점"
+      ],
+      "place": "편의점",
+      "brollTags": [
+        "street"
+      ],
+      "copy": {
+        "hookKo": "새벽에도 손님과의 대화는 똑같습니다.",
+        "hookEn": "At 3am, the conversation looks exactly the same.",
+        "beatsKo": [
+          "편의점.",
+          "손으로 가격을 짚어줍니다."
+        ],
+        "beatsEn": [
+          "Convenience store.",
+          "A finger on the price does it."
+        ],
+        "pointKo": "말이 없어도 계산은 끝납니다.",
+        "pointEn": "No words needed to close the sale.",
+        "ctaKo": "",
+        "ctaEn": ""
+      }
+    },
+    {
+      "id": "pick-video-relay",
+      "topic": "영상통화 수어 통역 서비스",
+      "series": "DEAF PICK",
+      "priority": 4,
+      "status": "unused",
+      "kslWords": [
+        "전화"
+      ],
+      "place": "집",
+      "brollTags": [
+        "street"
+      ],
+      "copy": {
+        "hookKo": "전화 한 통이 이제 어렵지 않습니다.",
+        "hookEn": "A phone call used to be the hard part.",
+        "beatsKo": [
+          "화면으로 통역사를 연결.",
+          "상대는 음성으로 듣습니다."
+        ],
+        "beatsEn": [
+          "An interpreter joins by video.",
+          "The other side just hears a voice."
+        ],
+        "pointKo": "은행이든 병원이든 똑같이 씁니다.",
+        "pointEn": "Works the same for a bank or a clinic.",
+        "ctaKo": "",
+        "ctaEn": ""
+      }
+    },
+    {
+      "id": "pick-alarm-light",
+      "topic": "진동+플래시 알람시계",
+      "series": "DEAF PICK",
+      "priority": 4,
+      "status": "unused",
+      "kslWords": [
+        "아침"
+      ],
+      "place": "집",
+      "brollTags": [
+        "street"
+      ],
+      "copy": {
+        "hookKo": "소리 대신 빛과 진동으로 깨웁니다.",
+        "hookEn": "Light and vibration instead of sound.",
+        "beatsKo": [
+          "베개 밑 진동판.",
+          "방 전체가 밝아집니다."
+        ],
+        "beatsEn": [
+          "A shaker under the pillow.",
+          "The whole room lights up."
+        ],
+        "pointKo": "늦잠 걱정은 이걸로 끝입니다.",
+        "pointEn": "That's the oversleeping problem solved.",
+        "ctaKo": "",
+        "ctaEn": ""
+      }
+    },
+    {
+      "id": "pick-doorbell-light",
+      "topic": "시각 알림 초인종",
+      "series": "DEAF PICK",
+      "priority": 3,
+      "status": "unused",
+      "kslWords": [
+        "집"
+      ],
+      "place": "집",
+      "brollTags": [
+        "street"
+      ],
+      "copy": {
+        "hookKo": "초인종이 울리면 불이 깜빡입니다.",
+        "hookEn": "The doorbell rings, and a light flashes instead.",
+        "beatsKo": [
+          "센서가 소리를 감지.",
+          "집 안 조명이 반응합니다."
+        ],
+        "beatsEn": [
+          "A sensor catches the sound.",
+          "The lights answer for it."
+        ],
+        "pointKo": "택배 기사님을 놓치는 일이 줄었습니다.",
+        "pointEn": "Fewer missed deliveries.",
+        "ctaKo": "",
+        "ctaEn": ""
+      }
+    },
+    {
+      "id": "pick-subtitled-ott",
+      "topic": "자막 지원이 잘 된 OTT 앱",
+      "series": "DEAF PICK",
+      "priority": 4,
+      "status": "unused",
+      "kslWords": [
+        "영화"
+      ],
+      "place": "집",
+      "brollTags": [
+        "street"
+      ],
+      "copy": {
+        "hookKo": "자막 위치까지 조절되는 앱이 있습니다.",
+        "hookEn": "Some apps let you move the subtitles, not just toggle them.",
+        "beatsKo": [
+          "글자 크기 조절.",
+          "화면 아무 데나 배치."
+        ],
+        "beatsEn": [
+          "Adjustable size.",
+          "Placed anywhere on screen."
+        ],
+        "pointKo": "작은 차이가 시청 경험을 바꿉니다.",
+        "pointEn": "A small setting changes the whole experience.",
+        "ctaKo": "",
+        "ctaEn": ""
+      }
+    },
+    {
+      "id": "pick-notetaking-app",
+      "topic": "수업용 실시간 자막 앱",
+      "series": "DEAF PICK",
+      "priority": 3,
+      "status": "unused",
+      "kslWords": [
+        "공부"
+      ],
+      "place": "학교",
+      "brollTags": [
+        "street"
+      ],
+      "copy": {
+        "hookKo": "수업 내용이 실시간으로 글자가 됩니다.",
+        "hookEn": "The lecture turns into text as it happens.",
+        "beatsKo": [
+          "마이크로 소리 인식.",
+          "화면에 바로 뜹니다."
+        ],
+        "beatsEn": [
+          "A mic picks up the voice.",
+          "It shows up on screen instantly."
+        ],
+        "pointKo": "완벽하진 않지만 놓치는 것보단 낫습니다.",
+        "pointEn": "Not perfect. Still better than missing it.",
+        "ctaKo": "",
+        "ctaEn": ""
+      }
+    },
+    {
+      "id": "pick-smart-glasses",
+      "topic": "자막 스마트글라스",
+      "series": "DEAF PICK",
+      "priority": 3,
+      "status": "unused",
+      "kslWords": [
+        "안경"
+      ],
+      "place": "카페",
+      "brollTags": [
+        "cafe"
+      ],
+      "copy": {
+        "hookKo": "안경 렌즈에 자막이 뜹니다.",
+        "hookEn": "Subtitles appear right on the lens.",
+        "beatsKo": [
+          "상대방 말이",
+          "실시간으로 눈앞에."
+        ],
+        "beatsEn": [
+          "What they're saying,",
+          "right in front of your eyes."
+        ],
+        "pointKo": "아직 초기 단계지만 방향은 확실합니다.",
+        "pointEn": "Early days, but the direction is clear.",
+        "ctaKo": "",
+        "ctaEn": ""
+      }
+    },
+    {
+      "id": "pick-vibrating-band",
+      "topic": "진동 알림 손목밴드",
+      "series": "DEAF PICK",
+      "priority": 3,
+      "status": "unused",
+      "kslWords": [
+        "시계"
+      ],
+      "place": "거리",
+      "brollTags": [
+        "street"
+      ],
+      "copy": {
+        "hookKo": "시계보다 얇은데 알림은 더 셉니다.",
+        "hookEn": "Thinner than a watch. Buzzes harder.",
+        "beatsKo": [
+          "전화.",
+          "문자.",
+          "타이머까지 하나로."
+        ],
+        "beatsEn": [
+          "Calls.",
+          "Texts.",
+          "Timers, all in one."
+        ],
+        "pointKo": "손목 하나로 알림을 놓치지 않습니다.",
+        "pointEn": "One wrist, nothing missed.",
+        "ctaKo": "",
+        "ctaEn": ""
+      }
+    },
+    {
+      "id": "signkorea-jeonju",
+      "topic": "전주 한옥마을",
+      "series": "SIGN KOREA",
+      "priority": 4,
+      "status": "unused",
+      "kslWords": [
+        "여행"
+      ],
+      "place": "전주",
+      "brollTags": [
+        "travel",
+        "street"
+      ],
+      "copy": {
+        "hookKo": "오늘은 전주.",
+        "hookEn": "Today: Jeonju.",
+        "beatsKo": [
+          "한옥마을.",
+          "걷는 것만으로 충분합니다."
+        ],
+        "beatsEn": [
+          "Hanok village.",
+          "Walking through is enough."
+        ],
+        "pointKo": "말보다 풍경이 먼저 말을 겁니다.",
+        "pointEn": "The scenery talks before you do.",
+        "ctaKo": "다음은 어디로 갈까요?",
+        "ctaEn": "Where next?"
+      }
+    },
+    {
+      "id": "signkorea-gangneung",
+      "topic": "강릉 바다",
+      "series": "SIGN KOREA",
+      "priority": 4,
+      "status": "unused",
+      "kslWords": [
+        "바다"
+      ],
+      "place": "강릉",
+      "brollTags": [
+        "travel",
+        "hanriver"
+      ],
+      "copy": {
+        "hookKo": "동해에서 본 바다는 조금 다릅니다.",
+        "hookEn": "The East Sea looks a little different.",
+        "beatsKo": [
+          "바다.",
+          "한국수어로."
+        ],
+        "beatsEn": [
+          "The sea.",
+          "In Korean Sign Language."
+        ],
+        "pointKo": "파도 소리가 없어도 크기는 그대로 전해집니다.",
+        "pointEn": "No sound of waves needed to feel the size of it.",
+        "ctaKo": "",
+        "ctaEn": ""
+      }
+    },
+    {
+      "id": "signkorea-gyeongju",
+      "topic": "경주 여행",
+      "series": "SIGN KOREA",
+      "priority": 3,
+      "status": "unused",
+      "kslWords": [
+        "여행"
+      ],
+      "place": "경주",
+      "brollTags": [
+        "travel",
+        "street"
+      ],
+      "copy": {
+        "hookKo": "천 년 전 도시를 걷습니다.",
+        "hookEn": "Walking through a thousand-year-old city.",
+        "beatsKo": [
+          "경주.",
+          "여행이라는 말 하나로 시작합니다."
+        ],
+        "beatsEn": [
+          "Gyeongju.",
+          "One word: travel."
+        ],
+        "pointKo": "",
+        "pointEn": "",
+        "ctaKo": "",
+        "ctaEn": ""
+      }
+    },
+    {
+      "id": "signkorea-hongdae",
+      "topic": "홍대 거리공연",
+      "series": "SIGN KOREA",
+      "priority": 4,
+      "status": "unused",
+      "kslWords": [
+        "공연"
+      ],
+      "place": "홍대",
+      "brollTags": [
+        "street",
+        "seoul"
+      ],
+      "copy": {
+        "hookKo": "소리가 아니라 진동으로 먼저 옵니다.",
+        "hookEn": "It arrives as vibration before it arrives as sound.",
+        "beatsKo": [
+          "거리공연.",
+          "베이스가 발밑까지 옵니다."
+        ],
+        "beatsEn": [
+          "Street performance.",
+          "The bass reaches your feet."
+        ],
+        "pointKo": "듣는 방법이 하나만 있는 건 아닙니다.",
+        "pointEn": "There's more than one way to take in music.",
+        "ctaKo": "",
+        "ctaEn": ""
+      }
+    },
+    {
+      "id": "signkorea-myeongdong",
+      "topic": "명동 쇼핑",
+      "series": "SIGN KOREA",
+      "priority": 3,
+      "status": "unused",
+      "kslWords": [
+        "쇼핑"
+      ],
+      "place": "명동",
+      "brollTags": [
+        "street",
+        "seoul"
+      ],
+      "copy": {
+        "hookKo": "명동에서 자주 쓰는 말.",
+        "hookEn": "A word you'll use a lot here.",
+        "beatsKo": [
+          "쇼핑.",
+          "한국수어로."
+        ],
+        "beatsEn": [
+          "Shopping.",
+          "In Korean Sign Language."
+        ],
+        "pointKo": "",
+        "pointEn": "",
+        "ctaKo": "",
+        "ctaEn": ""
+      }
+    },
+    {
+      "id": "signkorea-hanriver-picnic",
+      "topic": "한강 공원",
+      "series": "SIGN KOREA",
+      "priority": 4,
+      "status": "unused",
+      "kslWords": [
+        "공원"
+      ],
+      "place": "한강",
+      "brollTags": [
+        "hanriver"
+      ],
+      "copy": {
+        "hookKo": "돗자리 하나면 준비 끝입니다.",
+        "hookEn": "One mat, and you're set.",
+        "beatsKo": [
+          "공원.",
+          "한강에서 제일 많이 하는 것."
+        ],
+        "beatsEn": [
+          "Park.",
+          "The thing everyone does by the river."
+        ],
         "pointKo": "",
         "pointEn": "",
         "ctaKo": "",

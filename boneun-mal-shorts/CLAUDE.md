@@ -37,7 +37,11 @@ easier to bypass, the change is wrong.
 * The reference for every sign is the KCISA / 문화체육관광부 한국수어 OpenAPI
   (`getCTE01701`). Nothing else is authoritative.
 * The visible signing in a video is **always** a recording of a real person
-  (`assets/ksl/`, `verified: true`, human consent on file).
+  (`assets/ksl/`, `verified: true`). Two legitimate origins: someone films it
+  themselves with consent on file, or `npm run ksl:import` pulls the official
+  recording KCISA already links to (국립국어원 한국수어사전) under a confirmed
+  public licence with attribution — never a third option involving generated
+  hands. Either way a human watches the clip once before it counts as verified.
 * This chain is forbidden, in whole or in part:
   `text prompt → AI video generator → plausible hand motion → published as KSL`.
 * When the API is unreachable or the key is missing, the pipeline returns

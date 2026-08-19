@@ -12,8 +12,10 @@ outrank anything convenient.
 
 Korean Sign Language is never invented, never AI-generated, never approximated.
 The KCISA / 문화체육관광부 한국수어 OpenAPI is the authoritative reference, and the
-signing a viewer sees is always a recording of a real, consenting human from
-`assets/ksl/` with `verified: true`.
+signing a viewer sees is always a recording of a real human from `assets/ksl/`
+with `verified: true` — either filmed with consent on file, or imported via
+`npm run ksl:import` from the official government recording KCISA already
+links to, under a confirmed public licence with attribution.
 
 If the data or the clip is missing, the correct output is a stopped pipeline and a
 report saying what is needed — not a finished-looking video. Waiting for a real
@@ -44,6 +46,7 @@ npm run doctor                      # node / ffmpeg / ffprobe / font / .env chec
 npm run ksl:probe -- "커피"          # dump the RAW KCISA response (schema check)
 npm run ksl:search -- "커피"         # normalised search results
 npm run ksl:library                 # what verified clips exist right now
+npm run ksl:import -- "커피"         # officially-licensed KCISA clip instead of filming one
 npm run shorts -- --topic "커피"     # full pipeline
 npm run shorts:random               # pipeline, topic chosen by rotation
 npm run shorts:preview              # render with placeholders when a clip is missing

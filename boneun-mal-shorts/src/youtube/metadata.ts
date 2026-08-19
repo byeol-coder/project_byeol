@@ -77,6 +77,12 @@ export function buildMetadata(input: MetadataInput): YoutubeMetadata {
     .map((m) => `· ${m.word} — KCISA ${m.kcisaRecord!.sourceEndpoint} (${m.kcisaRecord!.id})`)
     .join('\n');
 
+  // The clip actually shown on screen for the featured sign — not just any match
+  // in the topic's word list — decides how the signing-provenance line reads.
+  const shownClip = matches.find((m) => m.word === script.kslWord)?.clip ?? null;
+  const isOfficialImport = shownClip?.metadata?.source === 'kcisa-official-dictionary';
+  const attribution = shownClip?.metadata;
+
   const descriptionParts: string[] = [];
 
   if (script.commercial.disclosureKo) {
@@ -96,8 +102,18 @@ export function buildMetadata(input: MetadataInput): YoutubeMetadata {
   descriptionParts.push(
     [
       `수어 / Sign: ${script.kslWord} (한국수어 · Korean Sign Language)`,
-      '영상 속 수어는 실제 농인·수어 사용자가 직접 촬영한 영상입니다.',
-      'The signing in this video is performed by a real person. No AI-generated signing.',
+      ...(isOfficialImport
+        ? [
+            '영상 속 수어는 국립국어원 한국수어사전이 제공한 공식 촬영 영상입니다.',
+            "The signing in this video is an official recording from the National Institute of Korean Language's KSL dictionary — a real signer, not AI-generated.",
+            attribution?.attributionText
+              ? `${attribution.attributionText}${attribution.license ? ` (${attribution.license})` : ''}`
+              : '',
+          ].filter(Boolean)
+        : [
+            '영상 속 수어는 실제 농인·수어 사용자가 직접 촬영한 영상입니다.',
+            'The signing in this video is performed by a real person. No AI-generated signing.',
+          ]),
       kcisaLine
         ? `수어 참고 자료 / Reference: 문화체육관광부·KCISA 한국수어 OpenAPI\n${kcisaLine}`
         : '수어 참고 자료 / Reference: 문화체육관광부·KCISA 한국수어 OpenAPI',

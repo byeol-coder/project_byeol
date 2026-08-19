@@ -71,6 +71,11 @@ export interface KslClipMetadata {
   framing?: string;
   kcisaId?: string;
   notes?: string;
+  /** Set when the clip is an imported officially-licensed recording, not a fresh shoot. */
+  license?: string;
+  licenseUrl?: string;
+  attributionText?: string;
+  officialSourceUrl?: string;
 }
 
 export interface KslClip {

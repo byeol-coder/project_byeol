@@ -2,8 +2,8 @@
   "series": {
     "K-SIGN": {
       "nameKo": "케이사인",
-      "share": 0.40,
-      "intent": "Connect everyday Korean life, food, culture and slang with KSL.",
+      "share": 0.15,
+      "intent": "Connect everyday Korean life, food, culture and slang with KSL. Kept deliberately small — 'one sign a day' teaching content is already common online; the differentiated series below carry the channel.",
       "durationTargetSeconds": 22
     },
     "DEAF PICK": {
@@ -15,13 +15,13 @@
     },
     "DEAF PERKS": {
       "nameKo": "농인의 순간",
-      "share": 0.20,
-      "intent": "One concrete situation where being Deaf and signing simply works better. Never generalise to all Deaf people.",
+      "share": 0.35,
+      "intent": "One concrete situation where being Deaf and signing simply works better. Never generalise to all Deaf people. This is the channel's lead series — the most distinctive angle, and the one least available elsewhere.",
       "durationTargetSeconds": 18
     },
     "SIGN KOREA": {
       "nameKo": "사인 코리아",
-      "share": 0.15,
+      "share": 0.25,
       "intent": "Place-based KSL: neighbourhoods, markets, travel, food across Korea — not Seoul only.",
       "durationTargetSeconds": 24
     }
@@ -33,8 +33,16 @@
   },
   "copy": {
     "bannedHookPhrases": [
-      "충격", "놀라운 사실", "99%", "당신만 몰랐던", "3초 뒤", "소름", "대박",
-      "SHOCKING", "you won't believe", "nobody knows"
+      "충격",
+      "놀라운 사실",
+      "99%",
+      "당신만 몰랐던",
+      "3초 뒤",
+      "소름",
+      "대박",
+      "SHOCKING",
+      "you won't believe",
+      "nobody knows"
     ],
     "bannedBodyPhrases": [
       "오늘은 특별한 이야기를 소개합니다",
@@ -51,16 +59,31 @@
       "Let's find out together",
       "Isn't that amazing"
     ],
-    "bannedCtaPhrases": ["좋아요 구독 알림설정", "구독과 좋아요", "Like and subscribe"],
+    "bannedCtaPhrases": [
+      "좋아요 구독 알림설정",
+      "구독과 좋아요",
+      "Like and subscribe"
+    ],
     "maxHookCharsKo": 24,
     "maxLineCharsKo": 16,
     "maxLineCharsEn": 40
   },
   "hashtags": {
-    "always": ["#KSL", "#한국수어", "#Shorts"],
+    "always": [
+      "#KSL",
+      "#한국수어",
+      "#Shorts"
+    ],
     "pool": [
-      "#KoreanSignLanguage", "#DeafCulture", "#DeafPride", "#Korea",
-      "#농인", "#수어", "#SignLanguage", "#Seoul", "#KoreanCulture"
+      "#KoreanSignLanguage",
+      "#DeafCulture",
+      "#DeafPride",
+      "#Korea",
+      "#농인",
+      "#수어",
+      "#SignLanguage",
+      "#Seoul",
+      "#KoreanCulture"
     ],
     "minCount": 3,
     "maxCount": 5

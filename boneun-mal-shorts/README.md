@@ -57,6 +57,7 @@ font (`fonts-noto-cjk`, Apple SD Gothic Neo, or Malgun Gothic — or point
 npm run ksl:probe -- "커피"        # dump the RAW KCISA response + show the field mapping
 npm run ksl:search -- "커피"       # normalised search results
 npm run ksl:library               # which signs are recorded, and which are still needed
+npm run ksl:import -- "커피"       # download an officially-licensed KCISA clip (see assets/ksl/README.md)
 
 npm run shorts                    # pick a topic by rotation and render
 npm run shorts -- --topic "커피"   # a specific topic
@@ -107,10 +108,15 @@ wasted work at best.
 
 | Series | Share | What it is |
 | --- | --- | --- |
-| `K-SIGN` | 40% | Everyday Korean life, food and slang, connected to KSL |
+| `DEAF PERKS` | 35% | One concrete situation where signing simply works better — the lead series |
 | `DEAF PICK` | 25% | Products, apps and features that genuinely help Deaf / HoH people |
-| `DEAF PERKS` | 20% | One concrete situation where signing simply works better |
-| `SIGN KOREA` | 15% | Place-based KSL across Korea — not Seoul only |
+| `SIGN KOREA` | 25% | Place-based KSL across Korea — not Seoul only |
+| `K-SIGN` | 15% | Everyday Korean life, food and slang, connected to KSL |
+
+Kept deliberately small: "one sign a day" teaching content is already common
+online, so it plays a supporting role instead of carrying the channel. Every
+video still features a verified sign regardless of series — this only changes
+which series gets to be the whole video's subject.
 
 Selection pulls the recent mix back toward these shares, blocks a topic repeat
 inside 30 days, and won't run the same series more than twice in a row.

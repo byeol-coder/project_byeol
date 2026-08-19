@@ -203,6 +203,10 @@ function testClipVerification(): void {
   );
   const aiProblem = verifyClipMetadata({ ...base, source: 'ai-avatar' }, file).problems.join(' ');
   check('says why AI signing is refused', aiProblem.includes('never publishable'), aiProblem);
+  check(
+    'accepts an official KCISA dictionary import as a real human recording',
+    verifyClipMetadata({ ...base, source: 'kcisa-official-dictionary', consent: '공공누리 제1유형' }, file).usable,
+  );
 }
 
 // --- 3. Copy tone guard ---------------------------------------------------

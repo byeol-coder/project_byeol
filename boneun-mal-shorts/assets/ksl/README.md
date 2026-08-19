@@ -46,6 +46,31 @@ The filename stem must be the Korean word/phrase exactly as it is signed
 Set `verified: false` (or leave the sidecar out) and the clip is treated as
 absent. `npm run ksl:library` prints the current state of this folder.
 
+## Alternative: official government footage
+
+`npm run ksl:import -- "커피" [--license "공공누리 제1유형"] [--license-url "…"]`
+downloads the video the KCISA response already links to — a recording
+published by 국립국어원 한국수어사전 (sldict.korean.go.kr), a real signer,
+government-produced — instead of asking someone to film it fresh. This is
+**not** a shortcut around human recording; it's a different real human
+recording, one that already exists.
+
+Two things stay on a person, not the script:
+
+1. **Confirm the licence yourself** before running it — check the 공공누리
+   licence type on data.go.kr or sldict.korean.go.kr, and pass it via
+   `--license` so it's recorded in the sidecar and in the published
+   description. The script does not check this for you.
+2. **Watch the clip once** after import. `verified: true` here only means
+   "this is real government footage of a real signer" — it does not mean a
+   human has confirmed the framing keeps face, upper body and both hands
+   visible for this specific clip. If it doesn't, flip `verified` to `false`
+   in the sidecar; the word goes back to `NEEDS_KSL_RECORDING`.
+
+Its sidecar carries extra fields the manual-recording path doesn't need:
+`license`, `licenseUrl`, `attributionText`, `officialSourceUrl` — these flow
+into the published video's description automatically.
+
 ## Recording notes
 
 * Vertical 9:16 preferred; the renderer will pillarbox/crop otherwise but
