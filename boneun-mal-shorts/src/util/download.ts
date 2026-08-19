@@ -38,7 +38,21 @@ export async function downloadFile(
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), timeoutMs);
     try {
-      const res = await fetch(url, { signal: controller.signal });
+      const res = await fetch(url, {
+        signal: controller.signal,
+        redirect: 'follow',
+        headers: {
+          // Some Korean government media hosts (sldict.korean.go.kr included)
+          // reject requests with no User-Agent / no Referer as hotlinking —
+          // a plain `fetch(url)` with no headers gets refused at the TCP/TLS
+          // level, which Node reports as the opaque "fetch failed".
+          'User-Agent':
+            'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 ' +
+            '(KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+          Referer: new URL(url).origin + '/',
+          Accept: '*/*',
+        },
+      });
       if (!res.ok) {
         lastError = `HTTP ${res.status}`;
         log.warn(`download failed: ${lastError} (attempt ${attempt}/${maxRetries})`);
@@ -56,8 +70,17 @@ export async function downloadFile(
         };
       }
     } catch (err) {
-      const e = err as Error;
-      lastError = e.name === 'AbortError' ? `timeout after ${timeoutMs}ms` : e.message;
+      const e = err as Error & { cause?: unknown };
+      // Node's fetch (undici) reports almost everything as the bare string
+      // "fetch failed" and hides the real reason (TLS, DNS, connection reset)
+      // in `.cause`. Surface it, or this is undiagnosable from the log alone.
+      const causeMsg =
+        e.cause instanceof Error
+          ? e.cause.message
+          : e.cause
+            ? String(e.cause)
+            : null;
+      lastError = e.name === 'AbortError' ? `timeout after ${timeoutMs}ms` : causeMsg ? `${e.message}: ${causeMsg}` : e.message;
       log.warn(`download failed: ${lastError} (attempt ${attempt}/${maxRetries})`);
     } finally {
       clearTimeout(timer);
