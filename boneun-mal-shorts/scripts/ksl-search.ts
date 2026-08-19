@@ -1,6 +1,6 @@
 import { rel } from '../src/util/paths.js';
 import { log } from '../src/util/log.js';
-import { searchKslAllPages } from '../src/api/kcisa.js';
+import { scanKslByWord } from '../src/api/kcisa.js';
 import { loadKslLibrary, verifyClipMetadata } from '../src/ksl/verifier.js';
 
 // npm run ksl:search -- "커피"
@@ -14,7 +14,8 @@ async function main(): Promise<number> {
   }
 
   log.raw(`\nKCISA 한국수어 search — "${query}"\n`);
-  const result = await searchKslAllPages(query, 50);
+  log.info('this endpoint has no working server-side keyword filter; paging through the listing and matching client-side...');
+  const result = await scanKslByWord(query);
 
   if (result.status === 'KSL_DATA_UNAVAILABLE') {
     log.error(`KSL_DATA_UNAVAILABLE — ${result.reason}`);

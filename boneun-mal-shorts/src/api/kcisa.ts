@@ -343,7 +343,11 @@ export async function searchKsl(query: string, opts: SearchOptions = {}): Promis
   };
 }
 
-/** Walk pages until `limit` records are collected or the API runs out. */
+/**
+ * Walk pages and return everything the API hands back, unfiltered.
+ * Kept for callers that genuinely want a raw listing (e.g. browsing).
+ * NOTE: on getCTE01701, this is NOT a keyword search — see scanKslByWord.
+ */
 export async function searchKslAllPages(
   query: string,
   limit = 100,
@@ -368,6 +372,77 @@ export async function searchKslAllPages(
   return { ...first, records: all.slice(0, limit) };
 }
 
+export interface ScanOptions {
+  /** Safety ceiling on how many records to pull across pages before giving up. */
+  maxRecordsScanned?: number;
+}
+
+/**
+ * Confirmed against a real response (2026-08-19, see .cache/kcisa-raw/): none of
+ * `keyword` / `srchKwd` / `searchWord` / `title` / `query` actually filter this
+ * operation — every one returns the identical unfiltered page 1 and the same
+ * totalCount regardless of the search text. So this endpoint is list-only, and
+ * matching a word means paging through the listing and filtering client-side.
+ *
+ * Pages are still requested with the query text attached (harmless if ignored,
+ * and correct the day KCISA's server-side filtering starts working), and each
+ * page is cached individually by searchKsl, so a repeated scan for a common
+ * word is fast after the first run. The scan stops as soon as it finds a match
+ * — most words will resolve in the first page or two — and gives up only after
+ * maxRecordsScanned (default 4000, comfortably above this endpoint's ~3750
+ * total records) with nothing found.
+ */
+export async function scanKslByWord(word: string, opts: ScanOptions = {}): Promise<KcisaSearchResult> {
+  const cfg = kcisaConfig();
+  const maxRecords = opts.maxRecordsScanned ?? envInt('KCISA_MAX_SCAN_RECORDS', 4000);
+  const rows = Math.max(1, cfg.rowsPerPage);
+  const maxPages = Math.max(1, Math.ceil(maxRecords / rows));
+
+  let scanned = 0;
+  let totalCount = 0;
+  const matches: KslRecord[] = [];
+  let last: KcisaSearchResult | null = null;
+
+  for (let page = 1; page <= maxPages; page += 1) {
+    const result = await searchKsl(word, { pageNo: page });
+    if (result.status === 'KSL_DATA_UNAVAILABLE') return result;
+    last = result;
+    totalCount = result.totalCount || totalCount;
+    scanned += result.records.length;
+    matches.push(...result.records.filter((r) => recordMatchesWord(r, word)));
+    if (matches.length > 0) break;
+    if (result.records.length < rows) break; // ran out of pages
+    if (totalCount > 0 && scanned >= totalCount) break;
+  }
+
+  const base = last ?? {
+    status: 'EMPTY_RESULT' as const,
+    reason: null,
+    query: word,
+    records: [],
+    totalCount: 0,
+    pageNo: 1,
+    numOfRows: rows,
+    fromCache: false,
+    rawLogPath: null,
+    httpStatus: 0,
+    endpoint: cfg.operation,
+    fetchedAt: new Date().toISOString(),
+    message: '',
+  };
+
+  return {
+    ...base,
+    status: matches.length ? 'OK' : 'EMPTY_RESULT',
+    message: matches.length
+      ? `${matches.length} match(es) for "${word}" after scanning ${scanned} record(s) ` +
+        '(server-side keyword search is not functional on this endpoint; matched client-side)'
+      : `No record titled "${word}" found after scanning ${scanned} of ${totalCount || 'unknown'} record(s).`,
+    records: matches,
+    query: word,
+  };
+}
+
 /**
  * The authoritative check: does KCISA actually know this word as a KSL entry?
  * A hit here is what allows the word into a script at all.
@@ -375,7 +450,7 @@ export async function searchKslAllPages(
 export async function lookupWord(
   word: string,
 ): Promise<{ result: KcisaSearchResult; exact: KslRecord | null }> {
-  const result = await searchKslAllPages(word, 100);
+  const result = await scanKslByWord(word);
   if (result.status !== 'OK') return { result, exact: null };
   const norm = (s: string) => s.replace(/\s+/g, '').toLowerCase();
   const exact =

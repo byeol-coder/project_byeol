@@ -114,6 +114,36 @@ function testAdapter(): void {
   check('matches the searched word', recordMatchesWord(record, '커피'));
   check('does not match an unrelated word', !recordMatchesWord(record, '지하철'));
 
+  // Real getCTE01701 shape, captured 2026-08-19 (see .cache/kcisa-raw/): flat
+  // XML fields, not the nested JSON envelope tested above. description is
+  // always empty on this endpoint; signDescription carries the real text, and
+  // subDescription is a video file URL, not a description — a real bug this
+  // guards against regressing.
+  const realShapeXml = `<response><header><resultCode>0000</resultCode><resultMsg>OK</resultMsg></header>
+<body><totalCount>3754</totalCount><items><item>
+<title>승려,스님</title><alternativeTitle></alternativeTitle><creator>누리집</creator>
+<collectionDb>일상생활수어</collectionDb><description></description>
+<referenceIdentifier>http://sldict.korean.go.kr/multimedia/multimedia_files/convert/20160325/277326/MOV000275724_215X161.jpg</referenceIdentifier>
+<url>http://sldict.korean.go.kr/front/sign/signContentsView.do?top_category=CTE&amp;origin_no=10773</url>
+<subDescription>http://sldict.korean.go.kr/multimedia/multimedia_files/convert/20160325/277326/MOV000275724_700X466.mp4</subDescription>
+<signDescription>오른 주먹의 1지를 펴서 바닥을 이마 중앙에 댔다가 내리며 1지를 접고 5지를 펴서 왼 손바닥에 세운다.</signDescription>
+<signImages>http://a/IMG1.jpg,http://a/IMG2.jpg</signImages>
+</item></items></body></response>`;
+  const parsedReal = parsePayload(realShapeXml, 'text/xml');
+  const envReal = extractEnvelope(parsedReal!.value);
+  const { record: realRecord } = normalizeRecord(envReal.items[0]!, 'getCTE01701', 0);
+  check('real shape: title reads multi-synonym field as-is', realRecord.title === '승려,스님', realRecord.title);
+  check('real shape: description stays empty, not the video URL', realRecord.description === '', realRecord.description);
+  check(
+    'real shape: handshapeDescription reads signDescription, not subDescription',
+    realRecord.handshapeDescription.startsWith('오른 주먹'),
+    realRecord.handshapeDescription,
+  );
+  check('real shape: videoUrl reads the actual mp4, not the webpage link', realRecord.videoUrl.endsWith('.mp4'), realRecord.videoUrl);
+  check('real shape: imageUrl takes the first of a comma-separated list', realRecord.imageUrl === 'http://a/IMG1.jpg', realRecord.imageUrl);
+  check('real shape: id is extracted from url\'s origin_no, not the thumbnail path', realRecord.id === 'KCISA-10773', realRecord.id);
+  check('real shape: comma-separated title still matches a synonym inside it', recordMatchesWord(realRecord, '스님'));
+
   const xmlEnvelope = `<?xml version="1.0" encoding="UTF-8"?>
 <response><header><resultCode>00</resultCode><resultMsg>NORMAL SERVICE</resultMsg></header>
 <body><totalCount>1</totalCount><items><item>

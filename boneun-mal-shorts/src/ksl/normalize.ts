@@ -15,32 +15,53 @@ import type { KslRecord } from '../types.js';
 // do not guess a mapping and do not fabricate a value.
 // ---------------------------------------------------------------------------
 
+// Confirmed against a real getCTE01701 response on 2026-08-19 (see
+// .cache/kcisa-raw/, npm run ksl:probe): `description` is always empty in this
+// dataset; the real hand-motion text lives in `signDescription`. `subDescription`
+// is NOT a text description — it is the actual sign-language video file URL
+// (…_700X466.mp4). `referenceIdentifier` is a thumbnail image URL, not a content
+// id; the real per-record id is the `origin_no` query param embedded in `url`
+// (extracted separately in normalizeRecord, not via FIELD_CANDIDATES). `signImages`
+// holds a comma-separated list of step images. Candidate lists below still list
+// plausible alternates first for other KCISA operations that may use different
+// field names — do not delete the fallbacks on the strength of one endpoint.
 export const FIELD_CANDIDATES = {
   id: [
     'localId',
-    'referenceIdentifier',
     'identifier',
     'id',
     'cid',
     'contentId',
     'seq',
     'rnum',
+    'referenceIdentifier',
   ],
   title: ['title', 'alternativeTitle', 'name', 'subjectName', 'word', 'headWord'],
-  description: ['description', 'subDescription', 'content', 'contents', 'explain', 'meaning'],
+  description: ['description', 'content', 'contents', 'explain', 'meaning'],
   handshapeDescription: [
-    'subDescription',
+    'signDescription',
     'handShape',
     'handshape',
     'gesture',
     'motion',
-    'signDescription',
     'howTo',
     'description2',
     'etc',
+    'subDescription',
   ],
-  imageUrl: ['imageObject', 'imageUrl', 'image', 'thumbnail', 'thumbnailUrl', 'photo'],
-  videoUrl: ['url', 'videoUrl', 'movieUrl', 'mediaUrl', 'link', 'homepageUrl', 'viewUrl'],
+  imageUrl: ['signImages', 'imageObject', 'imageUrl', 'image', 'thumbnail', 'thumbnailUrl', 'photo'],
+  videoUrl: [
+    'subDescription',
+    'videoUrl',
+    'movieUrl',
+    'mediaUrl',
+    'signVideo',
+    'clipUrl',
+    'url',
+    'link',
+    'homepageUrl',
+    'viewUrl',
+  ],
   location: [
     'spatialCoverage',
     'location',
@@ -243,11 +264,25 @@ export function normalizeRecord(
   const title = pick('title');
   const description = pick('description');
   const handshapeDescription = pick('handshapeDescription');
-  const imageUrl = pick('imageUrl');
+  let imageUrl = pick('imageUrl');
   const videoUrl = pick('videoUrl');
   const location = pick('location');
   let id = pick('id');
-  if (!id) id = title ? `title:${title}` : `index:${fallbackIndex}`;
+
+  // signImages is a comma-separated list of step images; take the first as
+  // the representative one rather than passing the whole list through.
+  if (imageUrl.includes(',')) imageUrl = imageUrl.split(',')[0]!.trim();
+
+  // The real per-record identifier on this endpoint is embedded in the `url`
+  // field as origin_no=NNNN, not any field FIELD_CANDIDATES can name directly.
+  const urlField = index.get(normKey('url'));
+  const originNo = urlField ? /origin_no=(\d+)/.exec(urlField.value)?.[1] : undefined;
+  if (originNo) {
+    id = `KCISA-${originNo}`;
+    mappedFrom['id'] = 'url(origin_no)';
+  } else if (!id) {
+    id = title ? `title:${title}` : `index:${fallbackIndex}`;
+  }
 
   return {
     record: {
