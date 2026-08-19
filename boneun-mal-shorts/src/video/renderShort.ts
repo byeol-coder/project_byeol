@@ -124,7 +124,9 @@ function wrapToWidth(text: string, fontSizePx: number, maxWidthPx: number): stri
 
 /**
  * Typographic card for beats with no footage. Korean big, English small beneath.
- * Deliberately plain: solid ground, one accent, no gradient, no motion.
+ * Deliberately plain: solid ground, one accent, no gradient — no neon motion
+ * graphics. A short fade-in on the text is the one concession to motion, so a
+ * run of cards doesn't read as a slideshow of frozen frames.
  */
 function cardFilters(
   segment: TimelineSegment,
@@ -214,6 +216,12 @@ function cardFilters(
       'x=(w-text_w)/2',
       `y=${t.yPx}`,
       'line_spacing=14',
+      // Comma inside the expression must be backslash-escaped: drawtext's own
+      // option list is colon-separated, but the enclosing filter chain still
+      // splits on comma, and min(...) needs one. Fades in over the card's
+      // first 0.35s — `t` is local to this segment's own lavfi input, not the
+      // whole timeline, so every card gets its own quiet entrance.
+      "alpha='min(t/0.35\,1)'",
       // Not 'text_shaping': that drawtext option only exists on some
       // libfreetype/harfbuzz builds (present on FFmpeg 6.1 here, absent on a
       // stock FFmpeg 9 + Homebrew ffmpeg-full build) and fails hard with
@@ -267,27 +275,50 @@ export async function renderShort(opts: RenderOptions): Promise<RenderResult> {
       // part of the sign. B-roll may be cropped to fill, it holds no hands.
       const isSigning = segment.protectsSigningSpace;
       inputs.push('-ss', segment.sourceInPointSeconds.toFixed(3), '-t', d, '-i', segment.sourceFile!);
-      const fit = isSigning
-        ? [
-            `scale=${width}:${height}:force_original_aspect_ratio=decrease`,
-            `pad=${width}:${height}:(ow-iw)/2:(oh-ih)/2:color=${hexToFfmpeg(color('inkBlack'))}`,
-          ]
-        : [
-            `scale=${width}:${height}:force_original_aspect_ratio=increase`,
-            `crop=${width}:${height}`,
-          ];
-      const chain = [
-        ...fit,
-        `fps=${fps}`,
-        'setsar=1',
-        // Hold the last frame if the source is a hair short, so the sign is
-        // never sped up or cut mid-motion to hit a duration.
+
+      // Duration handling first — hold the last frame if the source is a hair
+      // short, so the sign is never sped up or cut mid-motion to hit a
+      // duration — then everyone downstream works with a clean, on-time base.
+      const base = [
         `tpad=stop_mode=clone:stop_duration=${d}`,
         `trim=duration=${d}`,
         'setpts=PTS-STARTPTS',
-        'format=yuv420p',
+        `fps=${fps}`,
+        'setsar=1',
       ].join(',');
-      filters.push(`[${inputIndex}:v]${chain}[${label}]`);
+      filters.push(`[${inputIndex}:v]${base}[v${i}base]`);
+
+      if (isSigning) {
+        // KCISA/사전 clips are often a small fixed size (e.g. 700×466) and
+        // letterboxing them onto a flat colour reads as a small window
+        // floating in a box. Fill the frame with a blurred, darkened copy of
+        // the same footage instead — the sign itself stays untouched, fitted
+        // and uncropped, just with a full-bleed backdrop behind it.
+        filters.push(`[v${i}base]split=2[v${i}bgsrc][v${i}fgsrc]`);
+        filters.push(
+          [
+            `[v${i}bgsrc]scale=${width}:${height}:force_original_aspect_ratio=increase`,
+            `crop=${width}:${height}`,
+            'gblur=sigma=42',
+            'eq=brightness=-0.12:saturation=0.75',
+          ].join(',') + `[v${i}bg]`,
+        );
+        filters.push(
+          `[v${i}fgsrc]scale=${width}:${height}:force_original_aspect_ratio=decrease[v${i}fg]`,
+        );
+        filters.push(
+          `[v${i}bg][v${i}fg]overlay=(W-w)/2:(H-h)/2:format=auto,setsar=1,format=yuv420p[${label}]`,
+        );
+      } else {
+        filters.push(
+          [
+            `[v${i}base]scale=${width}:${height}:force_original_aspect_ratio=increase`,
+            `crop=${width}:${height}`,
+            'setsar=1',
+            'format=yuv420p',
+          ].join(',') + `[${label}]`,
+        );
+      }
     }
     inputIndex += 1;
   });

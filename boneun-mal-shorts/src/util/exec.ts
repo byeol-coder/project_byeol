@@ -65,7 +65,18 @@ export async function ffmpegFilters(): Promise<Set<string>> {
   return names;
 }
 
-export const REQUIRED_FILTERS = ['drawtext', 'subtitles', 'concat', 'scale', 'crop', 'pad', 'tpad'] as const;
+export const REQUIRED_FILTERS = [
+  'drawtext',
+  'subtitles',
+  'concat',
+  'scale',
+  'crop',
+  'tpad',
+  'split',
+  'overlay',
+  'gblur',
+  'eq',
+] as const;
 
 export interface FilterSupport {
   ok: boolean;
