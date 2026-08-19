@@ -26,11 +26,11 @@
     "defaultTargetSeconds": 22
   },
   "safeArea": {
-    "comment": "Regions that burn-in text, logos and graphics must never enter. Bottom/right reserve YouTube Shorts UI.",
+    "comment": "Regions that burn-in text, logos and graphics must never enter. Bottom reserves YouTube Shorts UI (title/progress bar). Left/right are kept EQUAL so burn-in text stays visually centered on screen — a wider right margin alone (previously 220 vs 72) pushes the ASS centered anchor left of true screen-centre, not just clear of the right-side icon column.",
     "topPx": 180,
     "bottomPx": 340,
-    "leftPx": 72,
-    "rightPx": 220
+    "leftPx": 140,
+    "rightPx": 140
   },
   "signingSpace": {
     "comment": "On KSL segments nothing may be drawn inside this band: it holds face, upper body and both hands.",
