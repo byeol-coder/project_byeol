@@ -1,0 +1,228 @@
+{
+  "brand": {
+    "nameKo": "보이는 말",
+    "nameEn": "BONEUN MAL",
+    "descriptor": "Korean Sign Language · Deaf Culture · Korea"
+  },
+  "createdAt": "2026-08-19T01:23:09.173Z",
+  "slug": "2026-08-19-커피",
+  "topic": "커피",
+  "topicId": "ksign-coffee",
+  "series": "K-SIGN",
+  "mode": "preview",
+  "durationSeconds": 22,
+  "script": {
+    "topicId": "ksign-coffee",
+    "topic": "커피",
+    "series": "K-SIGN",
+    "hookKo": "카페에서 자주 쓰는 말.",
+    "hookEn": "One you'll use in every café.",
+    "bodyKo": [
+      "오늘은 커피.",
+      "한국수어로는?"
+    ],
+    "bodyEn": [
+      "Today: coffee.",
+      "In Korean Sign Language?"
+    ],
+    "kslWord": "커피",
+    "kslWords": [
+      "커피"
+    ],
+    "pointKo": "손 모양이 컵을 닮았습니다.",
+    "pointEn": "The hand keeps the shape of the cup.",
+    "endingKo": "보이는 말",
+    "endingEn": "BONEUN MAL",
+    "ctaKo": "다음엔 어떤 말을 볼까요?",
+    "ctaEn": "Which word next?",
+    "durationTarget": 22,
+    "structureVariant": "question-answer",
+    "commercial": {
+      "commercial": false,
+      "affiliate": false,
+      "sponsor": null,
+      "product": null,
+      "disclosureKo": null,
+      "disclosureEn": null
+    }
+  },
+  "ksl": {
+    "words": [
+      "커피"
+    ],
+    "matches": [
+      {
+        "word": "커피",
+        "status": "NEEDS_KSL_RECORDING",
+        "clip": null,
+        "kcisaRecord": null,
+        "kcisaMatch": "FAIL",
+        "problems": [
+          "KCISA lookup unavailable (MISSING_SERVICE_KEY): KCISA_SERVICE_KEY is not set. Add it to .env (see .env.example). No sign language data is invented in its absence."
+        ]
+      }
+    ],
+    "source": "NONE",
+    "apiMatch": "FAIL",
+    "verifiedHumanClip": "NO",
+    "kcisaEndpoint": "getCTE01701",
+    "kcisaFetchedAt": null
+  },
+  "commercial": {
+    "commercial": false,
+    "affiliate": false,
+    "sponsor": null,
+    "product": null,
+    "disclosureKo": null,
+    "disclosureEn": null
+  },
+  "youtube": {
+    "title": "한국수어로 \"커피\" 🤟 | KSL",
+    "description": "PREVIEW — not for publication. A verified human KSL clip is still required.\n\n카페에서 자주 쓰는 말. 오늘은 커피. 한국수어로는?\n\nOne you'll use in every café. Today: coffee. In Korean Sign Language?\n\n손 모양이 컵을 닮았습니다.\nThe hand keeps the shape of the cup.\n\n수어 / Sign: 커피 (한국수어 · Korean Sign Language)\n영상 속 수어는 실제 농인·수어 사용자가 직접 촬영한 영상입니다.\nThe signing in this video is performed by a real person. No AI-generated signing.\n수어 참고 자료 / Reference: 문화체육관광부·KCISA 한국수어 OpenAPI\n\n보이는 말 · BONEUN MAL\nKorean Sign Language · Deaf Culture · Korea\n\n#KSL #한국수어 #Shorts #DeafCulture #KoreanSignLanguage",
+    "hashtags": [
+      "#KSL",
+      "#한국수어",
+      "#Shorts",
+      "#DeafCulture",
+      "#KoreanSignLanguage"
+    ],
+    "tags": [
+      "한국수어",
+      "KSL",
+      "Korean Sign Language",
+      "Korean culture",
+      "커피",
+      "BONEUN MAL",
+      "보이는 말"
+    ],
+    "categoryId": "22",
+    "defaultLanguage": "ko",
+    "defaultAudioLanguage": "ko",
+    "privacyStatus": "private",
+    "madeForKids": false
+  },
+  "files": {
+    "video": "shorts.mp4",
+    "thumbnail": "thumbnail.jpg",
+    "metadata": "metadata.json",
+    "script.ko": "script.ko.txt",
+    "script.en": "script.en.txt",
+    "captions.ko": "captions.ko.srt",
+    "captions.en": "captions.en.srt",
+    "report": "verification-report.md"
+  },
+  "verification": {
+    "checks": [
+      {
+        "name": "resolution",
+        "state": "PASS",
+        "detail": "1080×1920"
+      },
+      {
+        "name": "aspect ratio",
+        "state": "PASS",
+        "detail": "9:16 (SAR 1:1)"
+      },
+      {
+        "name": "frame rate",
+        "state": "PASS",
+        "detail": "30fps"
+      },
+      {
+        "name": "duration",
+        "state": "PASS",
+        "detail": "22.00s (allowed 15–45s)"
+      },
+      {
+        "name": "audio track",
+        "state": "PASS",
+        "detail": "aac present"
+      },
+      {
+        "name": "video codec",
+        "state": "PASS",
+        "detail": "h264"
+      },
+      {
+        "name": "audio codec",
+        "state": "PASS",
+        "detail": "aac"
+      },
+      {
+        "name": "black frames",
+        "state": "PASS",
+        "detail": "none ≥0.4s"
+      },
+      {
+        "name": "KSL API source",
+        "state": "FAIL",
+        "detail": "no KCISA lookup is recorded for this video"
+      },
+      {
+        "name": "KCISA sign match",
+        "state": "FAIL",
+        "detail": "at least one sign has no KCISA entry"
+      },
+      {
+        "name": "verified human KSL clip",
+        "state": "FAIL",
+        "detail": "no verified human clip — publishing is blocked. Record the sign; never generate it."
+      },
+      {
+        "name": "Korean captions",
+        "state": "PASS",
+        "detail": "6 cue(s)"
+      },
+      {
+        "name": "English captions",
+        "state": "PASS",
+        "detail": "6 cue(s)"
+      },
+      {
+        "name": "subtitle safe area",
+        "state": "PASS",
+        "detail": "burn-in occupies 1425–1572px: below the signing space (ends 1420px) and above the Shorts UI reserve (starts 1580px)"
+      },
+      {
+        "name": "output files",
+        "state": "PASS",
+        "detail": "7 file(s) present"
+      },
+      {
+        "name": "metadata",
+        "state": "PASS",
+        "detail": "\"한국수어로 \"커피\" 🤟 | KSL\""
+      },
+      {
+        "name": "copyright check",
+        "state": "PASS",
+        "detail": "no music track — nothing to clear"
+      },
+      {
+        "name": "commercial disclosure",
+        "state": "SKIP",
+        "detail": "not commercial content"
+      },
+      {
+        "name": "tone guard",
+        "state": "PASS",
+        "detail": "no generalising claims about Deaf people"
+      },
+      {
+        "name": "brand ending",
+        "state": "PASS",
+        "detail": "보이는 말 / BONEUN MAL"
+      }
+    ],
+    "kslSource": "NONE",
+    "kslApiMatch": "FAIL",
+    "verifiedHumanClip": "NO",
+    "publishReady": false,
+    "blockers": [
+      "KSL API source: no KCISA lookup is recorded for this video",
+      "KCISA sign match: at least one sign has no KCISA entry",
+      "verified human KSL clip: no verified human clip — publishing is blocked. Record the sign; never generate it."
+    ]
+  },
+  "publishReady": false
+}

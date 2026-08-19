@@ -28,3 +28,13 @@ coverage/
 *.log
 .vscode/
 .idea/
+
+# boneun-mal-shorts (KSL Shorts pipeline)
+boneun-mal-shorts/node_modules/
+boneun-mal-shorts/output/*
+!boneun-mal-shorts/output/.gitkeep
+boneun-mal-shorts/.cache/
+boneun-mal-shorts/.env
+boneun-mal-shorts/.env.local
+credentials/
+tokens/

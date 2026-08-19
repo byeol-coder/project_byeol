@@ -1,0 +1,79 @@
+{
+  "canvas": {
+    "width": 1080,
+    "height": 1920,
+    "aspect": "9:16",
+    "fps": 30
+  },
+  "encode": {
+    "videoCodec": "libx264",
+    "pixelFormat": "yuv420p",
+    "preset": "medium",
+    "crf": 19,
+    "profile": "high",
+    "level": "4.0",
+    "audioCodec": "aac",
+    "audioBitrate": "192k",
+    "audioSampleRate": 48000,
+    "loudnormIntegrated": -14,
+    "loudnormTruePeak": -1.5,
+    "loudnormRange": 11,
+    "faststart": true
+  },
+  "duration": {
+    "minSeconds": 15,
+    "maxSeconds": 45,
+    "defaultTargetSeconds": 22
+  },
+  "safeArea": {
+    "comment": "Regions that burn-in text, logos and graphics must never enter. Bottom/right reserve YouTube Shorts UI.",
+    "topPx": 180,
+    "bottomPx": 340,
+    "leftPx": 72,
+    "rightPx": 220
+  },
+  "signingSpace": {
+    "comment": "On KSL segments nothing may be drawn inside this band: it holds face, upper body and both hands.",
+    "topPx": 300,
+    "bottomPx": 1420,
+    "leftPx": 0,
+    "rightPx": 1080,
+    "minVisibleBodyParts": [
+      "face",
+      "upperBody",
+      "bothHands"
+    ]
+  },
+  "subtitle": {
+    "burnIn": {
+      "enabled": true,
+      "maxKoCharsPerCue": 14,
+      "maxEnCharsPerCue": 34,
+      "koFontSizePx": 76,
+      "enFontSizePx": 40,
+      "marginBottomPx": 348,
+      "outlinePx": 2,
+      "shadowPx": 3,
+      "plateOpacity": 0.0,
+      "lineGapPx": 8
+    },
+    "sidecar": {
+      "ko": "captions.ko.srt",
+      "en": "captions.en.srt"
+    }
+  },
+  "transitions": {
+    "allowed": [
+      "cut",
+      "fade"
+    ],
+    "fadeSeconds": 0.18,
+    "maxFadesPerVideo": 3
+  },
+  "audio": {
+    "musicGainDb": -19,
+    "duckUnderKslDb": -3,
+    "requireCopyrightCleared": true,
+    "allowTts": false
+  }
+}

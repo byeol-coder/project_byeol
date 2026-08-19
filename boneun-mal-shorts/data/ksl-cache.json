@@ -1,0 +1,5 @@
+{
+  "_comment": "KCISA OpenAPI response cache. Written by src/api/kcisa.ts. Delete this file to force a refetch. Entries are only ever created from real API responses — never hand-written, never synthesised.",
+  "_schemaVersion": 1,
+  "entries": {}
+}

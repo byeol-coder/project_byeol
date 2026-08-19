@@ -1,0 +1,5 @@
+{
+  "_comment": "Filled in after publishing. selectTopic.ts reads it to bias future priority; it never lets metrics override KSL accuracy or Deaf Pride tone.",
+  "_schemaVersion": 1,
+  "entries": []
+}

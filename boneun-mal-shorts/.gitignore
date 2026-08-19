@@ -1,0 +1,40 @@
+# Local secrets — never commit
+.env
+.env.local
+credentials/
+tokens/
+client_secret*.json
+
+# Dependencies / build
+node_modules/
+
+# Rendered media + working caches are reproducible output, not source.
+# samples/ holds one committed example so the repo shows what an output folder
+# looks like; everything in output/ is regenerable.
+output/*
+!output/.gitkeep
+.cache/
+*.log
+
+# Real media assets live outside git: they are large and rights-managed, and the
+# KSL clips carry signers' consent. Ignore the media by extension so the folder
+# structure, metadata sidecars and READMEs stay tracked.
+assets/**/*.mp4
+assets/**/*.mov
+assets/**/*.m4v
+assets/**/*.webm
+assets/**/*.mkv
+assets/**/*.jpg
+assets/**/*.jpeg
+assets/**/*.png
+assets/**/*.webp
+assets/**/*.svg
+assets/**/*.mp3
+assets/**/*.m4a
+assets/**/*.aac
+assets/**/*.wav
+assets/**/*.flac
+assets/**/*.ogg
+
+# Keep the asset folder structure in git even though the media itself is not.
+!**/.gitkeep

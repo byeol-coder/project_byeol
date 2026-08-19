@@ -1,0 +1,63 @@
+{
+  "brandNameKo": "보이는 말",
+  "brandNameEn": "BONEUN MAL",
+  "descriptor": "Korean Sign Language · Deaf Culture · Korea",
+  "descriptorKo": "한국수어 · 농인 문화 · 한국",
+  "handle": "@boneunmal",
+  "colors": {
+    "warmIvory": "#F4EFE6",
+    "inkBlack": "#14110F",
+    "mutedKoreanRed": "#B23A32",
+    "deepNavy": "#1B2A3A",
+    "stone": "#8C857B"
+  },
+  "accentPolicy": {
+    "maxAccentColorsPerVideo": 2,
+    "defaultAccent": "mutedKoreanRed",
+    "alternateAccent": "deepNavy"
+  },
+  "typography": {
+    "koreanFontFamily": "Noto Sans CJK KR",
+    "koreanFontFileCandidates": [
+      "/usr/share/fonts/opentype/noto/NotoSansCJK-Bold.ttc",
+      "/usr/share/fonts/truetype/nanum/NanumSquareRoundEB.ttf",
+      "/System/Library/Fonts/AppleSDGothicNeo.ttc",
+      "C:/Windows/Fonts/malgunbd.ttf"
+    ],
+    "latinFontFamily": "Noto Sans CJK KR",
+    "hierarchy": {
+      "koreanIsPrimary": true,
+      "koreanSizePx": 96,
+      "englishSizePx": 46,
+      "brandKoSizePx": 104,
+      "brandEnSizePx": 40,
+      "descriptorSizePx": 30
+    }
+  },
+  "ending": {
+    "minSeconds": 0.7,
+    "maxSeconds": 1.2,
+    "showDescriptor": true
+  },
+  "tone": {
+    "avoid": [
+      "pity",
+      "overcoming-narrative",
+      "inspiration-porn",
+      "forced-emotion",
+      "public-service-announcement voice",
+      "disability-explainer"
+    ],
+    "aim": [
+      "pride",
+      "culture",
+      "language",
+      "identity",
+      "lifestyle",
+      "humor",
+      "korea",
+      "connection",
+      "visual communication"
+    ]
+  }
+}

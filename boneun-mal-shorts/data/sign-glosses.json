@@ -1,0 +1,27 @@
+{
+  "_comment": "Human-authored English glosses for the signs used on screen. A gloss is a subtitle, not a translation of the sign's grammar. Add a word here and the sign card gains its English line.",
+  "_schemaVersion": 1,
+  "glosses": {
+    "커피": "COFFEE",
+    "맛있다": "DELICIOUS",
+    "밥": "RICE / A MEAL",
+    "먹다": "EAT",
+    "감사": "THANK YOU",
+    "친구": "FRIEND",
+    "함께": "TOGETHER",
+    "물": "WATER",
+    "사랑": "LOVE",
+    "여행": "TRAVEL",
+    "시계": "WATCH",
+    "회의": "MEETING",
+    "대화": "CONVERSATION",
+    "어디": "WHERE",
+    "카페": "CAFÉ",
+    "시장": "MARKET",
+    "바다": "THE SEA",
+    "부산": "BUSAN",
+    "안녕": "HELLO",
+    "가족": "FAMILY",
+    "좋다": "GOOD"
+  }
+}

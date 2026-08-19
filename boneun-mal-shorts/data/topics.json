@@ -1,0 +1,446 @@
+{
+  "_comment": "Human-authored topic seeds. The generator assembles copy from these lines; it does not write Korean from scratch and it never writes sign language. status: unused | used | retired | needs-ksl. Add new rows freely.",
+  "_schemaVersion": 1,
+  "topics": [
+    {
+      "id": "ksign-coffee",
+      "topic": "커피",
+      "series": "K-SIGN",
+      "priority": 5,
+      "status": "unused",
+      "kslWords": ["커피"],
+      "place": "서울 카페",
+      "brollTags": ["cafe", "seoul"],
+      "copy": {
+        "hookKo": "카페에서 자주 쓰는 말.",
+        "hookEn": "One you'll use in every café.",
+        "beatsKo": ["오늘은 커피.", "한국수어로는?"],
+        "beatsEn": ["Today: coffee.", "In Korean Sign Language?"],
+        "pointKo": "손 모양이 컵을 닮았습니다.",
+        "pointEn": "The hand keeps the shape of the cup.",
+        "ctaKo": "다음엔 어떤 말을 볼까요?",
+        "ctaEn": "Which word next?"
+      }
+    },
+    {
+      "id": "ksign-delicious",
+      "topic": "맛있다",
+      "series": "K-SIGN",
+      "priority": 5,
+      "status": "unused",
+      "kslWords": ["맛있다"],
+      "place": "광장시장",
+      "brollTags": ["food", "street"],
+      "copy": {
+        "hookKo": "한국에서는 이렇게 말합니다.",
+        "hookEn": "How Koreans say it.",
+        "beatsKo": ["맛있다.", "한 번 보면 기억하기 쉽습니다."],
+        "beatsEn": ["Delicious.", "Hard to forget once you've seen it."],
+        "pointKo": "말보다 표정이 먼저 옵니다.",
+        "pointEn": "The face says it before the hand does.",
+        "ctaKo": "",
+        "ctaEn": "Save this sign."
+      }
+    },
+    {
+      "id": "ksign-did-you-eat",
+      "topic": "밥 먹었어?",
+      "series": "K-SIGN",
+      "priority": 4,
+      "status": "unused",
+      "kslWords": ["밥", "먹다"],
+      "place": "동네 골목",
+      "brollTags": ["street", "food"],
+      "copy": {
+        "hookKo": "한국에서 친구 만나면 가장 먼저 하는 말.",
+        "hookEn": "The first thing a Korean friend asks you.",
+        "beatsKo": ["밥 먹었어?", "인사입니다."],
+        "beatsEn": ["Did you eat?", "It's a greeting."],
+        "pointKo": "안부를 묻는 한국식 방법.",
+        "pointEn": "A very Korean way of saying hello.",
+        "ctaKo": "",
+        "ctaEn": ""
+      }
+    },
+    {
+      "id": "ksign-thanks",
+      "topic": "감사",
+      "series": "K-SIGN",
+      "priority": 4,
+      "status": "unused",
+      "kslWords": ["감사"],
+      "place": "편의점",
+      "brollTags": ["street", "seoul"],
+      "copy": {
+        "hookKo": "하루에 몇 번은 쓰게 됩니다.",
+        "hookEn": "You'll need this one daily.",
+        "beatsKo": ["감사.", "한국수어로."],
+        "beatsEn": ["Thank you.", "In Korean Sign Language."],
+        "pointKo": "짧게 해도 충분히 전해집니다.",
+        "pointEn": "Short version works too.",
+        "ctaKo": "",
+        "ctaEn": ""
+      }
+    },
+    {
+      "id": "ksign-friend",
+      "topic": "친구",
+      "series": "K-SIGN",
+      "priority": 4,
+      "status": "unused",
+      "kslWords": ["친구"],
+      "place": "한강",
+      "brollTags": ["hanriver", "street"],
+      "copy": {
+        "hookKo": "이 표현, 한국수어로 보면 조금 다릅니다.",
+        "hookEn": "This one looks different in KSL.",
+        "beatsKo": ["친구.", "두 손이 만납니다."],
+        "beatsEn": ["Friend.", "Two hands meet."],
+        "pointKo": "관계가 손 안에서 보입니다.",
+        "pointEn": "You can see the relationship in the hands.",
+        "ctaKo": "",
+        "ctaEn": ""
+      }
+    },
+    {
+      "id": "ksign-together",
+      "topic": "함께",
+      "series": "K-SIGN",
+      "priority": 3,
+      "status": "unused",
+      "kslWords": ["함께"],
+      "place": "성수",
+      "brollTags": ["street", "cafe"],
+      "copy": {
+        "hookKo": "혼자보다 자주 쓰는 말.",
+        "hookEn": "Used more often than you'd think.",
+        "beatsKo": ["함께.", "같이 간다는 뜻."],
+        "beatsEn": ["Together.", "We go together."],
+        "pointKo": "두 손이 같은 방향으로 움직입니다.",
+        "pointEn": "Both hands travel the same way.",
+        "ctaKo": "",
+        "ctaEn": ""
+      }
+    },
+    {
+      "id": "ksign-water",
+      "topic": "물",
+      "series": "K-SIGN",
+      "priority": 3,
+      "status": "unused",
+      "kslWords": ["물"],
+      "place": "식당",
+      "brollTags": ["food", "cafe"],
+      "copy": {
+        "hookKo": "식당에서 제일 먼저 필요한 말.",
+        "hookEn": "The first thing you'll ask for at a restaurant.",
+        "beatsKo": ["물.", "이건 바로 통합니다."],
+        "beatsEn": ["Water.", "This one lands instantly."],
+        "pointKo": "소리 없이도 주문이 됩니다.",
+        "pointEn": "You can order without a sound.",
+        "ctaKo": "",
+        "ctaEn": ""
+      }
+    },
+    {
+      "id": "ksign-love",
+      "topic": "사랑",
+      "series": "K-SIGN",
+      "priority": 3,
+      "status": "unused",
+      "kslWords": ["사랑"],
+      "place": "서울 거리",
+      "brollTags": ["street", "seoul"],
+      "copy": {
+        "hookKo": "생각하는 모양과 다를 수 있습니다.",
+        "hookEn": "Probably not the shape you expected.",
+        "beatsKo": ["사랑.", "한국수어로는 이렇게."],
+        "beatsEn": ["Love.", "This is the Korean sign."],
+        "pointKo": "나라마다 수어가 다릅니다.",
+        "pointEn": "Sign languages differ by country.",
+        "ctaKo": "",
+        "ctaEn": ""
+      }
+    },
+    {
+      "id": "pick-travel-kit",
+      "topic": "농인이 여행할 때 챙기는 것",
+      "series": "DEAF PICK",
+      "priority": 4,
+      "status": "unused",
+      "kslWords": ["여행"],
+      "place": "공항",
+      "brollTags": ["travel", "street"],
+      "copy": {
+        "hookKo": "여행 가방에 꼭 들어가는 것.",
+        "hookEn": "What goes in the bag first.",
+        "beatsKo": ["진동 알람.", "메모 앱.", "번역 키보드."],
+        "beatsEn": ["Vibration alarm.", "A notes app.", "A translation keyboard."],
+        "pointKo": "소리로 알려주는 건 대신할 게 필요합니다.",
+        "pointEn": "Anything that only beeps needs a backup.",
+        "ctaKo": "",
+        "ctaEn": "What's in yours?"
+      }
+    },
+    {
+      "id": "pick-vibration-watch",
+      "topic": "진동 알림이 좋은 스마트워치",
+      "series": "DEAF PICK",
+      "priority": 3,
+      "status": "unused",
+      "kslWords": ["시계"],
+      "place": "지하철",
+      "brollTags": ["subway", "street"],
+      "copy": {
+        "hookKo": "손목이 알려주면 편합니다.",
+        "hookEn": "Easier when your wrist tells you.",
+        "beatsKo": ["진동 세기 조절.", "알람 반복.", "화면 항상 켜기."],
+        "beatsEn": ["Adjustable vibration.", "Repeating alarms.", "Always-on display."],
+        "pointKo": "세기 조절이 되는지가 제일 중요합니다.",
+        "pointEn": "Adjustable strength matters most.",
+        "ctaKo": "",
+        "ctaEn": ""
+      }
+    },
+    {
+      "id": "pick-meeting-apps",
+      "topic": "회의할 때 유용한 앱",
+      "series": "DEAF PICK",
+      "priority": 3,
+      "status": "unused",
+      "kslWords": ["회의"],
+      "place": "사무실",
+      "brollTags": ["street", "seoul"],
+      "copy": {
+        "hookKo": "회의 자막, 생각보다 쓸 만합니다.",
+        "hookEn": "Live captions in meetings — actually usable now.",
+        "beatsKo": ["실시간 자막.", "회의록 자동 저장.", "화자 구분."],
+        "beatsEn": ["Live captions.", "Auto transcript.", "Speaker labels."],
+        "pointKo": "완벽하진 않지만 회의를 따라갈 수 있습니다.",
+        "pointEn": "Not perfect. Enough to keep up.",
+        "ctaKo": "",
+        "ctaEn": ""
+      }
+    },
+    {
+      "id": "perks-loud-cafe",
+      "topic": "시끄러운 카페",
+      "series": "DEAF PERKS",
+      "priority": 5,
+      "status": "unused",
+      "kslWords": ["대화"],
+      "place": "성수 카페",
+      "brollTags": ["cafe", "street"],
+      "copy": {
+        "hookKo": "여기선 목소리를 높일 필요가 없습니다.",
+        "hookEn": "No need to raise your voice in here.",
+        "beatsKo": ["음악이 크든", "옆자리가 시끄럽든", "대화는 그대로."],
+        "beatsEn": ["Loud music,", "louder table next to us —", "conversation unchanged."],
+        "pointKo": "손으로 하는 대화는 볼륨이 없습니다.",
+        "pointEn": "A conversation in hands has no volume.",
+        "ctaKo": "",
+        "ctaEn": ""
+      }
+    },
+    {
+      "id": "perks-across-the-room",
+      "topic": "멀리 있는 친구",
+      "series": "DEAF PERKS",
+      "priority": 4,
+      "status": "unused",
+      "kslWords": ["친구"],
+      "place": "학교 운동장",
+      "brollTags": ["street", "seoul"],
+      "copy": {
+        "hookKo": "눈이 마주치면 대화가 시작됩니다.",
+        "hookEn": "Eye contact, and we're already talking.",
+        "beatsKo": ["운동장 반대편.", "부를 필요 없이."],
+        "beatsEn": ["Other side of the yard.", "No shouting needed."],
+        "pointKo": "거리는 문제가 안 됩니다.",
+        "pointEn": "Distance isn't the problem here.",
+        "ctaKo": "",
+        "ctaEn": ""
+      }
+    },
+    {
+      "id": "perks-concert",
+      "topic": "콘서트장에서 친구 찾기",
+      "series": "DEAF PERKS",
+      "priority": 3,
+      "status": "unused",
+      "kslWords": ["어디"],
+      "place": "공연장",
+      "brollTags": ["street", "seoul"],
+      "copy": {
+        "hookKo": "공연장에서 친구 찾는 법.",
+        "hookEn": "Finding your friend at a concert.",
+        "beatsKo": ["소리는 이미 꽉 찼고", "손을 들면 끝."],
+        "beatsEn": ["Sound is already maxed out.", "One raised hand does it."],
+        "pointKo": "이런 순간에는 수어가 더 빠릅니다.",
+        "pointEn": "In that moment, signing is just faster.",
+        "ctaKo": "",
+        "ctaEn": ""
+      }
+    },
+    {
+      "id": "signkorea-seongsu",
+      "topic": "성수",
+      "series": "SIGN KOREA",
+      "priority": 4,
+      "status": "unused",
+      "kslWords": ["카페"],
+      "place": "성수",
+      "brollTags": ["seoul", "cafe", "street"],
+      "copy": {
+        "hookKo": "오늘은 성수.",
+        "hookEn": "Today: Seongsu, Seoul.",
+        "beatsKo": ["카페.", "여기서 제일 많이 하는 말."],
+        "beatsEn": ["Café.", "The word you'll use most here."],
+        "pointKo": "동네마다 자주 쓰는 말이 다릅니다.",
+        "pointEn": "Every neighbourhood has its own most-used word.",
+        "ctaKo": "다음은 어디로 갈까요?",
+        "ctaEn": "Where next?"
+      }
+    },
+    {
+      "id": "signkorea-gwangjang",
+      "topic": "광장시장",
+      "series": "SIGN KOREA",
+      "priority": 4,
+      "status": "unused",
+      "kslWords": ["시장"],
+      "place": "광장시장",
+      "brollTags": ["food", "street"],
+      "copy": {
+        "hookKo": "시장에서 알아두면 좋은 수어.",
+        "hookEn": "Worth knowing at the market.",
+        "beatsKo": ["시장.", "그리고 하나 더."],
+        "beatsEn": ["Market.", "And one more."],
+        "pointKo": "가리키는 것만으로도 절반은 통합니다.",
+        "pointEn": "Pointing already gets you halfway.",
+        "ctaKo": "",
+        "ctaEn": ""
+      }
+    },
+    {
+      "id": "signkorea-jeju",
+      "topic": "제주",
+      "series": "SIGN KOREA",
+      "priority": 3,
+      "status": "unused",
+      "kslWords": ["바다"],
+      "place": "제주",
+      "brollTags": ["travel", "hanriver"],
+      "copy": {
+        "hookKo": "제주에서 제일 많이 본 것.",
+        "hookEn": "What you see most in Jeju.",
+        "beatsKo": ["바다.", "한국수어로."],
+        "beatsEn": ["The sea.", "In Korean Sign Language."],
+        "pointKo": "손이 파도를 그대로 따라갑니다.",
+        "pointEn": "The hand follows the wave.",
+        "ctaKo": "",
+        "ctaEn": ""
+      }
+    },
+    {
+      "id": "signkorea-busan",
+      "topic": "부산",
+      "series": "SIGN KOREA",
+      "priority": 3,
+      "status": "unused",
+      "kslWords": ["부산"],
+      "place": "부산",
+      "brollTags": ["travel", "street"],
+      "copy": {
+        "hookKo": "지역 이름에도 수어가 있습니다.",
+        "hookEn": "Cities have signs too.",
+        "beatsKo": ["부산.", "이렇게 표현합니다."],
+        "beatsEn": ["Busan.", "This is the sign."],
+        "pointKo": "도시마다 고유한 수어 이름이 있습니다.",
+        "pointEn": "Each city has its own name sign.",
+        "ctaKo": "",
+        "ctaEn": ""
+      }
+    },
+    {
+      "id": "ksign-hello",
+      "topic": "안녕",
+      "series": "K-SIGN",
+      "priority": 2,
+      "status": "unused",
+      "kslWords": ["안녕"],
+      "place": "서울 거리",
+      "brollTags": ["street", "seoul"],
+      "copy": {
+        "hookKo": "시작은 항상 이 말입니다.",
+        "hookEn": "Everything starts here.",
+        "beatsKo": ["안녕.", "한국수어로."],
+        "beatsEn": ["Hello.", "In Korean Sign Language."],
+        "pointKo": "",
+        "pointEn": "",
+        "ctaKo": "",
+        "ctaEn": ""
+      }
+    },
+    {
+      "id": "ksign-family",
+      "topic": "가족",
+      "series": "K-SIGN",
+      "priority": 2,
+      "status": "unused",
+      "kslWords": ["가족"],
+      "place": "집",
+      "brollTags": ["street", "food"],
+      "copy": {
+        "hookKo": "설명이 필요 없는 말.",
+        "hookEn": "Needs no explanation.",
+        "beatsKo": ["가족.", "한국수어로."],
+        "beatsEn": ["Family.", "In Korean Sign Language."],
+        "pointKo": "",
+        "pointEn": "",
+        "ctaKo": "",
+        "ctaEn": ""
+      }
+    },
+    {
+      "id": "ksign-travel",
+      "topic": "여행",
+      "series": "K-SIGN",
+      "priority": 2,
+      "status": "unused",
+      "kslWords": ["여행"],
+      "place": "서울역",
+      "brollTags": ["travel", "subway"],
+      "copy": {
+        "hookKo": "한국 여행에서 알아두면 좋은 말.",
+        "hookEn": "Worth knowing before you travel Korea.",
+        "beatsKo": ["여행.", "한국수어로."],
+        "beatsEn": ["Travel.", "In Korean Sign Language."],
+        "pointKo": "",
+        "pointEn": "",
+        "ctaKo": "",
+        "ctaEn": ""
+      }
+    },
+    {
+      "id": "ksign-good",
+      "topic": "좋다",
+      "series": "K-SIGN",
+      "priority": 2,
+      "status": "unused",
+      "kslWords": ["좋다"],
+      "place": "카페",
+      "brollTags": ["cafe", "street"],
+      "copy": {
+        "hookKo": "한 손으로 끝나는 말.",
+        "hookEn": "One hand is enough.",
+        "beatsKo": ["좋다.", "이건 금방 외웁니다."],
+        "beatsEn": ["Good.", "You'll remember this one."],
+        "pointKo": "",
+        "pointEn": "",
+        "ctaKo": "",
+        "ctaEn": ""
+      }
+    }
+  ]
+}

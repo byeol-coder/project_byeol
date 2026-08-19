@@ -1,0 +1,31 @@
+{
+  "name": "boneun-mal-shorts",
+  "version": "0.1.0",
+  "private": true,
+  "description": "보이는 말 / BONEUN MAL — Korean Sign Language · Deaf Culture Shorts pipeline",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "shorts": "tsx src/index.ts",
+    "shorts:random": "tsx src/index.ts --random",
+    "shorts:preview": "tsx src/index.ts --preview",
+    "ksl:search": "tsx scripts/ksl-search.ts",
+    "ksl:probe": "tsx scripts/ksl-probe.ts",
+    "ksl:library": "tsx scripts/ksl-library.ts",
+    "verify": "tsx scripts/verify-output.ts",
+    "youtube:upload": "tsx scripts/publish.ts",
+    "doctor": "tsx scripts/doctor.ts",
+    "selftest": "tsx scripts/selftest.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "fast-xml-parser": "^4.5.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2"
+  }
+}
